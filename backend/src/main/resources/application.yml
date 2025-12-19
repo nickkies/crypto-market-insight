@@ -43,10 +43,21 @@ management:
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
-    com.crypto.insight: DEBUG
+    com.crypto.market.insight: DEBUG
     org.hibernate.SQL: DEBUG
+
+# SpringDoc OpenAPI (Swagger)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
 
 # CORS (커스텀 설정용)
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  swagger:
+    server-url: ${SWAGGER_SERVER_URL:http://localhost:8080}
