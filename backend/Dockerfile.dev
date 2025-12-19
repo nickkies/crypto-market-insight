@@ -1,0 +1,29 @@
+# ===========================================
+# Backend Dockerfile (Development)
+# ===========================================
+# 핫리로드를 위한 개발용 Dockerfile
+# Spring Boot DevTools + Gradle continuous build
+
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+# Gradle Wrapper 복사 및 의존성 캐싱
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
+
+# Gradle Wrapper 실행 권한 부여
+RUN chmod +x ./gradlew
+
+# 의존성 미리 다운로드 (캐시 레이어)
+RUN ./gradlew dependencies --no-daemon || true
+
+# 소스코드는 볼륨 마운트로 처리
+
+EXPOSE 8080
+
+# Gradle continuous build로 핫리로드 지원
+# 변경 감지 시 자동 재빌드
+CMD ["./gradlew", "bootRun", "--continuous", "--no-daemon"]

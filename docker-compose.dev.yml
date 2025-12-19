@@ -1,0 +1,80 @@
+# ===========================================
+# Docker Compose - Full Stack (Development)
+# ===========================================
+# 전체 개발 환경 실행 (Frontend + Backend + Database)
+# 사용법: docker-compose -f docker-compose.dev.yml up -d
+#
+# 특정 서비스만 실행:
+# docker-compose -f docker-compose.dev.yml up -d db
+# docker-compose -f docker-compose.dev.yml up -d backend
+#
+# 로그 확인:
+# docker-compose -f docker-compose.dev.yml logs -f backend
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: crypto-market-insight-db
+    environment:
+      POSTGRES_DB: crypto_market_insight
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d crypto_market_insight']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: crypto-market-insight-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/crypto_insight
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      # JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: 'true'
+      # CORS
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./backend:/app
+      - gradle_cache:/home/gradle/.gradle
+    # Spring Boot DevTools 활성화를 위한 설정
+    stdin_open: true
+    tty: true
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: crypto-market-insight-frontend
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:8080
+      # Docker에서 파일 변경 감지 (WSL/Windows)
+      CHOKIDAR_USEPOLLING: 'true'
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+
+volumes:
+  db_data:
+  gradle_cache:
+  node_modules:

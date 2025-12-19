@@ -1,0 +1,29 @@
+# ===========================================
+# Docker Compose - Database Only
+# ===========================================
+# 로컬 개발 시 DB만 컨테이너로 실행할 때 사용
+# 사용법: docker-compose up -d
+#
+# 전체 스택(FE/BE/DB) 실행 시:
+# docker-compose -f docker-compose.dev.yml up -d
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: crypto-market-insight-db
+    environment:
+      POSTGRES_DB: crypto_market_insight
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d crypto_market_insight']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
