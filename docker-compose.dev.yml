@@ -40,7 +40,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: local
       # Database
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/crypto_insight
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/crypto_market_insight
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       # JPA
@@ -52,6 +52,8 @@ services:
       - '8080:8080'
     volumes:
       - ./backend:/app
+      - backend_gradle:/app/.gradle
+      - backend_build:/app/build
       - gradle_cache:/home/gradle/.gradle
     # Spring Boot DevTools 활성화를 위한 설정
     stdin_open: true
@@ -77,4 +79,6 @@ services:
 volumes:
   db_data:
   gradle_cache:
+  backend_gradle:
+  backend_build:
   node_modules:
