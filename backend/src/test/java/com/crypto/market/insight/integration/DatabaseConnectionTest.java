@@ -1,4 +1,4 @@
-package com.crypto.market.insight;
+package com.crypto.market.insight.integration;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,11 +27,7 @@ class DatabaseConnectionTest {
         try (Connection connection = dataSource.getConnection()) {
             assertThat(connection).isNotNull();
             assertThat(connection.isValid(1)).isTrue();
-
-            String dbName = connection.getCatalog();
-            assertThat(dbName).isEqualTo("crypto_market_insight");
-
-            System.out.println("✅ Database connection successful: " + dbName);
+            assertThat(connection.getCatalog()).isEqualTo("crypto_market_insight");
         }
     }
 
@@ -41,7 +37,6 @@ class DatabaseConnectionTest {
         Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
 
         assertThat(result).isEqualTo(1);
-        System.out.println("✅ Database query execution successful");
     }
 
     @Test
@@ -50,6 +45,5 @@ class DatabaseConnectionTest {
         String version = jdbcTemplate.queryForObject("SELECT version()", String.class);
 
         assertThat(version).contains("PostgreSQL");
-        System.out.println("✅ PostgreSQL version: " + version);
     }
 }
