@@ -1,0 +1,58 @@
+# ===========================================
+# Environment Variables (민감정보)
+# ===========================================
+.env
+.env.local
+.env.*.local
+*.env
+
+# 하위 디렉토리의 .env 파일도 무시
+frontend/.env
+frontend/.env.local
+backend/.env
+backend/.env.local
+
+# ===========================================
+# IDE / Editor
+# ===========================================
+backend/.idea/
+frontend/.vscode/
+*.swp
+*.swo
+*~
+
+# ===========================================
+# OS Generated Files
+# ===========================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# ===========================================
+# Logs
+# ===========================================
+*.log
+logs/
+
+# ===========================================
+# Frontend (Node.js / Vite)
+# ===========================================
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+frontend/coverage/
+
+# ===========================================
+# Backend (Spring Boot / Gradle)
+# ===========================================
+backend/build/
+backend/.gradle/
+backend/out/
+backend/bin/
+backend/*.jar
+
+# ===========================================
+# Docker
+# ===========================================
+docker-compose.override.yml
