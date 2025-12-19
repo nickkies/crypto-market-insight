@@ -161,33 +161,42 @@ cp frontend/.env.example frontend/.env
 
 > `.env.example` 파일을 복사한 후, 실제 값으로 수정하여 사용
 
-### 개발 환경 실행 (Docker Compose)
+### 방법 1: DB만 Docker + 로컬 실행 (권장)
+
+DB는 Docker로, 애플리케이션은 로컬에서 직접 실행하는 방식입니다.
 
 ```bash
-# 개발용 DB 및 인프라 실행
+# 1. DB 컨테이너 실행
 docker-compose up -d
 
-# DB 컨테이너만 실행
-docker-compose up -d db
-```
-
-> 개발 시에는 Docker Compose로 PostgreSQL을 로컬에서 실행하여 사용
-
-### 애플리케이션 실행
-
-| 구분     | 명령어                 |
-| -------- | ---------------------- |
-| Backend  | `./gradlew bootRun`    |
-| Frontend | `npm i && npm run dev` |
-
-```bash
-# 백엔드 실행 (backend 디렉토리에서)
+# 2. 백엔드 실행 (backend 디렉토리에서)
 cd backend
 ./gradlew bootRun
 
-# 프론트엔드 실행 (frontend 디렉토리에서)
+# 3. 프론트엔드 실행 (frontend 디렉토리에서)
 cd frontend
 npm i && npm run dev
+```
+
+| 구분     | 명령어                 |
+| -------- | ---------------------- |
+| Database | `docker-compose up -d` |
+| Backend  | `./gradlew bootRun`    |
+| Frontend | `npm i && npm run dev` |
+
+### 방법 2: 전체 스택 Docker 실행
+
+FE/BE/DB 모두 Docker로 실행하는 방식입니다. 핫리로드를 지원합니다.
+
+```bash
+# 전체 스택 실행
+docker-compose -f docker-compose.dev.yml up -d
+
+# 특정 서비스만 실행
+docker-compose -f docker-compose.dev.yml up -d db backend
+
+# 로그 확인
+docker-compose -f docker-compose.dev.yml logs -f backend
 ```
 
 ---
