@@ -30,7 +30,7 @@
 ## 3. 패키지 구조 (Overview)
 
 ```bash
-com.crypto.insight
+com.crypto.market.insight
 ├── common        # 공통 DTO, 예외, 유틸리티
 ├── config        # 애플리케이션 및 외부 연동 설정
 ├── domain        # 도메인별 비즈니스 로직
