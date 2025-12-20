@@ -44,4 +44,11 @@ class SecurityConfigTest {
         mockMvc.perform(get("/api/some-protected-endpoint"))
                 .andExpect(status().is3xxRedirection());
     }
+
+    @Test
+    @DisplayName("GitHub OAuth2 로그인 요청 시 GitHub로 리다이렉트")
+    void oauth2Authorization_ShouldRedirectToGitHub() throws Exception {
+        mockMvc.perform(get("/oauth2/authorization/github"))
+                .andExpect(status().is3xxRedirection());
+    }
 }
