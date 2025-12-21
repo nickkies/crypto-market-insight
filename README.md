@@ -83,13 +83,14 @@ Crypto Market Insight는 가상자산 시장 데이터를 기반으로
 
 ### Backend
 
-| 분류       | 기술                           |
-| ---------- | ------------------------------ |
-| Core       | `Spring Boot` `RESTful API`    |
-| Data       | `JPA` `QueryDSL` `PostgreSQL`  |
-| Cache      | `Caffeine`                     |
-| Monitoring | `Spring Actuator` `Micrometer` |
-| Test       | `JUnit 5` `Spring Boot Test`   |
+| 분류       | 기술                                    |
+| ---------- | --------------------------------------- |
+| Core       | `Spring Boot` `RESTful API`             |
+| Security   | `Spring Security` `OAuth2 Client` `JWT` |
+| Data       | `JPA` `QueryDSL` `PostgreSQL`           |
+| Cache      | `Caffeine`                              |
+| Monitoring | `Spring Actuator` `Micrometer`          |
+| Test       | `JUnit 5` `Spring Boot Test`            |
 
 ### Infrastructure & Deployment
 

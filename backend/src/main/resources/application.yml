@@ -12,7 +12,7 @@ spring:
   # JPA / Hibernate
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: ${JPA_DDL_AUTO:create}
     show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
@@ -24,6 +24,16 @@ spring:
     type: caffeine
     caffeine:
       spec: maximumSize=${CACHE_MAX_SIZE:1000},expireAfterWrite=${CACHE_TTL_SECONDS:300}s
+
+  # Security / OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope: read:user,user:email
 
 # Server
 server:
@@ -55,9 +65,14 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
 
-# CORS (커스텀 설정용)
+# Custom App Configuration
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   swagger:
     server-url: ${SWAGGER_SERVER_URL:http://localhost:8080}
+  jwt:
+    secret: ${JWT_SECRET:your-256-bit-secret-key-for-development-only}
+    expiration: ${JWT_EXPIRATION:86400000}
+  oauth2:
+    redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:5173/oauth/callback}
