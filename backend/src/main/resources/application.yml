@@ -25,6 +25,16 @@ spring:
     caffeine:
       spec: maximumSize=${CACHE_MAX_SIZE:1000},expireAfterWrite=${CACHE_TTL_SECONDS:300}s
 
+  # Security / OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope: read:user,user:email
+
 # Server
 server:
   port: ${SERVER_PORT:8080}
