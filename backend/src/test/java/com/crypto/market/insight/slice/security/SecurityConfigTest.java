@@ -39,10 +39,10 @@ class SecurityConfigTest {
     }
 
     @Test
-    @DisplayName("인증되지 않은 요청은 401 또는 302 반환")
+    @DisplayName("인증되지 않은 요청은 401 반환")
     void protectedEndpoint_ShouldRequireAuth() throws Exception {
         mockMvc.perform(get("/api/some-protected-endpoint"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
