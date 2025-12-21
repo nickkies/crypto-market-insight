@@ -35,7 +35,9 @@ public class SecurityConfig {
             // Actuator
             "/actuator/**",
             // Health check
-            "/health"
+            "/health",
+            // Auth (login)
+            "/api/auth/login/**"
     };
 
     @Bean
