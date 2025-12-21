@@ -74,3 +74,5 @@ app:
   jwt:
     secret: ${JWT_SECRET:your-256-bit-secret-key-for-development-only}
     expiration: ${JWT_EXPIRATION:86400000}
+  oauth2:
+    redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:5173/oauth/callback}
