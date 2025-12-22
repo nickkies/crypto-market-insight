@@ -76,3 +76,7 @@ app:
     expiration: ${JWT_EXPIRATION:86400000}
   oauth2:
     redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:5173/oauth/callback}
+  coingecko:
+    base-url: ${COINGECKO_BASE_URL:https://api.coingecko.com/api/v3}
+    connect-timeout: ${COINGECKO_CONNECT_TIMEOUT:5000}
+    read-timeout: ${COINGECKO_READ_TIMEOUT:10000}
