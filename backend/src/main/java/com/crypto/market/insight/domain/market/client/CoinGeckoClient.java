@@ -2,12 +2,17 @@ package com.crypto.market.insight.domain.market.client;
 
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.exception.CoinGeckoApiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.function.Supplier;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CoinGeckoClient {
@@ -27,18 +32,20 @@ public class CoinGeckoClient {
      * @return 코인 마켓 데이터 목록
      */
     public List<CoinMarketData> getCoinsMarkets(String vsCurrency, String ids, int perPage, int page) {
-        CoinMarketData[] response = coinGeckoRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(COINS_MARKETS_PATH)
-                        .queryParam("vs_currency", vsCurrency)
-                        .queryParam("ids", ids)
-                        .queryParam("per_page", perPage)
-                        .queryParam("page", page)
-                        .build())
-                .retrieve()
-                .body(CoinMarketData[].class);
+        return execute(() -> {
+            CoinMarketData[] response = coinGeckoRestClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(COINS_MARKETS_PATH)
+                            .queryParam("vs_currency", vsCurrency)
+                            .queryParam("ids", ids)
+                            .queryParam("per_page", perPage)
+                            .queryParam("page", page)
+                            .build())
+                    .retrieve()
+                    .body(CoinMarketData[].class);
 
-        return response != null ? List.of(response) : List.of();
+            return response != null ? List.of(response) : List.of();
+        });
     }
 
     /**
@@ -61,15 +68,26 @@ public class CoinGeckoClient {
      * @return OHLC 데이터 목록
      */
     public List<OhlcData> getOhlc(String coinId, String vsCurrency, String days) {
-        OhlcData[] response = coinGeckoRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(OHLC_PATH)
-                        .queryParam("vs_currency", vsCurrency)
-                        .queryParam("days", days)
-                        .build(coinId))
-                .retrieve()
-                .body(OhlcData[].class);
+        return execute(() -> {
+            OhlcData[] response = coinGeckoRestClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(OHLC_PATH)
+                            .queryParam("vs_currency", vsCurrency)
+                            .queryParam("days", days)
+                            .build(coinId))
+                    .retrieve()
+                    .body(OhlcData[].class);
 
-        return response != null ? List.of(response) : List.of();
+            return response != null ? List.of(response) : List.of();
+        });
+    }
+
+    private <T> T execute(Supplier<T> request) {
+        try {
+            return request.get();
+        } catch (ResourceAccessException e) {
+            log.error("CoinGecko Timeout: {}", e.getMessage());
+            throw CoinGeckoApiException.timeout(e);
+        }
     }
 }

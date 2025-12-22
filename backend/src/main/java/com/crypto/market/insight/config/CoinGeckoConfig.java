@@ -1,9 +1,11 @@
 package com.crypto.market.insight.config;
 
+import com.crypto.market.insight.domain.market.exception.CoinGeckoApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
@@ -26,6 +28,14 @@ public class CoinGeckoConfig {
                 .baseUrl(baseUrl)
                 .requestFactory(factory)
                 .requestInterceptor(loggingInterceptor())
+                .defaultStatusHandler(statusCode -> statusCode.value() == 429, (req, res) -> {
+                    log.warn("CoinGecko Rate Limit exceeded: {}", req.getURI());
+                    throw CoinGeckoApiException.rateLimitExceeded();
+                })
+                .defaultStatusHandler(HttpStatusCode::is5xxServerError, (req, res) -> {
+                    log.error("CoinGecko Server Error: {} {}", res.getStatusCode().value(), req.getURI());
+                    throw CoinGeckoApiException.serverError(res.getStatusCode().value());
+                })
                 .build();
 
         log.info("CoinGeckoRestClient initialized: baseUrl={}, connectTimeout={}ms, readTimeout={}ms",
