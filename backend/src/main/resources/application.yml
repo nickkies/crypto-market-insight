@@ -19,11 +19,8 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # Cache
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=${CACHE_MAX_SIZE:1000},expireAfterWrite=${CACHE_TTL_SECONDS:300}s
 
   # Security / OAuth2
   security:
