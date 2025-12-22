@@ -1,18 +1,22 @@
 package com.crypto.market.insight.domain.market.client;
 
+import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.exception.CoinGeckoApiException;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @WireMockTest
 class CoinGeckoClientTest {
@@ -118,5 +122,31 @@ class CoinGeckoClientTest {
 
         // then
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("getCoinsMarkets - 타임아웃 시 CoinGeckoApiException 발생")
+    void getCoinsMarkets_timeout_throwsException(WireMockRuntimeInfo wmRuntimeInfo) {
+        // given
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(100);
+        factory.setReadTimeout(100);
+
+        RestClient timeoutClient = RestClient.builder()
+                .baseUrl(wmRuntimeInfo.getHttpBaseUrl())
+                .requestFactory(factory)
+                .build();
+        CoinGeckoClient clientWithTimeout = new CoinGeckoClient(timeoutClient);
+
+        stubFor(get(urlPathEqualTo("/coins/markets"))
+                .willReturn(ok().withFixedDelay(500)));
+
+        // when & then
+        assertThatThrownBy(() -> clientWithTimeout.getCoinsMarkets("usd", "bitcoin"))
+                .isInstanceOf(CoinGeckoApiException.class)
+                .satisfies(ex -> {
+                    CoinGeckoApiException e = (CoinGeckoApiException) ex;
+                    assertThat(e.getErrorCode()).isEqualTo(ErrorCode.COINGECKO_TIMEOUT);
+                });
     }
 }
