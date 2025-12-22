@@ -1,5 +1,6 @@
-package com.crypto.market.insight.domain.market.dto;
+package com.crypto.market.insight.unit.domain.market.dto;
 
+import com.crypto.market.insight.domain.market.dto.OhlcData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;

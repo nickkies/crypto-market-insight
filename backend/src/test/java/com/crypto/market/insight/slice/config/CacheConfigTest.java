@@ -1,4 +1,6 @@
-package com.crypto.market.insight.config;
+package com.crypto.market.insight.slice.config;
+
+import com.crypto.market.insight.config.CacheConfig;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

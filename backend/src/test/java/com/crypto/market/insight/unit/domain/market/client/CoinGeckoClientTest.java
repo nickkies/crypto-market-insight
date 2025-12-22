@@ -1,4 +1,6 @@
-package com.crypto.market.insight.domain.market.client;
+package com.crypto.market.insight.unit.domain.market.client;
+
+import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;

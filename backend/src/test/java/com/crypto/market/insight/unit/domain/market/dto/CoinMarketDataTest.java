@@ -1,5 +1,6 @@
-package com.crypto.market.insight.domain.market.dto;
+package com.crypto.market.insight.unit.domain.market.dto;
 
+import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
