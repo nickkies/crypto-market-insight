@@ -1,10 +1,12 @@
 package com.crypto.market.insight.domain.market.client;
 
+import com.crypto.market.insight.config.CacheConfig;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
 import com.crypto.market.insight.domain.market.exception.CoinGeckoApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -31,7 +33,9 @@ public class CoinGeckoClient {
      * @param page       페이지 번호
      * @return 코인 마켓 데이터 목록
      */
+    @Cacheable(value = CacheConfig.COIN_MARKETS, key = "#vsCurrency + ':' + #ids + ':' + #perPage + ':' + #page")
     public List<CoinMarketData> getCoinsMarkets(String vsCurrency, String ids, int perPage, int page) {
+        log.info("Cache MISS - fetching coinMarkets: vsCurrency={}, ids={}", vsCurrency, ids);
         return execute(() -> {
             CoinMarketData[] response = coinGeckoRestClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -67,7 +71,9 @@ public class CoinGeckoClient {
      * @param days       조회 기간 (1, 7, 14, 30, 90, 180, 365, "max")
      * @return OHLC 데이터 목록
      */
+    @Cacheable(value = CacheConfig.OHLC, key = "#coinId + ':' + #vsCurrency + ':' + #days")
     public List<OhlcData> getOhlc(String coinId, String vsCurrency, String days) {
+        log.info("Cache MISS - fetching OHLC: coinId={}, vsCurrency={}, days={}", coinId, vsCurrency, days);
         return execute(() -> {
             OhlcData[] response = coinGeckoRestClient.get()
                     .uri(uriBuilder -> uriBuilder
