@@ -25,6 +25,11 @@ public enum ErrorCode {
     COIN_NOT_FOUND(HttpStatus.NOT_FOUND, "코인 정보를 찾을 수 없습니다"),
     EXTERNAL_API_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "외부 API 호출 중 오류가 발생했습니다"),
 
+    // CoinGecko
+    COINGECKO_RATE_LIMIT(HttpStatus.TOO_MANY_REQUESTS, "CoinGecko API 요청 한도를 초과했습니다"),
+    COINGECKO_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "CoinGecko API 요청 시간이 초과되었습니다"),
+    COINGECKO_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "CoinGecko API 서버 오류가 발생했습니다"),
+
     // Strategy
     STRATEGY_NOT_FOUND(HttpStatus.NOT_FOUND, "전략을 찾을 수 없습니다"),
     INVALID_STRATEGY_PARAMS(HttpStatus.BAD_REQUEST, "잘못된 전략 파라미터입니다"),

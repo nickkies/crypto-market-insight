@@ -19,11 +19,8 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # Cache
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=${CACHE_MAX_SIZE:1000},expireAfterWrite=${CACHE_TTL_SECONDS:300}s
 
   # Security / OAuth2
   security:
@@ -76,3 +73,7 @@ app:
     expiration: ${JWT_EXPIRATION:86400000}
   oauth2:
     redirect-uri: ${OAUTH2_REDIRECT_URI:http://localhost:5173/oauth/callback}
+  coingecko:
+    base-url: ${COINGECKO_BASE_URL:https://api.coingecko.com/api/v3}
+    connect-timeout: ${COINGECKO_CONNECT_TIMEOUT:5000}
+    read-timeout: ${COINGECKO_READ_TIMEOUT:10000}
