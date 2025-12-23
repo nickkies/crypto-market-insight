@@ -37,7 +37,9 @@ public class SecurityConfig {
             // Health check
             "/health",
             // Auth (login)
-            "/api/auth/login/**"
+            "/api/auth/login/**",
+            // Market API (public)
+            "/api/market/**"
     };
 
     @Bean

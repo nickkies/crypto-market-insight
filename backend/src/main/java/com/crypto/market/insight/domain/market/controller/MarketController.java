@@ -6,13 +6,17 @@ import com.crypto.market.insight.domain.market.dto.MarketDto.CoinSummary;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvDataDto;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvResponse;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import com.crypto.market.insight.domain.market.service.MarketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/market")
 @Tag(name = "Market", description = "암호화폐 시장 데이터 API")
+@Validated
 public class MarketController {
 
     private final MarketService marketService;
@@ -34,9 +39,9 @@ public class MarketController {
     @GetMapping("/coins")
     public ResponseEntity<CoinListResponse> getCoins(
             @Parameter(description = "페이지 번호 (1부터 시작)", example = "1")
-            @RequestParam(defaultValue = "1") int page,
-            @Parameter(description = "페이지당 개수 (최대 250)", example = "10")
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @Parameter(description = "페이지당 개수 (1-250)", example = "10")
+            @RequestParam(defaultValue = "10") @Min(1) @Max(250) int size,
             @Parameter(description = "검색 키워드 (symbol, name)", example = "btc")
             @RequestParam(required = false) String keyword
     ) {
@@ -71,10 +76,11 @@ public class MarketController {
             @Parameter(description = "타임프레임 (1h, 4h, 1d, 1w)", example = "1d")
             @RequestParam(defaultValue = "1d") String timeframe
     ) {
-        List<OhlcData> ohlcData = marketService.getOhlcv(coinId, timeframe);
+        Timeframe tf = marketService.parseTimeframe(timeframe);
+        List<OhlcData> ohlcData = marketService.getOhlcv(coinId, tf);
         List<OhlcvDataDto> ohlcvDataDtos = ohlcData.stream()
                 .map(OhlcvDataDto::from)
                 .toList();
-        return ResponseEntity.ok(OhlcvResponse.of(coinId, timeframe, ohlcvDataDtos));
+        return ResponseEntity.ok(OhlcvResponse.of(coinId, tf.getValue(), ohlcvDataDtos));
     }
 }

@@ -5,8 +5,10 @@ import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.model.vo.Timeframe;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class MarketService {
 
     private static final String DEFAULT_VS_CURRENCY = "usd";
-    private static final Set<String> VALID_TIMEFRAMES = Set.of("1h", "4h", "1d", "1w");
 
     private final CoinGeckoClient coinGeckoClient;
 
@@ -41,24 +42,19 @@ public class MarketService {
         return result.getFirst();
     }
 
-    public List<OhlcData> getOhlcv(String coinId, String timeframe) {
-        validateTimeframe(timeframe);
-        String days = convertTimeframeToDays(timeframe);
-        return coinGeckoClient.getOhlc(coinId, DEFAULT_VS_CURRENCY, days);
-    }
-
-    private void validateTimeframe(String timeframe) {
-        if (!VALID_TIMEFRAMES.contains(timeframe)) {
+    public Timeframe parseTimeframe(String timeframe) {
+        Timeframe tf = Timeframe.fromValue(timeframe);
+        if (tf == null) {
+            String validValues = Arrays.stream(Timeframe.values())
+                    .map(Timeframe::getValue)
+                    .collect(Collectors.joining(", "));
             throw new BusinessException(ErrorCode.INVALID_PARAMETER,
-                    "Invalid timeframe: " + timeframe + ". Valid values: " + VALID_TIMEFRAMES);
+                    "Invalid timeframe: " + timeframe + ". Valid values: " + validValues);
         }
+        return tf;
     }
 
-    private String convertTimeframeToDays(String timeframe) {
-        return switch (timeframe) {
-            case "1h", "4h" -> "1";
-            case "1w" -> "90";
-            default -> "30";    // 1d
-        };
+    public List<OhlcData> getOhlcv(String coinId, Timeframe timeframe) {
+        return coinGeckoClient.getOhlc(coinId, DEFAULT_VS_CURRENCY, timeframe.getDays());
     }
 }
