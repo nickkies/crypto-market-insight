@@ -1,9 +1,9 @@
 package com.crypto.market.insight.unit.domain.market.service;
 
+import static com.crypto.market.insight.support.fixture.MarketFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
@@ -13,8 +13,8 @@ import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import com.crypto.market.insight.domain.market.service.MarketService;
-import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,69 +43,53 @@ class MarketServiceTest {
         @DisplayName("코인 목록을 조회한다")
         void returnsCoins() {
             // given
-            List<CoinMarketData> mockData = List.of(
-                    createCoinMarketData("bitcoin", "btc", "Bitcoin"),
-                    createCoinMarketData("ethereum", "eth", "Ethereum")
-            );
             when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
-                    .thenReturn(mockData);
+                    .thenReturn(defaultCoins());
 
             // when
             List<CoinMarketData> result = marketService.getCoins(1, 10, null);
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).id()).isEqualTo("bitcoin");
+            assertThat(result.getFirst().id()).isEqualTo("bitcoin");
         }
 
         @Test
         @DisplayName("symbol 키워드로 필터링한다")
         void filtersbySymbol() {
             // given
-            List<CoinMarketData> mockData = List.of(
-                    createCoinMarketData("bitcoin", "btc", "Bitcoin"),
-                    createCoinMarketData("ethereum", "eth", "Ethereum")
-            );
             when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
-                    .thenReturn(mockData);
+                    .thenReturn(defaultCoins());
 
             // when
             List<CoinMarketData> result = marketService.getCoins(1, 10, "btc");
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).symbol()).isEqualTo("btc");
+            assertThat(result.getFirst().symbol()).isEqualTo("btc");
         }
 
         @Test
         @DisplayName("name 키워드로 필터링한다")
         void filtersByName() {
             // given
-            List<CoinMarketData> mockData = List.of(
-                    createCoinMarketData("bitcoin", "btc", "Bitcoin"),
-                    createCoinMarketData("ethereum", "eth", "Ethereum")
-            );
             when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
-                    .thenReturn(mockData);
+                    .thenReturn(defaultCoins());
 
             // when
             List<CoinMarketData> result = marketService.getCoins(1, 10, "ether");
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).name()).isEqualTo("Ethereum");
+            assertThat(result.getFirst().name()).isEqualTo("Ethereum");
         }
 
         @Test
         @DisplayName("키워드가 빈 문자열이면 전체 목록을 반환한다")
         void returnsAllWhenKeywordIsBlank() {
             // given
-            List<CoinMarketData> mockData = List.of(
-                    createCoinMarketData("bitcoin", "btc", "Bitcoin"),
-                    createCoinMarketData("ethereum", "eth", "Ethereum")
-            );
             when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
-                    .thenReturn(mockData);
+                    .thenReturn(defaultCoins());
 
             // when
             List<CoinMarketData> result = marketService.getCoins(1, 10, "   ");
@@ -123,9 +107,8 @@ class MarketServiceTest {
         @DisplayName("코인 상세 정보를 조회한다")
         void returnsCoinDetail() {
             // given
-            CoinMarketData mockData = createCoinMarketData("bitcoin", "btc", "Bitcoin");
             when(coinGeckoClient.getCoinsMarkets("usd", "bitcoin"))
-                    .thenReturn(List.of(mockData));
+                    .thenReturn(List.of(bitcoin()));
 
             // when
             CoinMarketData result = marketService.getCoinDetail("bitcoin");
@@ -153,27 +136,19 @@ class MarketServiceTest {
     }
 
     @Nested
-    @DisplayName("getOhlcv")
-    class GetOhlcv {
+    @DisplayName("parseTimeframe")
+    class ParseTimeframe {
 
         @ParameterizedTest
         @ValueSource(strings = {"1h", "4h", "1d", "1w"})
-        @DisplayName("유효한 타임프레임으로 OHLCV 데이터를 조회한다")
-        void returnsOhlcvData(String timeframe) {
-            // given
-            List<OhlcData> mockData = List.of(
-                    new OhlcData(1709395200000L, new BigDecimal("61942"), new BigDecimal("62211"),
-                            new BigDecimal("61721"), new BigDecimal("61845"))
-            );
-            when(coinGeckoClient.getOhlc(eq("bitcoin"), eq("usd"), anyString()))
-                    .thenReturn(mockData);
-
+        @DisplayName("유효한 타임프레임을 파싱한다")
+        void parsesValidTimeframe(String timeframe) {
             // when
-            List<OhlcData> result = marketService.getOhlcv("bitcoin", timeframe);
+            Timeframe result = marketService.parseTimeframe(timeframe);
 
             // then
-            assertThat(result).hasSize(1);
-            assertThat(result.get(0).timestamp()).isEqualTo(1709395200000L);
+            assertThat(result).isNotNull();
+            assertThat(result.getValue()).isEqualTo(timeframe);
         }
 
         @ParameterizedTest
@@ -181,7 +156,7 @@ class MarketServiceTest {
         @DisplayName("유효하지 않은 타임프레임이면 예외가 발생한다")
         void throwsExceptionForInvalidTimeframe(String invalidTimeframe) {
             // when & then
-            assertThatThrownBy(() -> marketService.getOhlcv("bitcoin", invalidTimeframe))
+            assertThatThrownBy(() -> marketService.parseTimeframe(invalidTimeframe))
                     .isInstanceOf(BusinessException.class)
                     .satisfies(ex -> {
                         BusinessException e = (BusinessException) ex;
@@ -190,23 +165,36 @@ class MarketServiceTest {
         }
     }
 
-    private CoinMarketData createCoinMarketData(String id, String symbol, String name) {
-        return new CoinMarketData(
-                id,
-                symbol,
-                name,
-                "https://example.com/image.png",
-                new BigDecimal("50000"),
-                new BigDecimal("1000000000000"),
-                1,
-                new BigDecimal("500000000"),
-                new BigDecimal("51000"),
-                new BigDecimal("49000"),
-                new BigDecimal("500"),
-                new BigDecimal("1.5"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                "2024-01-01T00:00:00.000Z"
-        );
+    @Nested
+    @DisplayName("getOhlcv")
+    class GetOhlcv {
+
+        @Test
+        @DisplayName("OHLCV 데이터를 조회한다")
+        void returnsOhlcvData() {
+            // given
+            when(coinGeckoClient.getOhlc("bitcoin", "usd", "30"))
+                    .thenReturn(defaultOhlcList());
+
+            // when
+            List<OhlcData> result = marketService.getOhlcv("bitcoin", Timeframe.ONE_DAY);
+
+            // then
+            assertThat(result).hasSize(3);
+            assertThat(result.getFirst().timestamp()).isEqualTo(1709395200000L);
+        }
+
+        @Test
+        @DisplayName("타임프레임에 따라 올바른 days 값을 사용한다")
+        void useCorrectDaysForTimeframe() {
+            // given
+            when(coinGeckoClient.getOhlc("bitcoin", "usd", "1"))
+                    .thenReturn(List.of());
+
+            // when
+            marketService.getOhlcv("bitcoin", Timeframe.ONE_HOUR);
+
+            // then - no exception means correct days value was used
+        }
     }
 }
