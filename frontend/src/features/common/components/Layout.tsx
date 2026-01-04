@@ -26,7 +26,8 @@ const HeaderInner = styled.div`
   justify-content: space-between;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.sm}
+      ${({ theme }) => theme.spacing.md};
   }
 `;
 
@@ -95,7 +96,8 @@ const Main = styled.main`
   padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.lg};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.lg}
+      ${({ theme }) => theme.spacing.md};
   }
 `;
 

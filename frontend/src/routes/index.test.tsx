@@ -1,13 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '@/styles';
 import { router } from './index';
 
 const renderWithRouter = (initialRoute: string = '/') => {
   const testRouter = createMemoryRouter(router.routes, {
     initialEntries: [initialRoute],
   });
-  return render(<RouterProvider router={testRouter} />);
+  return render(
+    <ThemeProvider>
+      <RouterProvider router={testRouter} />
+    </ThemeProvider>,
+  );
 };
 
 describe('Router', () => {
