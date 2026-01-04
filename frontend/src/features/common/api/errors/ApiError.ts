@@ -61,6 +61,10 @@ export class ApiError extends Error {
   static unknownError(): ApiError {
     return new ApiError(500, 'UNKNOWN_ERROR', '알 수 없는 오류가 발생했습니다');
   }
+
+  static authRequired(): ApiError {
+    return new ApiError(401, 'AUTH_REQUIRED', '로그인이 필요합니다');
+  }
 }
 
 export function isApiError(error: unknown): error is ApiError {
