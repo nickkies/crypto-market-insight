@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { useAuthStore } from '@/features/auth';
 import { ApiError, ErrorResponseData } from './errors';
 
 const createClient = () => {
@@ -55,7 +56,7 @@ authClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ErrorResponseData>) => {
     if (error.response?.status === 401) {
-      sessionStorage.removeItem('token');
+      useAuthStore.getState().logout();
       window.location.href = '/';
     }
     return Promise.reject(error);
