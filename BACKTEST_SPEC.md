@@ -45,13 +45,18 @@
 - 청산(Exit) 조건
 - 파라미터(지표 기간, 임계값 등)
 
-### 3.2 전략 표현 방식
+### 3.2 지원 전략 타입
+
+| 전략 | 설명 | 주요 파라미터 |
+|------|------|---------------|
+| `RSI` | 과매수/과매도 기반 역추세 전략 | period, oversold, overbought |
+| `MACD` | 이동평균 수렴/발산 기반 추세 전환 전략 | fastPeriod, slowPeriod, signalPeriod |
+| `BOLLINGER_BANDS` | 변동성 기반 평균 회귀 전략 | period, stdDev |
+| `MOVING_AVERAGE` | 이동평균 크로스오버 추세 추종 전략 | shortPeriod, longPeriod |
+
+### 3.3 전략 표현 방식
 
 전략은 파라미터화된 설정 값으로 정의됩니다.
-
-- RSI 기간
-- RSI 진입 임계값
-- 이동평균 기간
 
 > 전략 정의 자체는 데이터와 분리된 형태로 관리됩니다.
 
