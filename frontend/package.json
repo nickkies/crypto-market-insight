@@ -16,12 +16,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.16",
+    "@tanstack/react-query-devtools": "^5.91.2",
     "axios": "^1.13.2",
     "lottie-react": "^2.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.11.0",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
