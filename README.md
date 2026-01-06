@@ -74,12 +74,12 @@ Crypto Market Insight는 가상자산 시장 데이터를 기반으로
 
 ### Frontend
 
-| 분류  | 기술                          |
-| ----- | ----------------------------- |
-| Core  | `React` `TypeScript` `Vite`   |
-| State | `React Query` `Zustand`       |
-| UI    | `ECharts` `Styled Components` |
-| Test  | `Vitest` `Testing Library`    |
+| 분류  | 기술                                    |
+| ----- | --------------------------------------- |
+| Core  | `React` `TypeScript` `Vite`             |
+| State | `React Query` `Zustand`                 |
+| UI    | `ECharts` `Styled Components`           |
+| Test  | `Vitest` `Testing Library` `Playwright` |
 
 ### Backend
 
