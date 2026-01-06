@@ -187,15 +187,16 @@ export function MarketPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // 차트 테스트용 임시 코드
-  const { timeframe, setTimeframe } = useMarketStore();
+  const { timeframe, setTimeframe, selectedCoinId } = useMarketStore();
+  const chartCoinId = selectedCoinId || 'bitcoin';
+
   const {
     data: ohlcvData,
     isLoading: isChartLoading,
     isError: isChartError,
     error: chartError,
     refetch: refetchChart,
-  } = useOhlcv({ coinId: 'bitcoin', timeframe });
+  } = useOhlcv({ coinId: chartCoinId, timeframe });
   const chartErrorStatus = (chartError as { status?: number })?.status;
 
   return (
@@ -220,7 +221,7 @@ export function MarketPage() {
         <ChartSection>
           <Card>
             <CardHeader>
-              <CardTitle>BTC/USDT</CardTitle>
+              <CardTitle>{chartCoinId.toUpperCase()}/USD</CardTitle>
               <TimeframeSelector value={timeframe} onChange={setTimeframe} />
             </CardHeader>
             <ChartContainer
