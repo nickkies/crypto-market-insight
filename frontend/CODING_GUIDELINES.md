@@ -238,7 +238,7 @@ export const portfolioService = {
 
 ## 9. 테스트
 
-### 단위 테스트 (Vitest)
+### 테스트 파일 위치
 
 테스트 파일은 대상 파일과 동일한 폴더에 위치
 
@@ -248,7 +248,7 @@ components/
 └── FilterPanel.test.tsx
 ```
 
-### 단위 테스트 원칙
+### 테스트 원칙
 
 - UI 테스트는 렌더링 중심
 - `@testing-library/react` 사용
@@ -265,32 +265,6 @@ describe('FilterPanel', () => {
   });
 });
 ```
-
-### E2E 테스트 (Playwright)
-
-E2E 테스트는 `e2e/` 폴더에 위치
-
-```bash
-e2e/
-├── home.spec.ts
-└── market.spec.ts
-```
-
-### E2E 테스트 실행
-
-```bash
-# E2E 테스트 실행
-npm run test:e2e
-
-# UI 모드로 실행
-npm run test:e2e:ui
-```
-
-### E2E 테스트 원칙
-
-- 사용자 시나리오 기반 테스트
-- `data-testid` 속성으로 요소 선택
-- 실제 API 호출 포함 (통합 테스트)
 
 ---
 

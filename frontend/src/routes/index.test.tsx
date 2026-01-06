@@ -1,30 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/styles';
 import { router } from './index';
-
-const createTestQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
 
 const renderWithRouter = (initialRoute: string = '/') => {
   const testRouter = createMemoryRouter(router.routes, {
     initialEntries: [initialRoute],
   });
-  const queryClient = createTestQueryClient();
   return render(
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <RouterProvider router={testRouter} />
-      </ThemeProvider>
-    </QueryClientProvider>,
+    <ThemeProvider>
+      <RouterProvider router={testRouter} />
+    </ThemeProvider>,
   );
 };
 
