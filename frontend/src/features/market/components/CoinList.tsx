@@ -1,19 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { useCoinsInfinite } from '../hooks';
+import { useFavoritesStore } from '../stores';
 import { useIntersectionObserver } from '@/features/common/hooks';
+import type { FilterTab } from '@/features/common/components';
 import CoinCard from './CoinCard';
 
 interface Props {
   keyword?: string;
+  filter?: FilterTab;
 }
 
-export default function CoinList({ keyword }: Props) {
+export default function CoinList({ keyword, filter = 'all' }: Props) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useCoinsInfinite({ keyword });
+  const { favorites } = useFavoritesStore();
 
   const { ref, isIntersecting } = useIntersectionObserver({
-    enabled: hasNextPage && !isFetchingNextPage,
+    enabled: hasNextPage && !isFetchingNextPage && filter === 'all',
   });
 
   useEffect(() => {
@@ -22,10 +26,20 @@ export default function CoinList({ keyword }: Props) {
     }
   }, [isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const coins = data?.pages.flatMap((page) => page.coins) ?? [];
+  const coins = useMemo(() => {
+    const allCoins = data?.pages.flatMap((page) => page.coins) ?? [];
+    if (filter === 'favorites') {
+      return allCoins.filter((coin) => favorites.includes(coin.id));
+    }
+    return allCoins;
+  }, [data?.pages, filter, favorites]);
 
   if (isLoading) {
     return <LoadingText>로딩 중...</LoadingText>;
+  }
+
+  if (filter === 'favorites' && favorites.length === 0) {
+    return <EmptyText>즐겨찾기 코인을 추가해 볼까요?</EmptyText>;
   }
 
   if (coins.length === 0) {

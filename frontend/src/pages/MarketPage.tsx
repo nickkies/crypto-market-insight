@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import {
   CardSkeleton,
   ChartSkeleton,
   TableRowsSkeleton,
   TextSkeleton,
+  SearchInput,
+  FilterTabs,
 } from '@/features/common/components';
+import type { FilterTab } from '@/features/common/components';
+import { useDebounce } from '@/features/common/hooks';
 import { CoinList } from '@/features/market';
 
 const PageContainer = styled.div`
@@ -149,10 +154,33 @@ const Section = styled.section`
   gap: ${({ theme }) => theme.spacing.lg};
 `;
 
+const SectionHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md};
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+`;
+
 const SectionTitle = styled.h2`
   font-size: ${({ theme }) => theme.fonts.size.xl};
   font-weight: ${({ theme }) => theme.fonts.weight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+const SectionControls = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-direction: row;
+    align-items: center;
+  }
 `;
 
 const EcosystemGrid = styled.div`
@@ -170,6 +198,10 @@ const EcosystemGrid = styled.div`
 `;
 
 export function MarketPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   return (
     <PageContainer data-testid="market-page">
       <PageHeader>
@@ -256,8 +288,21 @@ export function MarketPage() {
       </Section>
 
       <Section>
-        <SectionTitle>Coin List</SectionTitle>
-        <CoinList />
+        <SectionHeader>
+          <SectionTitle>Coin List</SectionTitle>
+          <SectionControls>
+            <SearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="코인 검색..."
+            />
+            <FilterTabs
+              activeTab={activeFilter}
+              onTabChange={setActiveFilter}
+            />
+          </SectionControls>
+        </SectionHeader>
+        <CoinList keyword={debouncedSearch} filter={activeFilter} />
       </Section>
     </PageContainer>
   );
