@@ -29,14 +29,18 @@ export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
 }
 
 const Container = styled.div`
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   gap: ${({ theme }) => theme.spacing.xs};
   background-color: ${({ theme }) => theme.colors.background.secondary};
+  border: 1px solid ${({ theme }) => theme.colors.border.primary};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   padding: ${({ theme }) => theme.spacing.xs};
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
+  flex: 1;
+  min-width: 72px;
   padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
@@ -48,6 +52,8 @@ const Tab = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.fast};
+  white-space: nowrap;
+  text-align: center;
 
   &:hover {
     color: ${({ theme, $active }) =>
