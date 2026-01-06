@@ -1,6 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/features/common';
-import { HomePage, MarketPage, BacktestPage, NotFoundPage } from '@/pages';
+import {
+  HomePage,
+  MarketPage,
+  CoinDetailPage,
+  BacktestPage,
+  NotFoundPage,
+} from '@/pages';
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +20,10 @@ export const router = createBrowserRouter([
       {
         path: 'market',
         element: <MarketPage />,
+      },
+      {
+        path: 'market/:coinId',
+        element: <CoinDetailPage />,
       },
       {
         path: 'backtest',
