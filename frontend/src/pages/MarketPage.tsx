@@ -5,6 +5,7 @@ import {
   TableRowsSkeleton,
   TextSkeleton,
 } from '@/features/common/components';
+import { CoinList } from '@/features/market';
 
 const PageContainer = styled.div`
   display: flex;
@@ -252,6 +253,11 @@ export function MarketPage() {
           <CardSkeleton />
           <CardSkeleton />
         </EcosystemGrid>
+      </Section>
+
+      <Section>
+        <SectionTitle>Coin List</SectionTitle>
+        <CoinList />
       </Section>
     </PageContainer>
   );

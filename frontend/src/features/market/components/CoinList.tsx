@@ -39,7 +39,7 @@ export default function CoinList({ keyword }: Props) {
           <CoinCard key={coin.id} coin={coin} />
         ))}
       </Grid>
-      <LoadMoreTrigger ref={ref}>
+      <LoadMoreTrigger ref={ref} data-testid="load-more-trigger">
         {isFetchingNextPage && <LoadingText>더 불러오는 중...</LoadingText>}
       </LoadMoreTrigger>
     </Container>
@@ -69,7 +69,7 @@ const Grid = styled.div`
 `;
 
 const LoadMoreTrigger = styled.div`
-  height: 1px;
+  height: 100px;
   margin-top: ${({ theme }) => theme.spacing.md};
 `;
 

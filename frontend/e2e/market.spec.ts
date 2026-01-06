@@ -2,7 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Market Page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/market');
+    // API 응답을 기다리며 페이지 로드
+    await Promise.all([
+      page.waitForResponse((response) =>
+        response.url().includes('/api/market/coins'),
+      ),
+      page.goto('/market'),
+    ]);
   });
 
   test('코인 목록이 표시된다', async ({ page }) => {
@@ -65,26 +71,34 @@ test.describe('Market Page', () => {
   });
 
   test('스크롤 시 추가 코인이 로드된다', async ({ page }) => {
-    // 초기 로드 대기
-    await expect(page.locator('[data-testid="coin-card"]').first()).toBeVisible(
-      {
-        timeout: 10000,
-      },
+    // 초기 로드 대기 - 20개 코인이 로드될 때까지
+    await expect(page.locator('[data-testid="coin-card"]')).toHaveCount(20, {
+      timeout: 10000,
+    });
+
+    // 두 번째 API 요청을 추적
+    const secondPagePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/market/coins') &&
+        response.url().includes('page=2'),
     );
 
-    // 초기 카드 수 확인
-    const initialCount = await page
-      .locator('[data-testid="coin-card"]')
-      .count();
+    // 마지막 카드를 스크롤 뷰로 가져와 IntersectionObserver 트리거
+    await page.locator('[data-testid="coin-card"]').last().scrollIntoViewIfNeeded();
 
-    // 페이지 하단으로 스크롤
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    // Load More Trigger 요소를 뷰포트로 스크롤
+    await page.locator('[data-testid="load-more-trigger"]').scrollIntoViewIfNeeded();
 
-    // 추가 로드 대기
-    await page.waitForTimeout(2000);
+    // 두 번째 페이지 API 응답 대기
+    await secondPagePromise;
 
-    // 카드 수가 증가했는지 확인
-    const newCount = await page.locator('[data-testid="coin-card"]').count();
-    expect(newCount).toBeGreaterThan(initialCount);
+    // 21번째 카드가 나타날 때까지 대기 (nth는 0-indexed)
+    await expect(page.locator('[data-testid="coin-card"]').nth(20)).toBeVisible({
+      timeout: 15000,
+    });
+
+    // 최종 카드 수가 20개보다 많은지 확인
+    const finalCount = await page.locator('[data-testid="coin-card"]').count();
+    expect(finalCount).toBeGreaterThan(20);
   });
 });
