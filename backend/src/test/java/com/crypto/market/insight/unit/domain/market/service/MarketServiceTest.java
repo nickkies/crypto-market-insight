@@ -12,7 +12,8 @@ import com.crypto.market.insight.common.exception.BusinessException;
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
-import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.dto.MarketChartData;
+import com.crypto.market.insight.domain.market.dto.OhlcvData;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import com.crypto.market.insight.domain.market.service.MarketService;
 import java.util.List;
@@ -175,9 +176,11 @@ class MarketServiceTest {
             // given
             when(coinGeckoClient.getOhlc("bitcoin", "usd", "30"))
                     .thenReturn(defaultOhlcList());
+            when(coinGeckoClient.getMarketChart("bitcoin", "usd", "30"))
+                    .thenReturn(new MarketChartData(List.of(), List.of(), List.of()));
 
             // when
-            List<OhlcData> result = marketService.getOhlcv("bitcoin", Timeframe.ONE_DAY);
+            List<OhlcvData> result = marketService.getOhlcv("bitcoin", Timeframe.ONE_DAY);
 
             // then
             assertThat(result).hasSize(3);
@@ -190,6 +193,8 @@ class MarketServiceTest {
             // given
             when(coinGeckoClient.getOhlc("bitcoin", "usd", "1"))
                     .thenReturn(List.of());
+            when(coinGeckoClient.getMarketChart("bitcoin", "usd", "1"))
+                    .thenReturn(new MarketChartData(List.of(), List.of(), List.of()));
 
             // when
             marketService.getOhlcv("bitcoin", Timeframe.ONE_HOUR);

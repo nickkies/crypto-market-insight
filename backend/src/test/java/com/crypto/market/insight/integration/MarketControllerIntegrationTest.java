@@ -170,6 +170,8 @@ class MarketControllerIntegrationTest {
             // given
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
                     .willReturn(okJson(OHLC_DATA_JSON)));
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
+                    .willReturn(okJson(MARKET_CHART_JSON)));
 
             // when & then
             mockMvc.perform(get("/api/market/coins/bitcoin/ohlcv")
@@ -184,7 +186,8 @@ class MarketControllerIntegrationTest {
                     .andExpect(jsonPath("$.data[0].open").value(61942))
                     .andExpect(jsonPath("$.data[0].high").value(62211))
                     .andExpect(jsonPath("$.data[0].low").value(61721))
-                    .andExpect(jsonPath("$.data[0].close").value(61845));
+                    .andExpect(jsonPath("$.data[0].close").value(61845))
+                    .andExpect(jsonPath("$.data[0].volume").value(25000000000L));
         }
 
         @Test
@@ -204,6 +207,9 @@ class MarketControllerIntegrationTest {
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
                     .withQueryParam("days", equalTo("1"))
                     .willReturn(okJson(OHLC_SINGLE_JSON)));
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
+                    .withQueryParam("days", equalTo("1"))
+                    .willReturn(okJson(MARKET_CHART_EMPTY_JSON)));
 
             // when & then
             mockMvc.perform(get("/api/market/coins/bitcoin/ohlcv")
@@ -219,6 +225,9 @@ class MarketControllerIntegrationTest {
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
                     .withQueryParam("days", equalTo("90"))
                     .willReturn(okJson(OHLC_SINGLE_JSON)));
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
+                    .withQueryParam("days", equalTo("90"))
+                    .willReturn(okJson(MARKET_CHART_EMPTY_JSON)));
 
             // when & then
             mockMvc.perform(get("/api/market/coins/bitcoin/ohlcv")

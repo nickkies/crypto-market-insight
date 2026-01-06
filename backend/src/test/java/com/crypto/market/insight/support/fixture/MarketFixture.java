@@ -66,6 +66,22 @@ public final class MarketFixture {
 
     public static final String OHLC_SINGLE_JSON = "[[1709395200000, 61942, 62211, 61721, 61845]]";
 
+    public static final String MARKET_CHART_JSON = """
+            {
+                "prices": [[1709395200000, 61845], [1709409600000, 62139], [1709424000000, 62068]],
+                "market_caps": [[1709395200000, 1200000000000], [1709409600000, 1210000000000], [1709424000000, 1205000000000]],
+                "total_volumes": [[1709395200000, 25000000000], [1709409600000, 26000000000], [1709424000000, 24000000000]]
+            }
+            """;
+
+    public static final String MARKET_CHART_EMPTY_JSON = """
+            {
+                "prices": [],
+                "market_caps": [],
+                "total_volumes": []
+            }
+            """;
+
     public static final String EMPTY_ARRAY_JSON = "[]";
 
     // === Object Fixtures ===
