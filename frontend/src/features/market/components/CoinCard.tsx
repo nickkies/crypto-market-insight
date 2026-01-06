@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useFavoritesStore } from '../stores';
+import { useFavoritesStore, useMarketStore } from '../stores';
 import type { CoinSummaryDto } from '../services';
 import { formatPrice, formatPercent, formatMarketCap } from '@/utils';
 
@@ -11,9 +11,15 @@ interface Props {
 export default function CoinCard({ coin }: Props) {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesStore();
+  const { selectedCoinId, setSelectedCoinId } = useMarketStore();
   const favorite = isFavorite(coin.id);
+  const isSelected = selectedCoinId === coin.id;
 
   const handleClick = () => {
+    setSelectedCoinId(coin.id);
+  };
+
+  const handleDoubleClick = () => {
     navigate(`/market/${coin.id}`);
   };
 
@@ -25,7 +31,12 @@ export default function CoinCard({ coin }: Props) {
   const isPositive = coin.priceChangePercentage24h >= 0;
 
   return (
-    <Card onClick={handleClick} data-testid="coin-card">
+    <Card
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
+      $selected={isSelected}
+      data-testid="coin-card"
+    >
       <CardHeader>
         <CoinInfo>
           <CoinImage src={coin.image} alt={coin.name} />
@@ -67,13 +78,21 @@ export default function CoinCard({ coin }: Props) {
   );
 }
 
-const Card = styled.div`
+const Card = styled.div<{ $selected: boolean }>`
   background: ${({ theme }) => theme.colors.background.secondary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
+  border: 1px solid
+    ${({ theme, $selected }) =>
+      $selected ? theme.colors.primary : theme.colors.border.primary};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing.md};
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.fast};
+
+  ${({ theme, $selected }) =>
+    $selected &&
+    `
+    box-shadow: 0 0 0 1px ${theme.colors.primary};
+  `}
 
   &:hover {
     background: ${({ theme }) => theme.colors.background.tertiary};
