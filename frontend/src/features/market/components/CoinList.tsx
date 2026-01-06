@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useCoinsInfinite } from '../hooks';
 import { useFavoritesStore } from '../stores';
 import { useIntersectionObserver } from '@/features/common/hooks';
+import { CoinListSkeleton } from '@/features/common/components';
 import type { FilterTab } from '@/features/common/components';
 import CoinCard from './CoinCard';
 
@@ -35,7 +36,7 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
   }, [data?.pages, filter, favorites]);
 
   if (isLoading) {
-    return <LoadingText>로딩 중...</LoadingText>;
+    return <CoinListSkeleton count={8} />;
   }
 
   if (filter === 'favorites' && favorites.length === 0) {
@@ -54,7 +55,9 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
         ))}
       </Grid>
       <LoadMoreTrigger ref={ref} data-testid="load-more-trigger">
-        {isFetchingNextPage && <LoadingText>더 불러오는 중...</LoadingText>}
+        {isFetchingNextPage && (
+          <LoadingMoreText>더 불러오는 중...</LoadingMoreText>
+        )}
       </LoadMoreTrigger>
     </Container>
   );
@@ -87,7 +90,7 @@ const LoadMoreTrigger = styled.div`
   margin-top: ${({ theme }) => theme.spacing.md};
 `;
 
-const LoadingText = styled.p`
+const LoadingMoreText = styled.p`
   text-align: center;
   color: ${({ theme }) => theme.colors.text.secondary};
   padding: ${({ theme }) => theme.spacing.xl};

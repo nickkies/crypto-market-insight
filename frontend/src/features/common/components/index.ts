@@ -5,6 +5,8 @@ export {
   TableSkeleton,
   TableRowsSkeleton,
   TextSkeleton,
+  CoinCardSkeleton,
+  CoinListSkeleton,
 } from './Skeleton';
 export { SearchInput } from './SearchInput';
 export { FilterTabs } from './FilterTabs';
