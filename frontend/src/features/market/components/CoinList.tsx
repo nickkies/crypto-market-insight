@@ -9,6 +9,7 @@ import {
   EmptyState,
 } from '@/features/common/components';
 import type { FilterTab } from '@/features/common/components';
+import { isApiError } from '@/features/common/api';
 import CoinCard from './CoinCard';
 
 interface Props {
@@ -24,6 +25,7 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
     isFetchingNextPage,
     isLoading,
     isError,
+    error,
     refetch,
   } = useCoinsInfinite({ keyword });
   const { favorites } = useFavoritesStore();
@@ -51,7 +53,17 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
   }
 
   if (isError) {
-    return <ErrorState onRetry={() => refetch()} />;
+    const isRateLimit = isApiError(error) && error.isRateLimitError;
+    return (
+      <ErrorState
+        message={
+          isRateLimit
+            ? 'API 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.'
+            : undefined
+        }
+        onRetry={() => refetch()}
+      />
+    );
   }
 
   if (filter === 'favorites' && favorites.length === 0) {
