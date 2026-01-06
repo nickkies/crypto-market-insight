@@ -44,6 +44,10 @@ frontend/.cache/
 frontend/coverage/
 frontend/tsconfig.tsbuildinfo
 
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+
 # ===========================================
 # Backend (Spring Boot / Gradle)
 # ===========================================
@@ -57,3 +61,5 @@ backend/*.jar
 # Docker
 # ===========================================
 docker-compose.override.yml
+
+TODO/*
