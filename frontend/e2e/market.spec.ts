@@ -84,18 +84,25 @@ test.describe('Market Page', () => {
     );
 
     // 마지막 카드를 스크롤 뷰로 가져와 IntersectionObserver 트리거
-    await page.locator('[data-testid="coin-card"]').last().scrollIntoViewIfNeeded();
+    await page
+      .locator('[data-testid="coin-card"]')
+      .last()
+      .scrollIntoViewIfNeeded();
 
     // Load More Trigger 요소를 뷰포트로 스크롤
-    await page.locator('[data-testid="load-more-trigger"]').scrollIntoViewIfNeeded();
+    await page
+      .locator('[data-testid="load-more-trigger"]')
+      .scrollIntoViewIfNeeded();
 
     // 두 번째 페이지 API 응답 대기
     await secondPagePromise;
 
     // 21번째 카드가 나타날 때까지 대기 (nth는 0-indexed)
-    await expect(page.locator('[data-testid="coin-card"]').nth(20)).toBeVisible({
-      timeout: 15000,
-    });
+    await expect(page.locator('[data-testid="coin-card"]').nth(20)).toBeVisible(
+      {
+        timeout: 15000,
+      },
+    );
 
     // 최종 카드 수가 20개보다 많은지 확인
     const finalCount = await page.locator('[data-testid="coin-card"]').count();
