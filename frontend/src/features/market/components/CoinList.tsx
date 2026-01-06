@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { useCoinsInfinite } from '../hooks';
 import { useFavoritesStore } from '../stores';
 import { useIntersectionObserver } from '@/features/common/hooks';
-import { CoinListSkeleton, ErrorState } from '@/features/common/components';
+import {
+  CoinListSkeleton,
+  ErrorState,
+  EmptyState,
+} from '@/features/common/components';
 import type { FilterTab } from '@/features/common/components';
 import CoinCard from './CoinCard';
 
@@ -51,11 +55,23 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
   }
 
   if (filter === 'favorites' && favorites.length === 0) {
-    return <EmptyText>즐겨찾기 코인을 추가해 볼까요?</EmptyText>;
+    return (
+      <EmptyState
+        icon="⭐"
+        title="즐겨찾기한 코인이 없습니다"
+        description="관심 있는 코인의 별 아이콘을 눌러 즐겨찾기에 추가해 보세요."
+      />
+    );
   }
 
   if (coins.length === 0) {
-    return <EmptyText>검색 결과가 없습니다.</EmptyText>;
+    return (
+      <EmptyState
+        icon="🔍"
+        title="검색 결과가 없습니다"
+        description="다른 키워드로 검색해 보세요."
+      />
+    );
   }
 
   return (
@@ -104,11 +120,5 @@ const LoadMoreTrigger = styled.div`
 const LoadingMoreText = styled.p`
   text-align: center;
   color: ${({ theme }) => theme.colors.text.secondary};
-  padding: ${({ theme }) => theme.spacing.xl};
-`;
-
-const EmptyText = styled.p`
-  text-align: center;
-  color: ${({ theme }) => theme.colors.text.tertiary};
   padding: ${({ theme }) => theme.spacing.xl};
 `;
