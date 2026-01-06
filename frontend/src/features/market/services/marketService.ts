@@ -42,6 +42,7 @@ export interface OhlcvDataDto {
   high: number;
   low: number;
   close: number;
+  volume: number | null;
 }
 
 export interface OhlcvResponseDto {
