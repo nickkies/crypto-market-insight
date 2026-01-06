@@ -108,4 +108,104 @@ test.describe('Market Page', () => {
     const finalCount = await page.locator('[data-testid="coin-card"]').count();
     expect(finalCount).toBeGreaterThan(20);
   });
+
+  test('검색 입력이 동작한다', async ({ page }) => {
+    await expect(page.locator('[data-testid="coin-card"]').first()).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+
+    const searchInput = page.locator('[data-testid="search-input"]');
+    await expect(searchInput).toBeVisible();
+
+    // 검색어 입력
+    await searchInput.fill('bitcoin');
+
+    // 검색 API 요청 대기 (debounce 300ms)
+    await page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/market/coins') &&
+        response.url().includes('keyword=bitcoin'),
+    );
+
+    // 검색 결과 표시 대기
+    await expect(
+      page.locator('[data-testid="coin-card"]').first(),
+    ).toBeVisible();
+  });
+
+  test('검색어 클리어 버튼이 동작한다', async ({ page }) => {
+    await expect(page.locator('[data-testid="coin-card"]').first()).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+
+    const searchInput = page.locator('[data-testid="search-input"]');
+    await searchInput.fill('test');
+
+    // 클리어 버튼 표시 확인
+    const clearButton = page.locator('[data-testid="search-clear-button"]');
+    await expect(clearButton).toBeVisible();
+
+    // 클리어 버튼 클릭
+    await clearButton.click();
+
+    // 입력값이 비워졌는지 확인
+    await expect(searchInput).toHaveValue('');
+  });
+
+  test('즐겨찾기 필터가 동작한다', async ({ page }) => {
+    await expect(page.locator('[data-testid="coin-card"]').first()).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+
+    // 필터 탭 확인
+    const allTab = page.locator('[data-testid="filter-tab-all"]');
+    const favoritesTab = page.locator('[data-testid="filter-tab-favorites"]');
+    await expect(allTab).toBeVisible();
+    await expect(favoritesTab).toBeVisible();
+
+    // 첫 번째 코인 즐겨찾기 추가
+    const firstFavoriteBtn = page
+      .locator('[data-testid="coin-card"]')
+      .first()
+      .locator('[data-testid="favorite-button"]');
+    await firstFavoriteBtn.click();
+    await expect(firstFavoriteBtn).toHaveText('★');
+
+    // 즐겨찾기 탭으로 전환
+    await favoritesTab.click();
+
+    // 즐겨찾기한 코인만 표시됨
+    await expect(page.locator('[data-testid="coin-card"]')).toHaveCount(1);
+
+    // 전체 탭으로 다시 전환
+    await allTab.click();
+
+    // 모든 코인이 다시 표시됨
+    await expect(page.locator('[data-testid="coin-card"]')).toHaveCount(20, {
+      timeout: 5000,
+    });
+  });
+
+  test('즐겨찾기 없을 때 빈 상태 메시지가 표시된다', async ({ page }) => {
+    await expect(page.locator('[data-testid="coin-card"]').first()).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+
+    // 즐겨찾기 탭으로 전환
+    const favoritesTab = page.locator('[data-testid="filter-tab-favorites"]');
+    await favoritesTab.click();
+
+    // 빈 상태 메시지 확인
+    await expect(
+      page.getByText('즐겨찾기 코인을 추가해 볼까요?'),
+    ).toBeVisible();
+  });
 });
