@@ -2,6 +2,7 @@ package com.crypto.market.insight.domain.market.client;
 
 import com.crypto.market.insight.config.CacheConfig;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
+import com.crypto.market.insight.domain.market.dto.MarketChartData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
 import com.crypto.market.insight.domain.market.exception.CoinGeckoApiException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class CoinGeckoClient {
 
     private static final String COINS_MARKETS_PATH = "/coins/markets";
     private static final String OHLC_PATH = "/coins/{id}/ohlc";
+    private static final String MARKET_CHART_PATH = "/coins/{id}/market_chart";
 
     private final RestClient coinGeckoRestClient;
 
@@ -86,6 +88,27 @@ public class CoinGeckoClient {
 
             return response != null ? List.of(response) : List.of();
         });
+    }
+
+    /**
+     * 마켓 차트 데이터 조회 (가격, 시가총액, 거래량)
+     *
+     * @param coinId     코인 ID (예: "bitcoin")
+     * @param vsCurrency 기준 통화 (예: "usd")
+     * @param days       조회 기간 (1, 7, 14, 30, 90, 180, 365, "max")
+     * @return 마켓 차트 데이터
+     */
+    @Cacheable(value = CacheConfig.OHLC, key = "'chart:' + #coinId + ':' + #vsCurrency + ':' + #days")
+    public MarketChartData getMarketChart(String coinId, String vsCurrency, String days) {
+        log.info("Cache MISS - fetching MarketChart: coinId={}, vsCurrency={}, days={}", coinId, vsCurrency, days);
+        return execute(() -> coinGeckoRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(MARKET_CHART_PATH)
+                        .queryParam("vs_currency", vsCurrency)
+                        .queryParam("days", days)
+                        .build(coinId))
+                .retrieve()
+                .body(MarketChartData.class));
     }
 
     private <T> T execute(Supplier<T> request) {

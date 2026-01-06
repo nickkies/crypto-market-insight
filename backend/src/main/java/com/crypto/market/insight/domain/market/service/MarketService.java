@@ -4,10 +4,14 @@ import com.crypto.market.insight.common.exception.BusinessException;
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
+import com.crypto.market.insight.domain.market.dto.MarketChartData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.dto.OhlcvData;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,7 +58,50 @@ public class MarketService {
         return tf;
     }
 
-    public List<OhlcData> getOhlcv(String coinId, Timeframe timeframe) {
-        return coinGeckoClient.getOhlc(coinId, DEFAULT_VS_CURRENCY, timeframe.getDays());
+    public List<OhlcvData> getOhlcv(String coinId, Timeframe timeframe) {
+        List<OhlcData> ohlcList = coinGeckoClient.getOhlc(coinId, DEFAULT_VS_CURRENCY, timeframe.getDays());
+        MarketChartData marketChart = coinGeckoClient.getMarketChart(coinId, DEFAULT_VS_CURRENCY, timeframe.getDays());
+
+        Map<Long, BigDecimal> volumeMap = buildVolumeMap(marketChart);
+
+        return ohlcList.stream()
+                .map(ohlc -> {
+                    BigDecimal volume = findNearestVolume(ohlc.timestamp(), volumeMap);
+                    return OhlcvData.from(ohlc, volume);
+                })
+                .toList();
+    }
+
+    private Map<Long, BigDecimal> buildVolumeMap(MarketChartData marketChart) {
+        if (marketChart == null || marketChart.totalVolumes() == null) {
+            return Map.of();
+        }
+        return marketChart.totalVolumes().stream()
+                .collect(Collectors.toMap(
+                        v -> v.get(0).longValue(),
+                        v -> BigDecimal.valueOf(v.get(1).doubleValue()),
+                        (v1, v2) -> v2
+                ));
+    }
+
+    private BigDecimal findNearestVolume(Long timestamp, Map<Long, BigDecimal> volumeMap) {
+        if (volumeMap.isEmpty()) {
+            return null;
+        }
+
+        // 정확히 일치하는 경우
+        if (volumeMap.containsKey(timestamp)) {
+            return volumeMap.get(timestamp);
+        }
+
+        // 가장 가까운 timestamp 찾기 (1시간 범위 내)
+        long tolerance = 3600000L; // 1 hour
+        return volumeMap.entrySet().stream()
+                .filter(e -> Math.abs(e.getKey() - timestamp) <= tolerance)
+                .min((e1, e2) -> Long.compare(
+                        Math.abs(e1.getKey() - timestamp),
+                        Math.abs(e2.getKey() - timestamp)))
+                .map(Map.Entry::getValue)
+                .orElse(null);
     }
 }
