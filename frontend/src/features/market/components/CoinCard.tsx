@@ -25,12 +25,12 @@ export default function CoinCard({ coin }: Props) {
   const isPositive = coin.priceChangePercentage24h >= 0;
 
   return (
-    <Card onClick={handleClick}>
+    <Card onClick={handleClick} data-testid="coin-card">
       <CardHeader>
         <CoinInfo>
           <CoinImage src={coin.image} alt={coin.name} />
           <CoinDetails>
-            <CoinName>{coin.name}</CoinName>
+            <CoinName data-testid="coin-name">{coin.name}</CoinName>
             <CoinSymbol>{coin.symbol.toUpperCase()}</CoinSymbol>
           </CoinDetails>
         </CoinInfo>
@@ -38,14 +38,17 @@ export default function CoinCard({ coin }: Props) {
           onClick={handleFavoriteClick}
           $active={favorite}
           aria-label={favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+          data-testid="favorite-button"
         >
           {favorite ? '★' : '☆'}
         </FavoriteButton>
       </CardHeader>
       <CardBody>
         <PriceSection>
-          <Price>${formatPrice(coin.currentPrice)}</Price>
-          <PriceChange $positive={isPositive}>
+          <Price data-testid="coin-price">
+            ${formatPrice(coin.currentPrice)}
+          </Price>
+          <PriceChange $positive={isPositive} data-testid="coin-change">
             {formatPercent(coin.priceChangePercentage24h)}
           </PriceChange>
         </PriceSection>
