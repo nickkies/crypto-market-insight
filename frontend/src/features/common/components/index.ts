@@ -6,3 +6,4 @@ export {
   TableRowsSkeleton,
   TextSkeleton,
 } from './Skeleton';
+export { SearchInput } from './SearchInput';
