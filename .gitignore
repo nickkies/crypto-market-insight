@@ -44,6 +44,10 @@ frontend/.cache/
 frontend/coverage/
 frontend/tsconfig.tsbuildinfo
 
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+
 # ===========================================
 # Backend (Spring Boot / Gradle)
 # ===========================================
