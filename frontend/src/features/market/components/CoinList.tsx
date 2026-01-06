@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useCoinsInfinite } from '../hooks';
 import { useFavoritesStore } from '../stores';
 import { useIntersectionObserver } from '@/features/common/hooks';
-import { CoinListSkeleton } from '@/features/common/components';
+import { CoinListSkeleton, ErrorState } from '@/features/common/components';
 import type { FilterTab } from '@/features/common/components';
 import CoinCard from './CoinCard';
 
@@ -13,8 +13,15 @@ interface Props {
 }
 
 export default function CoinList({ keyword, filter = 'all' }: Props) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useCoinsInfinite({ keyword });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useCoinsInfinite({ keyword });
   const { favorites } = useFavoritesStore();
 
   const { ref, isIntersecting } = useIntersectionObserver({
@@ -37,6 +44,10 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
 
   if (isLoading) {
     return <CoinListSkeleton count={8} />;
+  }
+
+  if (isError) {
+    return <ErrorState onRetry={() => refetch()} />;
   }
 
   if (filter === 'favorites' && favorites.length === 0) {
