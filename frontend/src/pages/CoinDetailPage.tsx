@@ -317,7 +317,7 @@ export function CoinDetailPage() {
   const isPositive = coinData.priceChangePercentage24h >= 0;
 
   return (
-    <Container>
+    <Container data-testid="coin-detail-page">
       <BackButton onClick={() => navigate('/market')}>← 목록으로</BackButton>
 
       <Header>
