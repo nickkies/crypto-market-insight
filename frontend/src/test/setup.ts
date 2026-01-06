@@ -37,3 +37,16 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// ResizeObserver mock
+class ResizeObserverMock {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+global.ResizeObserver = ResizeObserverMock;
+
+// echarts-for-react mock
+vi.mock('echarts-for-react', () => ({
+  default: () => null,
+}));
