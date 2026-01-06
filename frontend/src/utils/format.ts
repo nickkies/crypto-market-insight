@@ -4,7 +4,8 @@
  * - 0.01 이상: 소수점 4자리
  * - 0.01 미만: 소수점 6자리
  */
-export function formatPrice(price: number): string {
+export function formatPrice(price: number | null | undefined): string {
+  if (price == null) return '-';
   if (price >= 1) {
     return price.toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -26,7 +27,8 @@ export function formatPrice(price: number): string {
 /**
  * 퍼센트를 포맷팅합니다 (소수점 2자리).
  */
-export function formatPercent(value: number): string {
+export function formatPercent(value: number | null | undefined): string {
+  if (value == null) return '-';
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
 }
@@ -37,7 +39,8 @@ export function formatPercent(value: number): string {
  * - 1억 이상: X.XX억
  * - 1만 이상: X.XX만
  */
-export function formatMarketCap(value: number): string {
+export function formatMarketCap(value: number | null | undefined): string {
+  if (value == null) return '-';
   const trillion = 1_000_000_000_000;
   const billion = 100_000_000;
   const tenThousand = 10_000;

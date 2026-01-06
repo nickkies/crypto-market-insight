@@ -17,6 +17,11 @@ describe('formatPrice', () => {
     expect(formatPrice(0.00123456)).toBe('0.001235');
     expect(formatPrice(0.000001)).toBe('0.000001');
   });
+
+  it('null 또는 undefined는 - 를 반환한다', () => {
+    expect(formatPrice(null)).toBe('-');
+    expect(formatPrice(undefined)).toBe('-');
+  });
 });
 
 describe('formatPercent', () => {
@@ -32,6 +37,11 @@ describe('formatPercent', () => {
   it('소수점 2자리로 포맷팅한다', () => {
     expect(formatPercent(1.234)).toBe('+1.23%');
     expect(formatPercent(-5.678)).toBe('-5.68%');
+  });
+
+  it('null 또는 undefined는 - 를 반환한다', () => {
+    expect(formatPercent(null)).toBe('-');
+    expect(formatPercent(undefined)).toBe('-');
   });
 });
 
@@ -54,5 +64,10 @@ describe('formatMarketCap', () => {
   it('1만 미만은 그대로 표시한다', () => {
     expect(formatMarketCap(9999)).toBe('9,999');
     expect(formatMarketCap(100)).toBe('100');
+  });
+
+  it('null 또는 undefined는 - 를 반환한다', () => {
+    expect(formatMarketCap(null)).toBe('-');
+    expect(formatMarketCap(undefined)).toBe('-');
   });
 });
