@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import {
   CardSkeleton,
-  ChartSkeleton,
   TableRowsSkeleton,
   TextSkeleton,
   SearchInput,
@@ -10,7 +9,13 @@ import {
 } from '@/features/common/components';
 import type { FilterTab } from '@/features/common/components';
 import { useDebounce } from '@/features/common/hooks';
-import { CoinList } from '@/features/market';
+import {
+  CoinList,
+  ChartContainer,
+  TimeframeSelector,
+  useOhlcv,
+  useMarketStore,
+} from '@/features/market';
 
 const PageContainer = styled.div`
   display: flex;
@@ -104,26 +109,6 @@ const CardTitle = styled.h3`
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
-const TimeframeButtons = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
-`;
-
-const TimeframeButton = styled.button<{ $active?: boolean }>`
-  padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
-  font-size: ${({ theme }) => theme.fonts.size.xs};
-  color: ${({ theme, $active }) =>
-    $active ? theme.colors.primary.main : theme.colors.text.tertiary};
-  background-color: ${({ theme, $active }) =>
-    $active ? theme.colors.background.tertiary : 'transparent'};
-  transition: all ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary.main};
-  }
-`;
-
 const Sidebar = styled.aside`
   display: flex;
   flex-direction: column;
@@ -202,6 +187,17 @@ export function MarketPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
+  // 차트 테스트용 임시 코드
+  const { timeframe, setTimeframe } = useMarketStore();
+  const {
+    data: ohlcvData,
+    isLoading: isChartLoading,
+    isError: isChartError,
+    error: chartError,
+    refetch: refetchChart,
+  } = useOhlcv({ coinId: 'bitcoin', timeframe });
+  const chartErrorStatus = (chartError as { status?: number })?.status;
+
   return (
     <PageContainer data-testid="market-page">
       <PageHeader>
@@ -225,21 +221,15 @@ export function MarketPage() {
           <Card>
             <CardHeader>
               <CardTitle>BTC/USDT</CardTitle>
-              <TimeframeButtons>
-                <TimeframeButton>1H</TimeframeButton>
-                <TimeframeButton>4H</TimeframeButton>
-                <TimeframeButton $active>1D</TimeframeButton>
-                <TimeframeButton>1W</TimeframeButton>
-              </TimeframeButtons>
+              <TimeframeSelector value={timeframe} onChange={setTimeframe} />
             </CardHeader>
-            <ChartSkeleton />
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Volume Analysis</CardTitle>
-            </CardHeader>
-            <ChartSkeleton style={{ height: '200px' }} />
+            <ChartContainer
+              data={ohlcvData?.data}
+              isLoading={isChartLoading}
+              isError={isChartError}
+              errorStatus={chartErrorStatus}
+              onRetry={() => refetchChart()}
+            />
           </Card>
         </ChartSection>
 
