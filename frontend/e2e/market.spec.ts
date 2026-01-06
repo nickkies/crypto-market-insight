@@ -203,9 +203,8 @@ test.describe('Market Page', () => {
     const favoritesTab = page.locator('[data-testid="filter-tab-favorites"]');
     await favoritesTab.click();
 
-    // 빈 상태 메시지 확인
-    await expect(
-      page.getByText('즐겨찾기 코인을 추가해 볼까요?'),
-    ).toBeVisible();
+    // 빈 상태 컴포넌트 확인
+    await expect(page.locator('[data-testid="empty-state"]')).toBeVisible();
+    await expect(page.getByText('즐겨찾기한 코인이 없습니다')).toBeVisible();
   });
 });
