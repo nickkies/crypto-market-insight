@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -39,9 +40,7 @@ public class SecurityConfig {
             // Auth (login)
             "/api/auth/login/**",
             // Market API (public)
-            "/api/market/**",
-            // Backtest API (public, rate limited)
-            "/api/backtests/**"
+            "/api/market/**"
     };
 
     @Bean
@@ -57,6 +56,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
+                        // Backtest API: POST (실행), GET /{id} (결과 조회)는 공개
+                        .requestMatchers(HttpMethod.POST, "/api/backtests").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/backtests/{id}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
