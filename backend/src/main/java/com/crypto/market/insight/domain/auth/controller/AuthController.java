@@ -1,6 +1,9 @@
 package com.crypto.market.insight.domain.auth.controller;
 
+import com.crypto.market.insight.common.exception.BusinessException;
+import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.auth.dto.UserInfoResponse;
+import com.crypto.market.insight.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,13 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Auth", description = "인증 API")
 public class AuthController {
 
+    private final UserRepository userRepository;
+
     @Operation(
             summary = "현재 사용자 정보 조회",
             description = "JWT 토큰으로 인증된 사용자의 정보를 반환합니다."
     )
     @GetMapping("/me")
     public ResponseEntity<UserInfoResponse> getCurrentUser(@AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(UserInfoResponse.of(userId, ""));
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        return ResponseEntity.ok(UserInfoResponse.from(user));
     }
 
     @Hidden

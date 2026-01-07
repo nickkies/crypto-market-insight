@@ -61,11 +61,12 @@ test.describe('Market Page', () => {
     await expect(favoriteButton).toHaveText('☆');
   });
 
-  test('코인 카드 클릭 시 상세 페이지로 이동한다', async ({ page }) => {
+  test('상세 버튼 클릭 시 상세 페이지로 이동한다', async ({ page }) => {
     const firstCard = page.locator('[data-testid="coin-card"]').first();
     await expect(firstCard).toBeVisible({ timeout: 10000 });
 
-    await firstCard.click();
+    const detailButton = firstCard.locator('[data-testid="detail-button"]');
+    await detailButton.click();
 
     await expect(page).toHaveURL(/\/market\/[a-z-]+/);
   });

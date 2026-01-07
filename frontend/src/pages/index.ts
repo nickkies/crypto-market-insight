@@ -3,3 +3,4 @@ export { MarketPage } from './MarketPage';
 export { CoinDetailPage } from './CoinDetailPage';
 export { BacktestPage } from './BacktestPage';
 export { NotFoundPage } from './NotFoundPage';
+export { OAuthCallbackPage } from './OAuthCallbackPage';
