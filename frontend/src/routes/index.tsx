@@ -6,6 +6,7 @@ import {
   CoinDetailPage,
   BacktestPage,
   NotFoundPage,
+  OAuthCallbackPage,
 } from '@/pages';
 
 export const router = createBrowserRouter([
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
       {
         path: 'backtest',
         element: <BacktestPage />,
+      },
+      {
+        path: 'oauth/callback',
+        element: <OAuthCallbackPage />,
       },
       {
         path: '*',
