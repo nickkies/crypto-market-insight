@@ -1,24 +1,18 @@
 import { test, expect } from '@playwright/test';
+import { setupMarketApiMocks } from './fixtures/apiMocks';
 
 test.describe('Market Page', () => {
   test.beforeEach(async ({ page }) => {
-    // API 응답을 기다리며 페이지 로드
-    await Promise.all([
-      page.waitForResponse((response) =>
-        response.url().includes('/api/market/coins'),
-      ),
-      page.goto('/market'),
-    ]);
+    // API Mocking 설정 (CoinGecko 요청 제한 방어)
+    await setupMarketApiMocks(page);
+
+    await page.goto('/market');
+
+    // Mock 데이터 로드 대기
+    await page.waitForSelector('[data-testid="coin-card"]', { timeout: 10000 });
   });
 
   test('코인 목록이 표시된다', async ({ page }) => {
-    // 로딩이 완료될 때까지 대기
-    await expect(page.locator('[data-testid="coin-card"]').first()).toBeVisible(
-      {
-        timeout: 10000,
-      },
-    );
-
     // 코인 카드가 여러 개 표시되는지 확인
     const cards = page.locator('[data-testid="coin-card"]');
     await expect(cards).toHaveCount(20, { timeout: 10000 });
@@ -77,13 +71,6 @@ test.describe('Market Page', () => {
       timeout: 10000,
     });
 
-    // 두 번째 API 요청을 추적
-    const secondPagePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/market/coins') &&
-        response.url().includes('page=2'),
-    );
-
     // 마지막 카드를 스크롤 뷰로 가져와 IntersectionObserver 트리거
     await page
       .locator('[data-testid="coin-card"]')
@@ -94,9 +81,6 @@ test.describe('Market Page', () => {
     await page
       .locator('[data-testid="load-more-trigger"]')
       .scrollIntoViewIfNeeded();
-
-    // 두 번째 페이지 API 응답 대기
-    await secondPagePromise;
 
     // 21번째 카드가 나타날 때까지 대기 (nth는 0-indexed)
     await expect(page.locator('[data-testid="coin-card"]').nth(20)).toBeVisible(
@@ -123,17 +107,11 @@ test.describe('Market Page', () => {
     // 검색어 입력
     await searchInput.fill('bitcoin');
 
-    // 검색 API 요청 대기 (debounce 300ms)
-    await page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/market/coins') &&
-        response.url().includes('keyword=bitcoin'),
-    );
+    // 검색 결과 표시 대기 (debounce 후 mock 응답)
+    await page.waitForTimeout(500);
 
-    // 검색 결과 표시 대기
-    await expect(
-      page.locator('[data-testid="coin-card"]').first(),
-    ).toBeVisible();
+    // 검색 결과 확인 - Bitcoin 코인 카드가 표시되어야 함
+    await expect(page.locator('[data-testid="coin-name"]').filter({ hasText: 'Bitcoin' })).toBeVisible();
   });
 
   test('검색어 클리어 버튼이 동작한다', async ({ page }) => {
