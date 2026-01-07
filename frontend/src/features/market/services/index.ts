@@ -7,3 +7,4 @@ export {
   type OhlcvResponseDto,
   type Timeframe,
 } from './marketService';
+export { favoriteService, type FavoriteResponse } from './favoriteService';

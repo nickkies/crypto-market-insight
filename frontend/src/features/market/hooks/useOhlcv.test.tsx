@@ -106,9 +106,7 @@ describe('useOhlcv', () => {
   });
 
   it('에러 발생 시 에러 상태를 반환한다', async () => {
-    vi.mocked(marketService.getOhlcv).mockRejectedValue(
-      new Error('API Error'),
-    );
+    vi.mocked(marketService.getOhlcv).mockRejectedValue(new Error('API Error'));
     const queryClient = createTestQueryClient();
 
     const { result } = renderHook(

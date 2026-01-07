@@ -164,7 +164,33 @@ src/
 
 ### Testing Tools
 
-`Vitest` `Testing Library`
+`Vitest` `Testing Library` `Playwright`
+
+### E2E Testing
+
+E2E 테스트는 `Playwright`를 사용하며, 외부 API 의존성을 제거하기 위해 **API Mocking**을 적용합니다.
+
+```bash
+npm run test:e2e
+```
+
+**API Mocking 구조**
+
+```bash
+e2e/
+├── fixtures/
+│   ├── mockData.ts    # Mock 데이터 정의 (코인 목록 등)
+│   └── apiMocks.ts    # page.route()로 API 요청 가로채기
+├── market.spec.ts     # Market 페이지 테스트
+├── auth.spec.ts       # 인증 플로우 테스트
+└── home.spec.ts       # 홈페이지 테스트
+```
+
+**왜 API Mocking을 사용하나요?**
+
+- CoinGecko API 요청 제한 (rate limit) 회피
+- 테스트 실행 속도 향상
+- 외부 서비스 장애와 무관하게 안정적인 테스트
 
 ---
 

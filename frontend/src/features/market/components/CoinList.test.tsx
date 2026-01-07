@@ -13,6 +13,11 @@ vi.mock('../services', () => ({
   marketService: {
     getCoins: vi.fn(),
   },
+  favoriteService: {
+    getFavorites: vi.fn().mockResolvedValue([]),
+    addFavorite: vi.fn().mockResolvedValue({ id: 1, coinId: 'bitcoin' }),
+    removeFavorite: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 const mockCoins: CoinSummaryDto[] = [

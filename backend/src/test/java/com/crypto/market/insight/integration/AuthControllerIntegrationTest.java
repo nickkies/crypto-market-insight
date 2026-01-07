@@ -3,7 +3,11 @@ package com.crypto.market.insight.integration;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.crypto.market.insight.domain.user.model.entity.User;
+import com.crypto.market.insight.domain.user.model.vo.AuthProvider;
+import com.crypto.market.insight.domain.user.repository.UserRepository;
 import com.crypto.market.insight.security.jwt.JwtTokenProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,9 +16,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class AuthControllerIntegrationTest {
 
     @Autowired
@@ -23,24 +29,40 @@ class AuthControllerIntegrationTest {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Nested
     @DisplayName("GET /api/auth/me")
     class GetCurrentUser {
+
+        private User testUser;
+
+        @BeforeEach
+        void setUp() {
+            testUser = userRepository.save(User.builder()
+                    .email("test@github.com")
+                    .nickname("testuser")
+                    .profileImage("https://example.com/avatar.png")
+                    .provider(AuthProvider.GITHUB)
+                    .providerId("12345")
+                    .build());
+        }
 
         @Test
         @DisplayName("인증된 사용자 정보 조회 성공")
         void success() throws Exception {
             // given
-            Long userId = 1L;
-            String email = "test@github.com";
-            String token = jwtTokenProvider.createToken(userId, email);
+            String token = jwtTokenProvider.createToken(testUser.getId(), testUser.getEmail());
 
             // when & then
             mockMvc.perform(get("/api/auth/me")
                             .header("Authorization", "Bearer " + token))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.userId").value(userId));
+                    .andExpect(jsonPath("$.userId").value(testUser.getId()))
+                    .andExpect(jsonPath("$.email").value(testUser.getEmail()))
+                    .andExpect(jsonPath("$.nickname").value(testUser.getNickname()));
         }
 
         @Test
