@@ -35,6 +35,15 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitException(RateLimitException e) {
+        log.warn("RateLimitException: retryAfter={}s", e.getRetryAfterSeconds());
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(e.getRetryAfterSeconds()))
+                .body(ErrorResponse.of(ErrorCode.RATE_LIMIT_EXCEEDED));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
         log.warn("ValidationException: {}", e.getMessage());

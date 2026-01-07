@@ -34,6 +34,13 @@ public enum ErrorCode {
     STRATEGY_NOT_FOUND(HttpStatus.NOT_FOUND, "전략을 찾을 수 없습니다"),
     INVALID_STRATEGY_PARAMS(HttpStatus.BAD_REQUEST, "잘못된 전략 파라미터입니다"),
 
+    // Backtest
+    BACKTEST_NOT_FOUND(HttpStatus.NOT_FOUND, "백테스트 결과를 찾을 수 없습니다"),
+    INSUFFICIENT_DATA(HttpStatus.BAD_REQUEST, "백테스트에 필요한 데이터가 부족합니다"),
+
+    // Rate Limit
+    RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요"),
+
     // Portfolio
     PORTFOLIO_NOT_FOUND(HttpStatus.NOT_FOUND, "포트폴리오를 찾을 수 없습니다"),
     INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "잔액이 부족합니다");
