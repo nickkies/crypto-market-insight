@@ -39,7 +39,9 @@ public class SecurityConfig {
             // Auth (login)
             "/api/auth/login/**",
             // Market API (public)
-            "/api/market/**"
+            "/api/market/**",
+            // Backtest API (public, rate limited)
+            "/api/backtests/**"
     };
 
     @Bean
