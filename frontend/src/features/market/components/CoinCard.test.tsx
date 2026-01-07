@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { darkTheme } from '@/styles/theme';
 import CoinCard from './CoinCard';
 import { useFavoritesStore, useMarketStore } from '../stores';
@@ -16,6 +17,14 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+vi.mock('../services/favoriteService', () => ({
+  favoriteService: {
+    getFavorites: vi.fn().mockResolvedValue([]),
+    addFavorite: vi.fn().mockResolvedValue({ id: 1, coinId: 'bitcoin' }),
+    removeFavorite: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 const mockCoin: CoinSummaryDto = {
   id: 'bitcoin',
   symbol: 'btc',
@@ -27,11 +36,23 @@ const mockCoin: CoinSummaryDto = {
   priceChangePercentage24h: 2.5,
 };
 
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
 const renderWithProviders = (ui: React.ReactElement) => {
+  const queryClient = createTestQueryClient();
   return render(
-    <ThemeProvider theme={darkTheme}>
-      <BrowserRouter>{ui}</BrowserRouter>
-    </ThemeProvider>,
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={darkTheme}>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </ThemeProvider>
+    </QueryClientProvider>,
   );
 };
 

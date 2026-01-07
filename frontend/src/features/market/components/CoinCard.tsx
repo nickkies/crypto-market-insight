@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useFavoritesStore, useMarketStore } from '../stores';
+import { useMarketStore } from '../stores';
+import { useFavoritesSync } from '../hooks';
 import type { CoinSummaryDto } from '../services';
 import { formatPrice, formatPercent, formatMarketCap } from '@/utils';
 
@@ -10,7 +11,7 @@ interface Props {
 
 export default function CoinCard({ coin }: Props) {
   const navigate = useNavigate();
-  const { isFavorite, toggleFavorite } = useFavoritesStore();
+  const { isFavorite, toggleFavorite } = useFavoritesSync();
   const { selectedCoinId, setSelectedCoinId } = useMarketStore();
   const favorite = isFavorite(coin.id);
   const isSelected = selectedCoinId === coin.id;
