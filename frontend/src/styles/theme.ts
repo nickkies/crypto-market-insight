@@ -1,3 +1,5 @@
+import { MARKET_COLORS } from './marketColors';
+
 export interface Theme {
   colors: {
     // Background colors
@@ -164,11 +166,7 @@ export const lightTheme: Theme = {
     error: '#EF4444',
     warning: '#F59E0B',
     info: '#0EA5E9',
-    market: {
-      up: '#22C55E',
-      down: '#EF4444',
-      neutral: '#94A3B8',
-    },
+    market: MARKET_COLORS,
     border: {
       primary: '#E2E8F0',
       secondary: '#CBD5E1',
@@ -204,11 +202,7 @@ export const darkTheme: Theme = {
     error: '#F87171',
     warning: '#FBBF24',
     info: '#38BDF8',
-    market: {
-      up: '#4ADE80',
-      down: '#F87171',
-      neutral: '#64748B',
-    },
+    market: MARKET_COLORS,
     border: {
       primary: '#334155',
       secondary: '#475569',

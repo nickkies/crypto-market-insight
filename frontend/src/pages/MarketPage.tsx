@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import {
   CardSkeleton,
-  ChartSkeleton,
   TableRowsSkeleton,
   TextSkeleton,
   SearchInput,
@@ -10,7 +9,13 @@ import {
 } from '@/features/common/components';
 import type { FilterTab } from '@/features/common/components';
 import { useDebounce } from '@/features/common/hooks';
-import { CoinList } from '@/features/market';
+import {
+  CoinList,
+  ChartContainer,
+  TimeframeSelector,
+  useOhlcv,
+  useMarketStore,
+} from '@/features/market';
 
 const PageContainer = styled.div`
   display: flex;
@@ -81,7 +86,16 @@ const MainContent = styled.div`
 const ChartSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg};
+`;
+
+const ChartCard = styled.div`
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border.primary};
+  padding: ${({ theme }) => theme.spacing.lg};
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Card = styled.div`
@@ -104,30 +118,16 @@ const CardTitle = styled.h3`
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
-const TimeframeButtons = styled.div`
+const SidebarWrapper = styled.aside`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xs};
+  flex-direction: column;
 `;
 
-const TimeframeButton = styled.button<{ $active?: boolean }>`
-  padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
-  font-size: ${({ theme }) => theme.fonts.size.xs};
-  color: ${({ theme, $active }) =>
-    $active ? theme.colors.primary.main : theme.colors.text.tertiary};
-  background-color: ${({ theme, $active }) =>
-    $active ? theme.colors.background.tertiary : 'transparent'};
-  transition: all ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary.main};
-  }
-`;
-
-const Sidebar = styled.aside`
+const Sidebar = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
+  height: 100%;
 `;
 
 const IndicatorGrid = styled.div`
@@ -202,6 +202,18 @@ export function MarketPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
+  const { timeframe, setTimeframe, selectedCoinId } = useMarketStore();
+  const chartCoinId = selectedCoinId || 'bitcoin';
+
+  const {
+    data: ohlcvData,
+    isLoading: isChartLoading,
+    isError: isChartError,
+    error: chartError,
+    refetch: refetchChart,
+  } = useOhlcv({ coinId: chartCoinId, timeframe });
+  const chartErrorStatus = (chartError as { status?: number })?.status;
+
   return (
     <PageContainer data-testid="market-page">
       <PageHeader>
@@ -222,60 +234,56 @@ export function MarketPage() {
 
       <MainContent>
         <ChartSection>
-          <Card>
+          <ChartCard>
             <CardHeader>
-              <CardTitle>BTC/USDT</CardTitle>
-              <TimeframeButtons>
-                <TimeframeButton>1H</TimeframeButton>
-                <TimeframeButton>4H</TimeframeButton>
-                <TimeframeButton $active>1D</TimeframeButton>
-                <TimeframeButton>1W</TimeframeButton>
-              </TimeframeButtons>
+              <CardTitle>{chartCoinId.toUpperCase()}/USD</CardTitle>
+              <TimeframeSelector value={timeframe} onChange={setTimeframe} />
             </CardHeader>
-            <ChartSkeleton />
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Volume Analysis</CardTitle>
-            </CardHeader>
-            <ChartSkeleton style={{ height: '200px' }} />
-          </Card>
+            <ChartContainer
+              data={ohlcvData?.data}
+              isLoading={isChartLoading}
+              isError={isChartError}
+              errorStatus={chartErrorStatus}
+              onRetry={() => refetchChart()}
+            />
+          </ChartCard>
         </ChartSection>
 
-        <Sidebar>
-          <Card>
-            <CardTitle>Technical Indicators</CardTitle>
-            <IndicatorGrid>
-              <IndicatorCard>
-                <IndicatorLabel>RSI (14)</IndicatorLabel>
-                <TextSkeleton width="60%" />
-              </IndicatorCard>
-              <IndicatorCard>
-                <IndicatorLabel>MACD</IndicatorLabel>
-                <TextSkeleton width="70%" />
-              </IndicatorCard>
-              <IndicatorCard>
-                <IndicatorLabel>MA (20)</IndicatorLabel>
-                <TextSkeleton width="80%" />
-              </IndicatorCard>
-              <IndicatorCard>
-                <IndicatorLabel>BB</IndicatorLabel>
-                <TextSkeleton width="50%" />
-              </IndicatorCard>
-            </IndicatorGrid>
-          </Card>
+        <SidebarWrapper>
+          <Sidebar>
+            <Card>
+              <CardTitle>Technical Indicators</CardTitle>
+              <IndicatorGrid>
+                <IndicatorCard>
+                  <IndicatorLabel>RSI (14)</IndicatorLabel>
+                  <TextSkeleton width="60%" />
+                </IndicatorCard>
+                <IndicatorCard>
+                  <IndicatorLabel>MACD</IndicatorLabel>
+                  <TextSkeleton width="70%" />
+                </IndicatorCard>
+                <IndicatorCard>
+                  <IndicatorLabel>MA (20)</IndicatorLabel>
+                  <TextSkeleton width="80%" />
+                </IndicatorCard>
+                <IndicatorCard>
+                  <IndicatorLabel>BB</IndicatorLabel>
+                  <TextSkeleton width="50%" />
+                </IndicatorCard>
+              </IndicatorGrid>
+            </Card>
 
-          <Card>
-            <CardTitle>Signal Summary</CardTitle>
-            <TableRowsSkeleton rows={4} />
-          </Card>
+            <Card>
+              <CardTitle>Signal Summary</CardTitle>
+              <TableRowsSkeleton rows={4} />
+            </Card>
 
-          <Card>
-            <CardTitle>Top Gainers</CardTitle>
-            <TableRowsSkeleton rows={5} />
-          </Card>
-        </Sidebar>
+            <Card>
+              <CardTitle>Top Gainers</CardTitle>
+              <TableRowsSkeleton rows={5} />
+            </Card>
+          </Sidebar>
+        </SidebarWrapper>
       </MainContent>
 
       <Section>

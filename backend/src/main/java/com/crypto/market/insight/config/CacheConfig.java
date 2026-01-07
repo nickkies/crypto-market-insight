@@ -16,8 +16,8 @@ public class CacheConfig {
     public static final String COIN_MARKETS = "coinMarkets";
     public static final String OHLC = "ohlc";
 
-    private static final long COIN_MARKETS_TTL_SECONDS = 60;      // 시세: 1분
-    private static final long OHLC_TTL_SECONDS = 300;             // OHLC: 5분
+    private static final long COIN_MARKETS_TTL_SECONDS = 600;     // 시세: 10분
+    private static final long OHLC_TTL_SECONDS = 600;             // OHLC: 10분
     private static final long MAX_SIZE = 1000;
 
     @Bean

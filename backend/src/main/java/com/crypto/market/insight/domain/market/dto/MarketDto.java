@@ -93,15 +93,19 @@ public class MarketDto {
             BigDecimal low,
 
             @Schema(description = "종가", example = "61845.00")
-            BigDecimal close
+            BigDecimal close,
+
+            @Schema(description = "거래량", example = "1234567890.50")
+            BigDecimal volume
     ) {
-        public static OhlcvDataDto from(OhlcData data) {
+        public static OhlcvDataDto from(OhlcvData data) {
             return new OhlcvDataDto(
                     data.timestamp(),
                     data.open(),
                     data.high(),
                     data.low(),
-                    data.close()
+                    data.close(),
+                    data.volume()
             );
         }
     }

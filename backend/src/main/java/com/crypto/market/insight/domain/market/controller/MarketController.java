@@ -5,7 +5,7 @@ import com.crypto.market.insight.domain.market.dto.MarketDto.CoinListResponse;
 import com.crypto.market.insight.domain.market.dto.MarketDto.CoinSummary;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvDataDto;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvResponse;
-import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.dto.OhlcvData;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import com.crypto.market.insight.domain.market.service.MarketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,8 +77,8 @@ public class MarketController {
             @RequestParam(defaultValue = "1d") String timeframe
     ) {
         Timeframe tf = marketService.parseTimeframe(timeframe);
-        List<OhlcData> ohlcData = marketService.getOhlcv(coinId, tf);
-        List<OhlcvDataDto> ohlcvDataDtos = ohlcData.stream()
+        List<OhlcvData> ohlcvData = marketService.getOhlcv(coinId, tf);
+        List<OhlcvDataDto> ohlcvDataDtos = ohlcvData.stream()
                 .map(OhlcvDataDto::from)
                 .toList();
         return ResponseEntity.ok(OhlcvResponse.of(coinId, tf.getValue(), ohlcvDataDtos));

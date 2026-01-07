@@ -31,14 +31,14 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
   const { favorites } = useFavoritesStore();
 
   const { ref, isIntersecting } = useIntersectionObserver({
-    enabled: hasNextPage && !isFetchingNextPage && filter === 'all',
+    enabled: hasNextPage && !isFetchingNextPage && !isError && filter === 'all',
   });
 
   useEffect(() => {
-    if (isIntersecting && hasNextPage && !isFetchingNextPage) {
+    if (isIntersecting && hasNextPage && !isFetchingNextPage && !isError) {
       fetchNextPage();
     }
-  }, [isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [isIntersecting, hasNextPage, isFetchingNextPage, isError, fetchNextPage]);
 
   const coins = useMemo(() => {
     const allCoins = data?.pages.flatMap((page) => page.coins) ?? [];
@@ -48,11 +48,15 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
     return allCoins;
   }, [data?.pages, filter, favorites]);
 
-  if (isLoading) {
+  const hasData = coins.length > 0;
+
+  // 처음 로딩 중일 때만 스켈레톤 표시
+  if (isLoading && !hasData) {
     return <CoinListSkeleton count={8} />;
   }
 
-  if (isError) {
+  // 에러가 났지만 기존 데이터가 없을 때만 에러 화면 표시
+  if (isError && !hasData) {
     const isRateLimit = isApiError(error) && error.isRateLimitError;
     return (
       <ErrorState
@@ -86,6 +90,8 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
     );
   }
 
+  const isRateLimit = isApiError(error) && error.isRateLimitError;
+
   return (
     <Container>
       <Grid>
@@ -94,8 +100,16 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
         ))}
       </Grid>
       <LoadMoreTrigger ref={ref} data-testid="load-more-trigger">
-        {isFetchingNextPage && (
+        {isFetchingNextPage && !isError && (
           <LoadingMoreText>더 불러오는 중...</LoadingMoreText>
+        )}
+        {isError && hasData && (
+          <ErrorBanner>
+            {isRateLimit
+              ? 'API 요청 한도를 초과했습니다.'
+              : '데이터를 불러오는 중 오류가 발생했습니다.'}
+            <RetryButton onClick={() => refetch()}>다시 시도</RetryButton>
+          </ErrorBanner>
         )}
       </LoadMoreTrigger>
     </Container>
@@ -133,4 +147,34 @@ const LoadingMoreText = styled.p`
   text-align: center;
   color: ${({ theme }) => theme.colors.text.secondary};
   padding: ${({ theme }) => theme.spacing.xl};
+`;
+
+const ErrorBanner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  background-color: ${({ theme }) => theme.colors.error}15;
+  border: 1px solid ${({ theme }) => theme.colors.error};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  color: ${({ theme }) => theme.colors.error};
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+`;
+
+const RetryButton = styled.button`
+  padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.error};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  color: ${({ theme }) => theme.colors.error};
+  font-size: ${({ theme }) => theme.fonts.size.xs};
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.error};
+    color: ${({ theme }) => theme.colors.text.inverse};
+  }
 `;
