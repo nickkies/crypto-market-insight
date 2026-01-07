@@ -1,9 +1,11 @@
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   ChartSkeleton,
   TableRowsSkeleton,
   TextSkeleton,
 } from '@/features/common/components';
+import { useAuthStore } from '@/features/auth';
 
 const PageContainer = styled.div`
   display: flex;
@@ -146,7 +148,50 @@ const ChartsGrid = styled.div`
   }
 `;
 
+const LoginBanner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  background-color: ${({ theme }) => theme.colors.primary.main}20;
+  border: 1px solid ${({ theme }) => theme.colors.primary.main};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  color: ${({ theme }) => theme.colors.text.primary};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-direction: column;
+    text-align: center;
+  }
+`;
+
+const BannerText = styled.p`
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+`;
+
+const BannerLoginButton = styled.button`
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+  background-color: ${({ theme }) => theme.colors.primary.main};
+  color: ${({ theme }) => theme.colors.text.inverse};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+  white-space: nowrap;
+  transition: background-color ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.primary.dark};
+  }
+`;
+
 export function BacktestPage() {
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
+
+  const handleLogin = () => {
+    sessionStorage.setItem('returnUrl', location.pathname);
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/login/github`;
+  };
   return (
     <PageContainer data-testid="backtest-page">
       <PageHeader>
@@ -155,6 +200,17 @@ export function BacktestPage() {
           전략을 선택하고 과거 데이터로 시뮬레이션하여 성과를 검증하세요.
         </PageDescription>
       </PageHeader>
+
+      {!isAuthenticated && (
+        <LoginBanner data-testid="login-banner">
+          <BannerText>
+            로그인하면 백테스트 결과를 저장하고 나중에 다시 확인할 수 있습니다.
+          </BannerText>
+          <BannerLoginButton onClick={handleLogin}>
+            GitHub로 로그인
+          </BannerLoginButton>
+        </LoginBanner>
+      )}
 
       <MainLayout>
         <ConfigPanel>
