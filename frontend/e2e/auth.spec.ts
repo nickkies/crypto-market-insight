@@ -47,6 +47,9 @@ test.describe('Auth', () => {
 
     await page.reload();
 
+    // window.confirm을 true로 반환하도록 설정
+    page.on('dialog', (dialog) => dialog.accept());
+
     const logoutButton = page.getByRole('button', { name: /logout/i });
     await logoutButton.click();
 
@@ -72,5 +75,55 @@ test.describe('Auth', () => {
 
     const token = await page.evaluate(() => sessionStorage.getItem('token'));
     expect(token).toBe('test-jwt-token');
+  });
+
+  test('미인증 시 /my/backtests 접근하면 홈으로 리다이렉트된다', async ({
+    page,
+  }) => {
+    await page.goto('/my/backtests');
+
+    await page.waitForURL('/');
+
+    const returnUrl = await page.evaluate(() =>
+      sessionStorage.getItem('returnUrl'),
+    );
+    expect(returnUrl).toBe('/my/backtests');
+  });
+
+  test('인증된 사용자는 /my/backtests에 접근할 수 있다', async ({ page }) => {
+    await page.goto('/');
+
+    await page.evaluate(() => {
+      sessionStorage.setItem('token', 'test-token');
+    });
+
+    await page.goto('/my/backtests');
+
+    const pageTitle = page.getByRole('heading', { name: 'My Backtests' });
+    await expect(pageTitle).toBeVisible();
+  });
+
+  test('백테스트 페이지에서 미인증 시 로그인 배너가 표시된다', async ({
+    page,
+  }) => {
+    await page.goto('/backtest');
+
+    const loginBanner = page.getByTestId('login-banner');
+    await expect(loginBanner).toBeVisible();
+  });
+
+  test('백테스트 페이지에서 인증 시 로그인 배너가 숨겨진다', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    await page.evaluate(() => {
+      sessionStorage.setItem('token', 'test-token');
+    });
+
+    await page.goto('/backtest');
+
+    const loginBanner = page.getByTestId('login-banner');
+    await expect(loginBanner).not.toBeVisible();
   });
 });
