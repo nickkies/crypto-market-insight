@@ -4,6 +4,7 @@ import type { EChartsOption } from 'echarts';
 import { MARKET_COLORS, CHART_COLORS } from '@/styles/marketColors';
 import { useTheme } from '@/styles';
 import type { OhlcvDataDto } from '../../services';
+import { formatPrice } from '@/utils';
 
 interface Props {
   data: OhlcvDataDto[];
@@ -29,17 +30,17 @@ export default function CandlestickChart({ data }: Props) {
           return `
             <div style="font-size: 12px;">
               <div><strong>${param.axisValue}</strong></div>
-              <div>Open: ${open.toLocaleString()}</div>
-              <div>High: ${high.toLocaleString()}</div>
-              <div>Low: ${low.toLocaleString()}</div>
-              <div>Close: ${close.toLocaleString()}</div>
+              <div>Open: $${open.toLocaleString()}</div>
+              <div>High: $${high.toLocaleString()}</div>
+              <div>Low: $${low.toLocaleString()}</div>
+              <div>Close: $${close.toLocaleString()}</div>
             </div>
           `;
         },
       },
       grid: {
-        left: '10%',
-        right: '3%',
+        left: '60px',
+        right: '10px',
         top: '10%',
         bottom: '15%',
       },
@@ -53,7 +54,10 @@ export default function CandlestickChart({ data }: Props) {
         type: 'value',
         scale: true,
         axisLine: { lineStyle: { color: colors.axisLine } },
-        axisLabel: { color: colors.axisLabel },
+        axisLabel: {
+          color: colors.axisLabel,
+          formatter: (value: number) => formatPrice(value),
+        },
         splitLine: { lineStyle: { color: colors.splitLine } },
       },
       series: [

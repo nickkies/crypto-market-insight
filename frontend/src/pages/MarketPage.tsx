@@ -86,7 +86,16 @@ const MainContent = styled.div`
 const ChartSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg};
+`;
+
+const ChartCard = styled.div`
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border.primary};
+  padding: ${({ theme }) => theme.spacing.lg};
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Card = styled.div`
@@ -109,10 +118,16 @@ const CardTitle = styled.h3`
   color: ${({ theme }) => theme.colors.text.primary};
 `;
 
-const Sidebar = styled.aside`
+const SidebarWrapper = styled.aside`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Sidebar = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
+  height: 100%;
 `;
 
 const IndicatorGrid = styled.div`
@@ -219,7 +234,7 @@ export function MarketPage() {
 
       <MainContent>
         <ChartSection>
-          <Card>
+          <ChartCard>
             <CardHeader>
               <CardTitle>{chartCoinId.toUpperCase()}/USD</CardTitle>
               <TimeframeSelector value={timeframe} onChange={setTimeframe} />
@@ -231,42 +246,44 @@ export function MarketPage() {
               errorStatus={chartErrorStatus}
               onRetry={() => refetchChart()}
             />
-          </Card>
+          </ChartCard>
         </ChartSection>
 
-        <Sidebar>
-          <Card>
-            <CardTitle>Technical Indicators</CardTitle>
-            <IndicatorGrid>
-              <IndicatorCard>
-                <IndicatorLabel>RSI (14)</IndicatorLabel>
-                <TextSkeleton width="60%" />
-              </IndicatorCard>
-              <IndicatorCard>
-                <IndicatorLabel>MACD</IndicatorLabel>
-                <TextSkeleton width="70%" />
-              </IndicatorCard>
-              <IndicatorCard>
-                <IndicatorLabel>MA (20)</IndicatorLabel>
-                <TextSkeleton width="80%" />
-              </IndicatorCard>
-              <IndicatorCard>
-                <IndicatorLabel>BB</IndicatorLabel>
-                <TextSkeleton width="50%" />
-              </IndicatorCard>
-            </IndicatorGrid>
-          </Card>
+        <SidebarWrapper>
+          <Sidebar>
+            <Card>
+              <CardTitle>Technical Indicators</CardTitle>
+              <IndicatorGrid>
+                <IndicatorCard>
+                  <IndicatorLabel>RSI (14)</IndicatorLabel>
+                  <TextSkeleton width="60%" />
+                </IndicatorCard>
+                <IndicatorCard>
+                  <IndicatorLabel>MACD</IndicatorLabel>
+                  <TextSkeleton width="70%" />
+                </IndicatorCard>
+                <IndicatorCard>
+                  <IndicatorLabel>MA (20)</IndicatorLabel>
+                  <TextSkeleton width="80%" />
+                </IndicatorCard>
+                <IndicatorCard>
+                  <IndicatorLabel>BB</IndicatorLabel>
+                  <TextSkeleton width="50%" />
+                </IndicatorCard>
+              </IndicatorGrid>
+            </Card>
 
-          <Card>
-            <CardTitle>Signal Summary</CardTitle>
-            <TableRowsSkeleton rows={4} />
-          </Card>
+            <Card>
+              <CardTitle>Signal Summary</CardTitle>
+              <TableRowsSkeleton rows={4} />
+            </Card>
 
-          <Card>
-            <CardTitle>Top Gainers</CardTitle>
-            <TableRowsSkeleton rows={5} />
-          </Card>
-        </Sidebar>
+            <Card>
+              <CardTitle>Top Gainers</CardTitle>
+              <TableRowsSkeleton rows={5} />
+            </Card>
+          </Sidebar>
+        </SidebarWrapper>
       </MainContent>
 
       <Section>

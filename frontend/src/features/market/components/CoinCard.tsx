@@ -17,9 +17,11 @@ export default function CoinCard({ coin }: Props) {
 
   const handleClick = () => {
     setSelectedCoinId(coin.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDoubleClick = () => {
+  const handleDetailClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigate(`/market/${coin.id}`);
   };
 
@@ -31,12 +33,7 @@ export default function CoinCard({ coin }: Props) {
   const isPositive = coin.priceChangePercentage24h >= 0;
 
   return (
-    <Card
-      onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
-      $selected={isSelected}
-      data-testid="coin-card"
-    >
+    <Card onClick={handleClick} $selected={isSelected} data-testid="coin-card">
       <CardHeader>
         <CoinInfo>
           <CoinImage src={coin.image} alt={coin.name} />
@@ -45,14 +42,23 @@ export default function CoinCard({ coin }: Props) {
             <CoinSymbol>{coin.symbol.toUpperCase()}</CoinSymbol>
           </CoinDetails>
         </CoinInfo>
-        <FavoriteButton
-          onClick={handleFavoriteClick}
-          $active={favorite}
-          aria-label={favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-          data-testid="favorite-button"
-        >
-          {favorite ? '★' : '☆'}
-        </FavoriteButton>
+        <ButtonGroup>
+          <DetailButton
+            onClick={handleDetailClick}
+            aria-label="상세 보기"
+            data-testid="detail-button"
+          >
+            →
+          </DetailButton>
+          <FavoriteButton
+            onClick={handleFavoriteClick}
+            $active={favorite}
+            aria-label={favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            data-testid="favorite-button"
+          >
+            {favorite ? '★' : '☆'}
+          </FavoriteButton>
+        </ButtonGroup>
       </CardHeader>
       <CardBody>
         <PriceSection>
@@ -133,6 +139,26 @@ const CoinName = styled.span`
 const CoinSymbol = styled.span`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.xs};
+`;
+
+const DetailButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.fonts.size.lg};
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  padding: ${({ theme }) => theme.spacing.xs};
+  transition: ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary.main};
+    transform: scale(1.1);
+  }
 `;
 
 const FavoriteButton = styled.button<{ $active: boolean }>`

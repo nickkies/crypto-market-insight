@@ -7,6 +7,7 @@ import type { OhlcvDataDto } from '../../services';
 
 const Container = styled.div`
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm};
@@ -74,7 +75,7 @@ export default function ChartContainer({
         : '차트를 불러올 수 없습니다. 데이터를 가져오는 중 오류가 발생했습니다.';
 
     return (
-      <ChartBox $height="400px">
+      <ChartBox $height="100%">
         <ErrorState message={errorMessage} onRetry={onRetry} />
       </ChartBox>
     );
@@ -82,7 +83,7 @@ export default function ChartContainer({
 
   if (!data || data.length === 0) {
     return (
-      <ChartBox $height="400px">
+      <ChartBox $height="100%">
         <ErrorState message="차트 데이터가 없습니다. 해당 기간의 데이터가 존재하지 않습니다." />
       </ChartBox>
     );
@@ -90,13 +91,13 @@ export default function ChartContainer({
 
   return (
     <Container ref={containerRef}>
-      <ChartBox $height={hasVolume ? '300px' : '400px'}>
+      <ChartBox $height={hasVolume ? '70%' : '100%'}>
         <ChartWrapper>
           <CandlestickChart data={data} />
         </ChartWrapper>
       </ChartBox>
       {hasVolume && (
-        <ChartBox $height="150px">
+        <ChartBox $height="30%">
           <ChartWrapper>
             <VolumeChart data={data} />
           </ChartWrapper>
