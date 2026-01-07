@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { formatPrice, formatPercent, formatMarketCap } from './format';
+import {
+  formatPrice,
+  formatPercent,
+  formatMarketCap,
+  formatVolume,
+} from './format';
 
 describe('formatPrice', () => {
   it('1 이상은 소수점 2자리로 포맷팅한다', () => {
@@ -69,5 +74,32 @@ describe('formatMarketCap', () => {
   it('null 또는 undefined는 - 를 반환한다', () => {
     expect(formatMarketCap(null)).toBe('-');
     expect(formatMarketCap(undefined)).toBe('-');
+  });
+});
+
+describe('formatVolume', () => {
+  it('10억 이상은 B 단위로 포맷팅한다', () => {
+    expect(formatVolume(25_000_000_000)).toBe('25.0B');
+    expect(formatVolume(1_500_000_000)).toBe('1.5B');
+  });
+
+  it('100만 이상 10억 미만은 M 단위로 포맷팅한다', () => {
+    expect(formatVolume(500_000_000)).toBe('500.0M');
+    expect(formatVolume(1_000_000)).toBe('1.0M');
+  });
+
+  it('1000 이상 100만 미만은 K 단위로 포맷팅한다', () => {
+    expect(formatVolume(50_000)).toBe('50.0K');
+    expect(formatVolume(1_000)).toBe('1.0K');
+  });
+
+  it('1000 미만은 그대로 표시한다', () => {
+    expect(formatVolume(999)).toBe('999');
+    expect(formatVolume(100)).toBe('100');
+  });
+
+  it('null 또는 undefined는 - 를 반환한다', () => {
+    expect(formatVolume(null)).toBe('-');
+    expect(formatVolume(undefined)).toBe('-');
   });
 });

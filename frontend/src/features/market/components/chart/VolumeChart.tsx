@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { MARKET_COLORS, CHART_COLORS } from '@/styles/marketColors';
 import { useTheme } from '@/styles';
+import { formatVolume } from '@/utils';
 import type { OhlcvDataDto } from '../../services';
 
 interface Props {
@@ -35,8 +36,8 @@ export default function VolumeChart({ data }: Props) {
         },
       },
       grid: {
-        left: '10%',
-        right: '3%',
+        left: '60px',
+        right: '10px',
         top: '10%',
         bottom: '15%',
       },
@@ -50,7 +51,10 @@ export default function VolumeChart({ data }: Props) {
         type: 'value',
         scale: true,
         axisLine: { lineStyle: { color: colors.axisLine } },
-        axisLabel: { color: colors.axisLabel },
+        axisLabel: {
+          color: colors.axisLabel,
+          formatter: (value: number) => formatVolume(value),
+        },
         splitLine: { lineStyle: { color: colors.splitLine } },
       },
       series: [

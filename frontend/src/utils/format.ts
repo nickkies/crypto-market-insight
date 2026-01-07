@@ -56,3 +56,20 @@ export function formatMarketCap(value: number | null | undefined): string {
   }
   return value.toLocaleString('en-US');
 }
+
+/**
+ * 거래량/큰 숫자를 축약 포맷팅합니다 (B/M/K).
+ */
+export function formatVolume(value: number | null | undefined): string {
+  if (value == null) return '-';
+  if (value >= 1_000_000_000) {
+    return `${(value / 1_000_000_000).toFixed(1)}B`;
+  }
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1)}M`;
+  }
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1)}K`;
+  }
+  return value.toFixed(0);
+}

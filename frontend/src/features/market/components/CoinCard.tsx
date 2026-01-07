@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useFavoritesStore } from '../stores';
+import { useFavoritesStore, useMarketStore } from '../stores';
 import type { CoinSummaryDto } from '../services';
 import { formatPrice, formatPercent, formatMarketCap } from '@/utils';
 
@@ -11,9 +11,17 @@ interface Props {
 export default function CoinCard({ coin }: Props) {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesStore();
+  const { selectedCoinId, setSelectedCoinId } = useMarketStore();
   const favorite = isFavorite(coin.id);
+  const isSelected = selectedCoinId === coin.id;
 
   const handleClick = () => {
+    setSelectedCoinId(coin.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDetailClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigate(`/market/${coin.id}`);
   };
 
@@ -25,7 +33,7 @@ export default function CoinCard({ coin }: Props) {
   const isPositive = coin.priceChangePercentage24h >= 0;
 
   return (
-    <Card onClick={handleClick} data-testid="coin-card">
+    <Card onClick={handleClick} $selected={isSelected} data-testid="coin-card">
       <CardHeader>
         <CoinInfo>
           <CoinImage src={coin.image} alt={coin.name} />
@@ -34,14 +42,23 @@ export default function CoinCard({ coin }: Props) {
             <CoinSymbol>{coin.symbol.toUpperCase()}</CoinSymbol>
           </CoinDetails>
         </CoinInfo>
-        <FavoriteButton
-          onClick={handleFavoriteClick}
-          $active={favorite}
-          aria-label={favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-          data-testid="favorite-button"
-        >
-          {favorite ? '★' : '☆'}
-        </FavoriteButton>
+        <ButtonGroup>
+          <DetailButton
+            onClick={handleDetailClick}
+            aria-label="상세 보기"
+            data-testid="detail-button"
+          >
+            →
+          </DetailButton>
+          <FavoriteButton
+            onClick={handleFavoriteClick}
+            $active={favorite}
+            aria-label={favorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            data-testid="favorite-button"
+          >
+            {favorite ? '★' : '☆'}
+          </FavoriteButton>
+        </ButtonGroup>
       </CardHeader>
       <CardBody>
         <PriceSection>
@@ -67,13 +84,21 @@ export default function CoinCard({ coin }: Props) {
   );
 }
 
-const Card = styled.div`
+const Card = styled.div<{ $selected: boolean }>`
   background: ${({ theme }) => theme.colors.background.secondary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
+  border: 1px solid
+    ${({ theme, $selected }) =>
+      $selected ? theme.colors.primary : theme.colors.border.primary};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing.md};
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.fast};
+
+  ${({ theme, $selected }) =>
+    $selected &&
+    `
+    box-shadow: 0 0 0 1px ${theme.colors.primary};
+  `}
 
   &:hover {
     background: ${({ theme }) => theme.colors.background.tertiary};
@@ -114,6 +139,26 @@ const CoinName = styled.span`
 const CoinSymbol = styled.span`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.xs};
+`;
+
+const DetailButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.fonts.size.lg};
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  padding: ${({ theme }) => theme.spacing.xs};
+  transition: ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary.main};
+    transform: scale(1.1);
+  }
 `;
 
 const FavoriteButton = styled.button<{ $active: boolean }>`

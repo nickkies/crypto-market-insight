@@ -189,7 +189,7 @@ const CoinListGrid = styled.div`
 
 export function CoinListSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <CoinListGrid>
+    <CoinListGrid data-testid="coin-list-skeleton">
       {Array.from({ length: count }).map((_, i) => (
         <CoinCardSkeleton key={i} />
       ))}
