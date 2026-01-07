@@ -2,7 +2,9 @@ package com.crypto.market.insight.support.fixture;
 
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
+import com.crypto.market.insight.domain.market.dto.OhlcvData;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class MarketFixture {
@@ -165,6 +167,64 @@ public final class MarketFixture {
                 ohlc(1709395200000L, "61942", "62211", "61721", "61845"),
                 ohlc(1709409600000L, "61828", "62139", "61726", "62139"),
                 ohlc(1709424000000L, "62171", "62210", "61821", "62068")
+        );
+    }
+
+    // === OhlcvData Fixtures for Indicator Tests ===
+
+    public static OhlcvData ohlcv(long timestamp, double close) {
+        BigDecimal price = BigDecimal.valueOf(close);
+        return new OhlcvData(timestamp, price, price, price, price, BigDecimal.valueOf(1000));
+    }
+
+    public static List<OhlcvData> ohlcvFromPrices(double... closePrices) {
+        List<OhlcvData> candles = new ArrayList<>();
+        long baseTimestamp = 1709395200000L;
+        for (int i = 0; i < closePrices.length; i++) {
+            candles.add(ohlcv(baseTimestamp + (i * 86400000L), closePrices[i]));
+        }
+        return candles;
+    }
+
+    /**
+     * RSI 테스트용: 16개 캔들 (period=14 기준 RSI 2개 계산 가능)
+     */
+    public static List<OhlcvData> rsiTestCandles() {
+        return ohlcvFromPrices(
+                100.0, 101.0, 102.0, 101.5, 102.5,
+                103.0, 102.0, 103.5, 104.0, 103.5,
+                104.5, 105.0, 104.0, 105.5, 106.0,
+                105.0
+        );
+    }
+
+    /**
+     * RSI 테스트용: 연속 상승 (RSI 100)
+     */
+    public static List<OhlcvData> rsiAllGainsCandles() {
+        return ohlcvFromPrices(
+                100.0, 101.0, 102.0, 103.0, 104.0,
+                105.0, 106.0, 107.0, 108.0, 109.0
+        );
+    }
+
+    /**
+     * RSI 테스트용: 연속 하락 (RSI 0)
+     */
+    public static List<OhlcvData> rsiAllLossesCandles() {
+        return ohlcvFromPrices(
+                109.0, 108.0, 107.0, 106.0, 105.0,
+                104.0, 103.0, 102.0, 101.0, 100.0
+        );
+    }
+
+    /**
+     * RSI 테스트용: 상승/하락 균형 (RSI ~50)
+     */
+    public static List<OhlcvData> rsiBalancedCandles() {
+        return ohlcvFromPrices(
+                100.0, 101.0, 100.0, 101.0, 100.0,
+                101.0, 100.0, 101.0, 100.0, 101.0
         );
     }
 }
