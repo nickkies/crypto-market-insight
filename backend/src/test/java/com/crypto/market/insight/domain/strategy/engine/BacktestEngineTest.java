@@ -25,7 +25,7 @@ class BacktestEngineTest {
         List<OhlcvData> candles = ohlcvFromPrices(100.0);
         List<BigDecimal> indicators = List.of(BigDecimal.valueOf(50));
 
-        BacktestResult result = engine.run(
+        BacktestOutput result = engine.run(
                 candles, indicators, defaultRsiSignalGenerator(), BacktestConfig.defaultConfig());
 
         assertThat(result.trades()).isEmpty();
@@ -37,7 +37,7 @@ class BacktestEngineTest {
     void run_buySignal_entersAtNextCandleOpen() {
         List<OhlcvData> candles = ohlcvFromPrices(100.0, 101.0, 102.0, 103.0, 104.0);
 
-        BacktestResult result = engine.run(
+        BacktestOutput result = engine.run(
                 candles, buyThenSellIndicators(), defaultRsiSignalGenerator(), BacktestConfig.defaultConfig());
 
         assertThat(result.trades()).hasSize(1);
@@ -48,7 +48,7 @@ class BacktestEngineTest {
     void run_alreadyInPosition_ignoresBuySignal() {
         List<OhlcvData> candles = ohlcvFromPrices(100.0, 101.0, 102.0, 103.0, 104.0, 105.0);
 
-        BacktestResult result = engine.run(
+        BacktestOutput result = engine.run(
                 candles, multipleBuyIndicators(), defaultRsiSignalGenerator(), BacktestConfig.defaultConfig());
 
         assertThat(result.trades()).hasSize(1);
@@ -59,7 +59,7 @@ class BacktestEngineTest {
     void run_noPosition_ignoresSellSignal() {
         List<OhlcvData> candles = ohlcvFromPrices(100.0, 101.0, 102.0, 103.0);
 
-        BacktestResult result = engine.run(
+        BacktestOutput result = engine.run(
                 candles, sellWithoutPositionIndicators(), defaultRsiSignalGenerator(), BacktestConfig.defaultConfig());
 
         assertThat(result.trades()).isEmpty();
@@ -70,7 +70,7 @@ class BacktestEngineTest {
     void run_positionAtEnd_forceClosed() {
         List<OhlcvData> candles = ohlcvFromPrices(100.0, 101.0, 102.0);
 
-        BacktestResult result = engine.run(
+        BacktestOutput result = engine.run(
                 candles, forceCloseIndicators(), defaultRsiSignalGenerator(), BacktestConfig.defaultConfig());
 
         assertThat(result.trades()).hasSize(1);
@@ -81,7 +81,7 @@ class BacktestEngineTest {
     void run_appliesFeeAndSlippage() {
         List<OhlcvData> candles = ohlcvFromPrices(100.0, 100.0, 100.0, 100.0);
 
-        BacktestResult result = engine.run(
+        BacktestOutput result = engine.run(
                 candles, feeTestIndicators(), defaultRsiSignalGenerator(), BacktestConfig.defaultConfig());
 
         // 가격 동일해도 수수료/슬리피지로 인해 손실 발생

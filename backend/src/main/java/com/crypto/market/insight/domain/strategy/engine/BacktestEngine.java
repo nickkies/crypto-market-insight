@@ -30,14 +30,14 @@ public class BacktestEngine {
      * @param config          백테스트 설정
      * @return 백테스트 결과
      */
-    public BacktestResult run(
+    public BacktestOutput run(
             List<OhlcvData> candles,
             List<BigDecimal> indicatorValues,
             SignalGenerator signalGenerator,
             BacktestConfig config
     ) {
         if (candles == null || candles.size() < 2) {
-            return BacktestResult.empty();
+            return BacktestOutput.empty();
         }
 
         List<Trade> trades = new ArrayList<>();
@@ -103,7 +103,7 @@ public class BacktestEngine {
 
         PerformanceMetrics metrics = MetricsCalculator.calculate(trades, config.initialCapital(), capital);
 
-        return new BacktestResult(trades, metrics);
+        return new BacktestOutput(trades, metrics);
     }
 
     private BigDecimal applySlippage(BigDecimal price, BigDecimal slippageRate, boolean isBuy) {
