@@ -7,6 +7,8 @@ interface FavoritesState {
   removeFavorite: (coinId: string) => void;
   toggleFavorite: (coinId: string) => void;
   isFavorite: (coinId: string) => boolean;
+  setFavorites: (favorites: string[]) => void;
+  mergeFavorites: (serverFavorites: string[]) => string[];
 }
 
 export const useFavoritesStore = create<FavoritesState>()(
@@ -32,6 +34,15 @@ export const useFavoritesStore = create<FavoritesState>()(
         }
       },
       isFavorite: (coinId) => get().favorites.includes(coinId),
+      setFavorites: (favorites) => set({ favorites }),
+      mergeFavorites: (serverFavorites) => {
+        const localFavorites = get().favorites;
+        // 합집합: 서버 + 로컬에만 있는 것
+        const merged = [...new Set([...serverFavorites, ...localFavorites])];
+        set({ favorites: merged });
+        // 로컬에만 있던 것 반환
+        return localFavorites.filter((id) => !serverFavorites.includes(id));
+      },
     }),
     {
       name: 'crypto-favorites',
