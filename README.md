@@ -218,7 +218,25 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 
 ---
 
-## 9. 기대 효과 및 활용 시나리오
+## 9. API Rate Limit 정책
+
+백테스트 API는 외부 API 호출 및 DB 연산이 발생하므로,
+서비스 안정성과 비용 통제를 위해 Rate Limit을 적용합니다.
+
+| 사용자 유형    | 제한  | 윈도우 |
+| -------------- | ----- | ------ |
+| 익명 (IP 기준) | 5회   | 1분    |
+| 인증 사용자    | 10회  | 1분    |
+| 전체 시스템    | 100회 | 1분    |
+
+Rate Limit 초과 시:
+
+- HTTP 상태 코드: `429 Too Many Requests`
+- `Retry-After` 헤더에 재시도 가능 시간(초) 포함
+
+---
+
+## 10. 기대 효과 및 활용 시나리오
 
 - 가상자산 시장을 생태계 관점에서 구조적으로 이해
 - 기술적 지표 기반 전략을 손쉽게 검증
@@ -227,7 +245,7 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 
 ---
 
-## 10. 향후 확장 방향
+## 11. 향후 확장 방향
 
 - 전략 자동화 및 성과 비교 기능 강화
 - 변동성 및 리스크 지표 고도화
@@ -236,7 +254,7 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 
 ---
 
-## 11. 유의사항
+## 12. 유의사항
 
 본 프로젝트는 학습 및 포트폴리오 목적으로 제작되었으며,
 제공되는 모든 분석 및 예측 결과는 투자 자문이 아닙니다.
