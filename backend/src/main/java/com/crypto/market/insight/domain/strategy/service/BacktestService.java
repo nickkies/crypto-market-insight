@@ -69,11 +69,14 @@ public class BacktestService {
                 BacktestConfig.defaultConfig()
         );
 
-        // 5. DB 저장
-        BacktestResult entity = saveBacktestResult(request, output.metrics(), userId);
+        // 5. 인증된 사용자만 DB 저장 (익명은 저장 안 함)
+        if (userId != null) {
+            BacktestResult entity = saveBacktestResult(request, output.metrics(), userId);
+            return buildResponse(entity, output);
+        }
 
-        // 6. 응답 생성
-        return buildResponse(entity, output);
+        // 6. 익명 사용자는 응답만 반환 (저장 안 함)
+        return buildAnonymousResponse(request, output);
     }
 
     public BacktestDto.Response getBacktest(Long id) {
@@ -91,6 +94,40 @@ public class BacktestService {
                         .tradeCount(entity.getTradeCount())
                         .build())
                 .trades(List.of()) // Trade 내역은 별도 저장하지 않음
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public List<BacktestDto.Response> getBacktestsByUserId(Long userId) {
+        return backtestResultRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(this::toResponseWithoutTrades)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteBacktest(Long userId, Long id) {
+        BacktestResult entity = backtestResultRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.BACKTEST_NOT_FOUND));
+
+        if (!entity.getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+
+        backtestResultRepository.delete(entity);
+    }
+
+    private BacktestDto.Response toResponseWithoutTrades(BacktestResult entity) {
+        return BacktestDto.Response.builder()
+                .id(entity.getId())
+                .coinId(entity.getCoinId())
+                .strategyType(entity.getStrategyType())
+                .metrics(BacktestDto.MetricsDto.builder()
+                        .cumulativeReturn(entity.getCumulativeReturn())
+                        .mdd(entity.getMdd())
+                        .winRate(entity.getWinRate())
+                        .tradeCount(entity.getTradeCount())
+                        .build())
+                .trades(List.of())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -116,7 +153,7 @@ public class BacktestService {
         }
 
         BacktestResult entity = BacktestResult.builder()
-                .userId(userId != null ? userId : 0L)
+                .userId(userId)
                 .coinId(request.getCoinId())
                 .strategyType(request.getStrategyType())
                 .parameters(parametersJson)
@@ -127,6 +164,26 @@ public class BacktestService {
                 .build();
 
         return backtestResultRepository.save(entity);
+    }
+
+    private BacktestDto.Response buildAnonymousResponse(BacktestDto.Request request, BacktestOutput output) {
+        List<BacktestDto.TradeDto> tradeDtos = output.trades().stream()
+                .map(this::toTradeDto)
+                .toList();
+
+        return BacktestDto.Response.builder()
+                .id(null)
+                .coinId(request.getCoinId())
+                .strategyType(request.getStrategyType())
+                .metrics(BacktestDto.MetricsDto.builder()
+                        .cumulativeReturn(output.metrics().cumulativeReturn())
+                        .mdd(output.metrics().mdd())
+                        .winRate(output.metrics().winRate())
+                        .tradeCount(output.metrics().tradeCount())
+                        .build())
+                .trades(tradeDtos)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
     private BacktestDto.Response buildResponse(BacktestResult entity, BacktestOutput output) {
