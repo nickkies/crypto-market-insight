@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useForm, FormProvider } from 'react-hook-form';
 import type { StrategyType, RsiParameters, BacktestRequestDto } from '../types';
@@ -5,18 +6,22 @@ import StrategySelect from './StrategySelect';
 import ParameterForm from './ParameterForm';
 import CoinSelect from './CoinSelect';
 import TimeframeSelect from './TimeframeSelect';
+import DateRangePicker from './DateRangePicker';
 
 export interface BacktestFormValues {
   coinId: string;
   strategyType: StrategyType;
   timeframe: string;
   parameters: RsiParameters;
+  startDate: string;
+  endDate: string;
 }
 
 interface Props {
   onSubmit: (data: BacktestRequestDto) => void;
   isPending?: boolean;
-  error?: string | null;
+  isRateLimitError?: boolean;
+  cooldown?: number; // Rate limit 에러 시 쿨다운 시간 (초)
 }
 
 const FormContainer = styled.div`
@@ -95,37 +100,75 @@ const Spinner = styled.span`
   }
 `;
 
-const ErrorAlert = styled.div`
-  padding: ${({ theme }) => theme.spacing.md};
-  background-color: ${({ theme }) => theme.colors.error}20;
-  border: 1px solid ${({ theme }) => theme.colors.error};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.colors.error};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-`;
+// 기본 날짜 범위: 1년 전 ~ 오늘
+const getDefaultDates = () => {
+  const today = new Date();
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(today.getFullYear() - 1);
+
+  return {
+    startDate: oneYearAgo.toISOString().split('T')[0],
+    endDate: today.toISOString().split('T')[0],
+  };
+};
 
 const defaultValues: BacktestFormValues = {
   coinId: 'bitcoin',
   strategyType: 'RSI',
   timeframe: '1d',
   parameters: {
-    period: 14,
-    oversold: 30,
-    overbought: 70,
+    period: 7,
+    oversold: 40,
+    overbought: 60,
   },
+  ...getDefaultDates(),
 };
 
-export default function BacktestForm({ onSubmit, isPending, error }: Props) {
+export default function BacktestForm({
+  onSubmit,
+  isPending,
+  isRateLimitError,
+  cooldown = 60,
+}: Props) {
+  const [countdown, setCountdown] = useState(0);
+
   const methods = useForm<BacktestFormValues>({
     defaultValues,
     mode: 'onBlur',
   });
 
+  // Rate limit 에러 발생 시 카운트다운 시작
+  useEffect(() => {
+    if (isRateLimitError) {
+      setCountdown(cooldown);
+    }
+  }, [isRateLimitError, cooldown]);
+
+  // 카운트다운 타이머
+  useEffect(() => {
+    if (countdown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown]);
+
   const handleSubmit = methods.handleSubmit((data) => {
+    if (countdown > 0) return;
     onSubmit(data);
   });
 
   const strategyType = methods.watch('strategyType');
+
+  const isDisabled = isPending || countdown > 0;
+
+  const getButtonText = () => {
+    if (isPending) return 'Running...';
+    if (countdown > 0) return `Run Backtest (${countdown}초)`;
+    return 'Run Backtest';
+  };
 
   return (
     <FormProvider {...methods}>
@@ -148,6 +191,10 @@ export default function BacktestForm({ onSubmit, isPending, error }: Props) {
               <Label>Timeframe</Label>
               <TimeframeSelect />
             </FormGroup>
+            <FormGroup>
+              <Label>Date Range</Label>
+              <DateRangePicker />
+            </FormGroup>
           </Card>
 
           <Card>
@@ -155,22 +202,14 @@ export default function BacktestForm({ onSubmit, isPending, error }: Props) {
             <ParameterForm />
           </Card>
 
-          {error && <ErrorAlert data-testid="error-alert">{error}</ErrorAlert>}
-
           <RunButton
             type="submit"
-            disabled={isPending}
+            disabled={isDisabled}
             $isLoading={isPending}
             data-testid="run-backtest-button"
           >
-            {isPending ? (
-              <>
-                <Spinner />
-                Running...
-              </>
-            ) : (
-              'Run Backtest'
-            )}
+            {isPending && <Spinner />}
+            {getButtonText()}
           </RunButton>
         </FormContainer>
       </form>

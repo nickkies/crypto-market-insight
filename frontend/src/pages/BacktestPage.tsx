@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { ChartSkeleton, TableRowsSkeleton } from '@/features/common/components';
+import {
+  ChartSkeleton,
+  TableRowsSkeleton,
+  ErrorState,
+} from '@/features/common/components';
 import { useAuthStore } from '@/features/auth';
 import {
   BacktestForm,
@@ -9,12 +13,12 @@ import {
   EquityCurve,
   DrawdownChart,
   MonthlyReturnsChart,
+  TradeHistoryTable,
   useRunBacktest,
   useBacktestChartData,
   sampleBacktestResult,
 } from '@/features/backtest';
-import type { BacktestResult, BacktestRequestDto } from '@/features/backtest';
-import { formatPercent } from '@/utils/format';
+import type { BacktestRequestDto } from '@/features/backtest';
 
 const PageContainer = styled.div`
   display: flex;
@@ -125,70 +129,24 @@ const BannerLoginButton = styled.button`
   }
 `;
 
-const TradeTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const TableHead = styled.thead`
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-`;
-
-const TableHeader = styled.th`
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  text-align: left;
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  font-weight: ${({ theme }) => theme.fonts.weight.medium};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border.primary};
-`;
-
-const TableRow = styled.tr`
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.background.tertiary};
-  }
-`;
-
-const TableCell = styled.td<{ $positive?: boolean; $negative?: boolean }>`
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  color: ${({ theme, $positive, $negative }) =>
-    $positive
-      ? theme.colors.market.up
-      : $negative
-        ? theme.colors.market.down
-        : theme.colors.text.primary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border.primary};
-`;
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
 export function BacktestPage() {
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
-  const { runBacktest, data, isPending, rateLimitError } = useRunBacktest();
+  const {
+    runBacktest,
+    data,
+    isPending,
+    isError,
+    error,
+    rateLimitError,
+    reset,
+  } = useRunBacktest();
 
-  // 초기 데이터로 샘플 데이터 사용
-  const [result, setResult] = useState<BacktestResult>(sampleBacktestResult);
+  // 마지막 요청 저장 (재시도용)
+  const lastRequestRef = useRef<BacktestRequestDto | null>(null);
 
-  // API 응답이 있으면 결과 업데이트
-  const displayResult = data ?? result;
+  // 실행 전이면 샘플 데이터, 실행 후에는 API 응답 사용
+  const displayResult = data ?? sampleBacktestResult;
 
   // 차트 데이터 계산
   const chartData = useBacktestChartData(displayResult);
@@ -199,15 +157,25 @@ export function BacktestPage() {
   };
 
   const handleSubmit = (formData: BacktestRequestDto) => {
-    runBacktest(formData, {
-      onSuccess: (response) => {
-        setResult(response);
-      },
-    });
+    lastRequestRef.current = formData;
+    reset();
+    runBacktest(formData);
+  };
+
+  const handleRetry = () => {
+    if (lastRequestRef.current) {
+      reset();
+      runBacktest(lastRequestRef.current);
+    }
   };
 
   // 에러 메시지 생성
-  const errorMessage = rateLimitError?.message ?? null;
+  const getErrorMessage = () => {
+    if (rateLimitError) return rateLimitError.message;
+    if (error) return error.message || '백테스트 실행 중 오류가 발생했습니다.';
+    return null;
+  };
+  const errorMessage = getErrorMessage();
 
   return (
     <PageContainer data-testid="backtest-page">
@@ -234,88 +202,65 @@ export function BacktestPage() {
           <BacktestForm
             onSubmit={handleSubmit}
             isPending={isPending}
-            error={errorMessage}
+            isRateLimitError={!!rateLimitError}
           />
         </ConfigPanel>
 
         <ResultsSection>
-          <ResultSummary metrics={displayResult.metrics} />
+          {isError ? (
+            <ErrorState
+              message={errorMessage || '백테스트 실행 중 오류가 발생했습니다.'}
+              onRetry={handleRetry}
+              cooldown={rateLimitError ? 60 : 0}
+            />
+          ) : (
+            <>
+              <ResultSummary metrics={displayResult.metrics} />
 
-          <Card>
-            <CardTitle>Equity Curve</CardTitle>
-            {isPending ? (
-              <ChartSkeleton />
-            ) : (
-              <ChartWrapper>
-                <EquityCurve data={chartData.equityCurve} />
-              </ChartWrapper>
-            )}
-          </Card>
+              <Card>
+                <CardTitle>Equity Curve</CardTitle>
+                {isPending ? (
+                  <ChartSkeleton />
+                ) : (
+                  <ChartWrapper>
+                    <EquityCurve data={chartData.equityCurve} />
+                  </ChartWrapper>
+                )}
+              </Card>
 
-          <ChartsGrid>
-            <Card>
-              <CardTitle>Drawdown</CardTitle>
-              {isPending ? (
-                <ChartSkeleton style={{ height: '250px' }} />
-              ) : (
-                <ChartWrapper $height="250px">
-                  <DrawdownChart data={chartData.drawdownCurve} />
-                </ChartWrapper>
-              )}
-            </Card>
-            <Card>
-              <CardTitle>Monthly Returns</CardTitle>
-              {isPending ? (
-                <ChartSkeleton style={{ height: '250px' }} />
-              ) : (
-                <ChartWrapper $height="250px">
-                  <MonthlyReturnsChart trades={displayResult.trades} />
-                </ChartWrapper>
-              )}
-            </Card>
-          </ChartsGrid>
+              <ChartsGrid>
+                <Card>
+                  <CardTitle>Drawdown</CardTitle>
+                  {isPending ? (
+                    <ChartSkeleton style={{ height: '250px' }} />
+                  ) : (
+                    <ChartWrapper $height="250px">
+                      <DrawdownChart data={chartData.drawdownCurve} />
+                    </ChartWrapper>
+                  )}
+                </Card>
+                <Card>
+                  <CardTitle>Monthly Returns</CardTitle>
+                  {isPending ? (
+                    <ChartSkeleton style={{ height: '250px' }} />
+                  ) : (
+                    <ChartWrapper $height="250px">
+                      <MonthlyReturnsChart trades={displayResult.trades} />
+                    </ChartWrapper>
+                  )}
+                </Card>
+              </ChartsGrid>
 
-          <Card>
-            <CardTitle>Trade History</CardTitle>
-            {isPending ? (
-              <TableRowsSkeleton rows={8} />
-            ) : (
-              <TradeTable data-testid="trade-history">
-                <TableHead>
-                  <tr>
-                    <TableHeader>Entry Date</TableHeader>
-                    <TableHeader>Exit Date</TableHeader>
-                    <TableHeader>Entry Price</TableHeader>
-                    <TableHeader>Exit Price</TableHeader>
-                    <TableHeader>Profit</TableHeader>
-                    <TableHeader>Return</TableHeader>
-                  </tr>
-                </TableHead>
-                <tbody>
-                  {displayResult.trades.slice(0, 10).map((trade, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{formatDate(trade.entryTime)}</TableCell>
-                      <TableCell>{formatDate(trade.exitTime)}</TableCell>
-                      <TableCell>{formatCurrency(trade.entryPrice)}</TableCell>
-                      <TableCell>{formatCurrency(trade.exitPrice)}</TableCell>
-                      <TableCell
-                        $positive={trade.profit > 0}
-                        $negative={trade.profit < 0}
-                      >
-                        {formatCurrency(trade.profit)}
-                      </TableCell>
-                      <TableCell
-                        $positive={trade.profitPercent > 0}
-                        $negative={trade.profitPercent < 0}
-                      >
-                        {formatPercent(trade.profitPercent)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </tbody>
-              </TradeTable>
-            )}
-          </Card>
+              <Card>
+                <CardTitle>Trade History</CardTitle>
+                {isPending ? (
+                  <TableRowsSkeleton rows={8} />
+                ) : (
+                  <TradeHistoryTable trades={displayResult.trades} />
+                )}
+              </Card>
+            </>
+          )}
         </ResultsSection>
       </MainLayout>
     </PageContainer>

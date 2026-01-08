@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -39,6 +40,14 @@ public class BacktestDto {
         @Schema(description = "타임프레임", example = "1d")
         @NotBlank(message = "타임프레임은 필수입니다")
         private String timeframe;
+
+        @Schema(description = "시작 날짜", example = "2024-01-01")
+        @NotNull(message = "시작 날짜는 필수입니다")
+        private LocalDate startDate;
+
+        @Schema(description = "종료 날짜", example = "2024-12-31")
+        @NotNull(message = "종료 날짜는 필수입니다")
+        private LocalDate endDate;
     }
 
     @Schema(description = "RSI 파라미터")

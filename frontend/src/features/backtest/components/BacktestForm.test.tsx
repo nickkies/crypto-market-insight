@@ -30,9 +30,9 @@ describe('BacktestForm', () => {
 
     expect(screen.getByTestId('strategy-select')).toHaveValue('RSI');
     expect(screen.getByTestId('timeframe-select')).toHaveValue('1d');
-    expect(screen.getByTestId('param-period')).toHaveValue(14);
-    expect(screen.getByTestId('param-oversold')).toHaveValue(30);
-    expect(screen.getByTestId('param-overbought')).toHaveValue(70);
+    expect(screen.getByTestId('param-period')).toHaveValue(7);
+    expect(screen.getByTestId('param-oversold')).toHaveValue(40);
+    expect(screen.getByTestId('param-overbought')).toHaveValue(60);
   });
 
   it('실행 버튼이 표시된다', () => {
@@ -50,16 +50,14 @@ describe('BacktestForm', () => {
     expect(screen.getByText('Running...')).toBeInTheDocument();
   });
 
-  it('에러 메시지가 표시된다', () => {
+  it('Rate limit 에러 시 버튼에 카운트다운이 표시된다', () => {
     renderWithProviders(
-      <BacktestForm
-        onSubmit={mockOnSubmit}
-        error="요청이 너무 많습니다. 60초 후 다시 시도해주세요."
-      />,
+      <BacktestForm onSubmit={mockOnSubmit} isRateLimitError cooldown={60} />,
     );
 
-    expect(screen.getByTestId('error-alert')).toBeInTheDocument();
-    expect(screen.getByText(/요청이 너무 많습니다/)).toBeInTheDocument();
+    const button = screen.getByTestId('run-backtest-button');
+    expect(button).toBeDisabled();
+    expect(screen.getByText(/Run Backtest \(\d+초\)/)).toBeInTheDocument();
   });
 
   it('Period 입력 유효성 검증이 동작한다', async () => {
