@@ -19,9 +19,8 @@ const Select = styled.select`
 `;
 
 const timeframes = [
-  { value: '1h', label: '1 Hour' },
-  { value: '4h', label: '4 Hours' },
   { value: '1d', label: '1 Day' },
+  { value: '3d', label: '3 Days' },
   { value: '1w', label: '1 Week' },
 ];
 
