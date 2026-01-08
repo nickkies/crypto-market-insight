@@ -36,6 +36,10 @@ export interface BacktestResponseDto {
   id: number;
   coinId: string;
   strategyType: StrategyType;
+  parameters: RsiParameters;
+  timeframe: string;
+  startDate: string;
+  endDate: string;
   metrics: MetricsDto;
   trades: TradeDto[];
   createdAt: string;
