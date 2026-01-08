@@ -5,6 +5,7 @@ export {
   ParameterForm,
   CoinSelect,
   TimeframeSelect,
+  ResultSummary,
 } from './components';
 export type { BacktestFormValues } from './components';
 
