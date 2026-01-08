@@ -5,10 +5,12 @@ import { ChartSkeleton, TableRowsSkeleton } from '@/features/common/components';
 import { useAuthStore } from '@/features/auth';
 import {
   BacktestForm,
+  ResultSummary,
   useRunBacktest,
   sampleBacktestResult,
 } from '@/features/backtest';
 import type { BacktestResult, BacktestRequestDto } from '@/features/backtest';
+import { formatPercent } from '@/utils/format';
 
 const PageContainer = styled.div`
   display: flex;
@@ -67,40 +69,6 @@ const ResultsSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: ${({ theme }) => theme.spacing.md};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-`;
-
-const StatCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  padding: ${({ theme }) => theme.spacing.lg};
-`;
-
-const StatLabel = styled.p`
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-`;
-
-const StatValue = styled.p<{ $positive?: boolean; $negative?: boolean }>`
-  font-size: ${({ theme }) => theme.fonts.size.xl};
-  font-weight: ${({ theme }) => theme.fonts.weight.bold};
-  color: ${({ theme, $positive, $negative }) =>
-    $positive
-      ? theme.colors.success
-      : $negative
-        ? theme.colors.error
-        : theme.colors.text.primary};
 `;
 
 const ChartsGrid = styled.div`
@@ -203,10 +171,6 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-function formatPercent(value: number): string {
-  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-}
-
 export function BacktestPage() {
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
@@ -264,36 +228,7 @@ export function BacktestPage() {
         </ConfigPanel>
 
         <ResultsSection>
-          <StatsGrid>
-            <StatCard>
-              <StatLabel>Total Return</StatLabel>
-              <StatValue
-                $positive={displayResult.metrics.cumulativeReturn > 0}
-                $negative={displayResult.metrics.cumulativeReturn < 0}
-                data-testid="stat-return"
-              >
-                {formatPercent(displayResult.metrics.cumulativeReturn)}
-              </StatValue>
-            </StatCard>
-            <StatCard>
-              <StatLabel>Max Drawdown</StatLabel>
-              <StatValue $negative data-testid="stat-mdd">
-                -{displayResult.metrics.mdd.toFixed(2)}%
-              </StatValue>
-            </StatCard>
-            <StatCard>
-              <StatLabel>Win Rate</StatLabel>
-              <StatValue data-testid="stat-winrate">
-                {displayResult.metrics.winRate.toFixed(1)}%
-              </StatValue>
-            </StatCard>
-            <StatCard>
-              <StatLabel>Total Trades</StatLabel>
-              <StatValue data-testid="stat-trades">
-                {displayResult.metrics.tradeCount}
-              </StatValue>
-            </StatCard>
-          </StatsGrid>
+          <ResultSummary metrics={displayResult.metrics} />
 
           <Card>
             <CardTitle>Equity Curve</CardTitle>
