@@ -6,7 +6,11 @@ import { useAuthStore } from '@/features/auth';
 import {
   BacktestForm,
   ResultSummary,
+  EquityCurve,
+  DrawdownChart,
+  MonthlyReturnsChart,
   useRunBacktest,
+  useBacktestChartData,
   sampleBacktestResult,
 } from '@/features/backtest';
 import type { BacktestResult, BacktestRequestDto } from '@/features/backtest';
@@ -81,6 +85,10 @@ const ChartsGrid = styled.div`
   }
 `;
 
+const ChartWrapper = styled.div<{ $height?: string }>`
+  height: ${({ $height }) => $height ?? '300px'};
+`;
+
 const LoginBanner = styled.div`
   display: flex;
   align-items: center;
@@ -146,9 +154,9 @@ const TableCell = styled.td<{ $positive?: boolean; $negative?: boolean }>`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   color: ${({ theme, $positive, $negative }) =>
     $positive
-      ? theme.colors.success
+      ? theme.colors.market.up
       : $negative
-        ? theme.colors.error
+        ? theme.colors.market.down
         : theme.colors.text.primary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.primary};
 `;
@@ -181,6 +189,9 @@ export function BacktestPage() {
 
   // API 응답이 있으면 결과 업데이트
   const displayResult = data ?? result;
+
+  // 차트 데이터 계산
+  const chartData = useBacktestChartData(displayResult);
 
   const handleLogin = () => {
     sessionStorage.setItem('returnUrl', location.pathname);
@@ -232,17 +243,35 @@ export function BacktestPage() {
 
           <Card>
             <CardTitle>Equity Curve</CardTitle>
-            <ChartSkeleton />
+            {isPending ? (
+              <ChartSkeleton />
+            ) : (
+              <ChartWrapper>
+                <EquityCurve data={chartData.equityCurve} />
+              </ChartWrapper>
+            )}
           </Card>
 
           <ChartsGrid>
             <Card>
               <CardTitle>Drawdown</CardTitle>
-              <ChartSkeleton style={{ height: '250px' }} />
+              {isPending ? (
+                <ChartSkeleton style={{ height: '250px' }} />
+              ) : (
+                <ChartWrapper $height="250px">
+                  <DrawdownChart data={chartData.drawdownCurve} />
+                </ChartWrapper>
+              )}
             </Card>
             <Card>
               <CardTitle>Monthly Returns</CardTitle>
-              <ChartSkeleton style={{ height: '250px' }} />
+              {isPending ? (
+                <ChartSkeleton style={{ height: '250px' }} />
+              ) : (
+                <ChartWrapper $height="250px">
+                  <MonthlyReturnsChart trades={displayResult.trades} />
+                </ChartWrapper>
+              )}
             </Card>
           </ChartsGrid>
 

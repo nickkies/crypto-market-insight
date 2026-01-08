@@ -6,11 +6,14 @@ export {
   CoinSelect,
   TimeframeSelect,
   ResultSummary,
+  EquityCurve,
+  DrawdownChart,
+  MonthlyReturnsChart,
 } from './components';
 export type { BacktestFormValues } from './components';
 
 // Hooks
-export { useRunBacktest } from './hooks';
+export { useRunBacktest, useBacktestChartData } from './hooks';
 
 // Services
 export { backtestService, sampleBacktestResult } from './services';

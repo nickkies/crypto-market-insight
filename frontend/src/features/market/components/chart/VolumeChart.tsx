@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { MARKET_COLORS, CHART_COLORS } from '@/styles/marketColors';
+import {
+  MARKET_COLORS,
+  CHART_COLORS,
+  getGlassTooltipStyle,
+} from '@/styles/marketColors';
 import { useTheme } from '@/styles';
 import { formatVolume } from '@/utils';
 import type { OhlcvDataDto } from '../../services';
@@ -13,6 +17,7 @@ interface Props {
 export default function VolumeChart({ data }: Props) {
   const { isDark } = useTheme();
   const colors = isDark ? CHART_COLORS.dark : CHART_COLORS.light;
+  const tooltipStyle = getGlassTooltipStyle(isDark);
 
   const volumeData = data.filter((d) => d.volume !== null);
 
@@ -20,17 +25,19 @@ export default function VolumeChart({ data }: Props) {
     () => ({
       tooltip: {
         trigger: 'axis',
-        backgroundColor: colors.tooltipBg,
-        textStyle: { color: colors.tooltipText },
+        ...tooltipStyle,
         formatter: (params: unknown) => {
           const param = (
             params as { data: { value: number }; axisValue: string }[]
           )[0];
           if (!param) return '';
           return `
-            <div style="font-size: 12px;">
-              <div><strong>${param.axisValue}</strong></div>
-              <div>Volume: ${param.data.value.toLocaleString()}</div>
+            <div style="font-size: 12px; line-height: 1.6;">
+              <div style="font-weight: 600; margin-bottom: 4px;">${param.axisValue}</div>
+              <div style="display: flex; justify-content: space-between; gap: 16px;">
+                <span style="opacity: 0.7;">Volume</span>
+                <span style="font-weight: 500;">${param.data.value.toLocaleString()}</span>
+              </div>
             </div>
           `;
         },
@@ -69,7 +76,7 @@ export default function VolumeChart({ data }: Props) {
         },
       ],
     }),
-    [volumeData, colors],
+    [volumeData, colors, tooltipStyle],
   );
 
   if (volumeData.length === 0) {
