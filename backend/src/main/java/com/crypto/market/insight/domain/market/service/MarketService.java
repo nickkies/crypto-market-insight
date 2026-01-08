@@ -59,8 +59,12 @@ public class MarketService {
     }
 
     public List<OhlcvData> getOhlcv(String coinId, Timeframe timeframe) {
-        List<OhlcData> ohlcList = coinGeckoClient.getOhlc(coinId, DEFAULT_VS_CURRENCY, timeframe.getDays());
-        MarketChartData marketChart = coinGeckoClient.getMarketChart(coinId, DEFAULT_VS_CURRENCY, timeframe.getDays());
+        return getOhlcv(coinId, timeframe.getDays());
+    }
+
+    public List<OhlcvData> getOhlcv(String coinId, String days) {
+        List<OhlcData> ohlcList = coinGeckoClient.getOhlc(coinId, DEFAULT_VS_CURRENCY, days);
+        MarketChartData marketChart = coinGeckoClient.getMarketChart(coinId, DEFAULT_VS_CURRENCY, days);
 
         Map<Long, BigDecimal> volumeMap = buildVolumeMap(marketChart);
 
