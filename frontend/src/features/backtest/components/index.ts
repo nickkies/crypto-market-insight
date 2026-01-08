@@ -7,4 +7,5 @@ export { default as ResultSummary } from './ResultSummary';
 export { default as EquityCurve } from './EquityCurve';
 export { default as DrawdownChart } from './DrawdownChart';
 export { default as MonthlyReturnsChart } from './MonthlyReturnsChart';
+export { default as TradeHistoryTable } from './TradeHistoryTable';
 export type { BacktestFormValues } from './BacktestForm';
