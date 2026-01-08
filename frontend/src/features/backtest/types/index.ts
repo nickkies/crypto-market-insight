@@ -12,6 +12,8 @@ export interface BacktestRequestDto {
   strategyType: StrategyType;
   parameters: RsiParameters;
   timeframe: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface MetricsDto {
