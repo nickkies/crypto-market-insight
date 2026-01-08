@@ -34,7 +34,7 @@ export function useRunBacktest(): UseRunBacktestResult {
       rateLimitError = {
         isRateLimit: true,
         retryAfter,
-        message: `요청이 너무 많습니다. ${retryAfter}초 후 다시 시도해주세요.`,
+        message: '요청이 너무 많습니다.',
       };
     }
   }

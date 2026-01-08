@@ -1,21 +1,51 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 interface ErrorStateProps {
   message?: string;
   onRetry?: () => void;
+  cooldown?: number;
 }
 
 export function ErrorState({
   message = '데이터를 불러오는 중 오류가 발생했습니다.',
   onRetry,
+  cooldown = 0,
 }: ErrorStateProps) {
+  const [countdown, setCountdown] = useState(cooldown);
+
+  // cooldown이 변경되면 카운트다운 시작
+  useEffect(() => {
+    setCountdown(cooldown);
+  }, [cooldown]);
+
+  // 카운트다운 타이머
+  useEffect(() => {
+    if (countdown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  const handleRetry = () => {
+    if (countdown > 0) return;
+    onRetry?.();
+  };
+
   return (
     <Container data-testid="error-state">
       <Icon>⚠️</Icon>
       <Message>{message}</Message>
       {onRetry && (
-        <RetryButton onClick={onRetry} data-testid="retry-button">
-          다시 시도
+        <RetryButton
+          onClick={handleRetry}
+          disabled={countdown > 0}
+          data-testid="retry-button"
+        >
+          {countdown > 0 ? `다시 시도 (${countdown}초)` : '다시 시도'}
         </RetryButton>
       )}
     </Container>
@@ -53,7 +83,12 @@ const RetryButton = styled.button`
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.fast};
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: ${({ theme }) => theme.colors.primary.dark};
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
