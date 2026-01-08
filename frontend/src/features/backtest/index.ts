@@ -9,6 +9,7 @@ export {
   EquityCurve,
   DrawdownChart,
   MonthlyReturnsChart,
+  TradeHistoryTable,
 } from './components';
 export type { BacktestFormValues } from './components';
 
