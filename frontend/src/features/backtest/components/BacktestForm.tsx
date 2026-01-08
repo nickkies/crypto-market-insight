@@ -1,0 +1,179 @@
+import styled from 'styled-components';
+import { useForm, FormProvider } from 'react-hook-form';
+import type { StrategyType, RsiParameters, BacktestRequestDto } from '../types';
+import StrategySelect from './StrategySelect';
+import ParameterForm from './ParameterForm';
+import CoinSelect from './CoinSelect';
+import TimeframeSelect from './TimeframeSelect';
+
+export interface BacktestFormValues {
+  coinId: string;
+  strategyType: StrategyType;
+  timeframe: string;
+  parameters: RsiParameters;
+}
+
+interface Props {
+  onSubmit: (data: BacktestRequestDto) => void;
+  isPending?: boolean;
+  error?: string | null;
+}
+
+const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.lg};
+`;
+
+const Card = styled.div`
+  background-color: ${({ theme }) => theme.colors.background.secondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border.primary};
+  padding: ${({ theme }) => theme.spacing.lg};
+`;
+
+const CardTitle = styled.h3`
+  font-size: ${({ theme }) => theme.fonts.size.md};
+  font-weight: ${({ theme }) => theme.fonts.weight.semibold};
+  color: ${({ theme }) => theme.colors.text.primary};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const Label = styled.label`
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const RunButton = styled.button<{ $isLoading?: boolean }>`
+  width: 100%;
+  padding: ${({ theme }) => theme.spacing.md};
+  background-color: ${({ theme }) => theme.colors.primary.main};
+  color: ${({ theme }) => theme.colors.text.inverse};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-weight: ${({ theme }) => theme.fonts.weight.semibold};
+  transition: background-color ${({ theme }) => theme.transitions.fast};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => theme.colors.primary.dark};
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const Spinner = styled.span`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const ErrorAlert = styled.div`
+  padding: ${({ theme }) => theme.spacing.md};
+  background-color: ${({ theme }) => theme.colors.error}20;
+  border: 1px solid ${({ theme }) => theme.colors.error};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  color: ${({ theme }) => theme.colors.error};
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+`;
+
+const defaultValues: BacktestFormValues = {
+  coinId: 'bitcoin',
+  strategyType: 'RSI',
+  timeframe: '1d',
+  parameters: {
+    period: 14,
+    oversold: 30,
+    overbought: 70,
+  },
+};
+
+export default function BacktestForm({ onSubmit, isPending, error }: Props) {
+  const methods = useForm<BacktestFormValues>({
+    defaultValues,
+    mode: 'onBlur',
+  });
+
+  const handleSubmit = methods.handleSubmit((data) => {
+    onSubmit(data);
+  });
+
+  const strategyType = methods.watch('strategyType');
+
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit}>
+        <FormContainer>
+          <Card>
+            <CardTitle>Strategy Configuration</CardTitle>
+            <FormGroup>
+              <Label>Coin</Label>
+              <CoinSelect />
+            </FormGroup>
+            <FormGroup>
+              <Label>Strategy</Label>
+              <StrategySelect
+                value={strategyType}
+                onChange={(value) => methods.setValue('strategyType', value)}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Timeframe</Label>
+              <TimeframeSelect />
+            </FormGroup>
+          </Card>
+
+          <Card>
+            <CardTitle>Strategy Parameters</CardTitle>
+            <ParameterForm />
+          </Card>
+
+          {error && <ErrorAlert data-testid="error-alert">{error}</ErrorAlert>}
+
+          <RunButton
+            type="submit"
+            disabled={isPending}
+            $isLoading={isPending}
+            data-testid="run-backtest-button"
+          >
+            {isPending ? (
+              <>
+                <Spinner />
+                Running...
+              </>
+            ) : (
+              'Run Backtest'
+            )}
+          </RunButton>
+        </FormContainer>
+      </form>
+    </FormProvider>
+  );
+}
