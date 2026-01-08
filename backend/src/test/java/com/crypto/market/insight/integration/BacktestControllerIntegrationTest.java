@@ -134,7 +134,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 30,
                             "overbought": 70
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -168,7 +170,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 30,
                             "overbought": 70
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -218,7 +222,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 70,
                             "overbought": 30
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -283,7 +289,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 30,
                             "overbought": 70
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
