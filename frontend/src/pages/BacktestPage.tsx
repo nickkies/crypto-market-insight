@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import {
-  ChartSkeleton,
-  TableRowsSkeleton,
-  TextSkeleton,
-} from '@/features/common/components';
+import { ChartSkeleton, TableRowsSkeleton } from '@/features/common/components';
 import { useAuthStore } from '@/features/auth';
+import {
+  BacktestForm,
+  useRunBacktest,
+  sampleBacktestResult,
+} from '@/features/backtest';
+import type { BacktestResult, BacktestRequestDto } from '@/features/backtest';
 
 const PageContainer = styled.div`
   display: flex;
@@ -60,51 +63,6 @@ const CardTitle = styled.h3`
   margin-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
-`;
-
-const Label = styled.label`
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  font-weight: ${({ theme }) => theme.fonts.weight.medium};
-  color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const Select = styled.div`
-  padding: ${({ theme }) => theme.spacing.sm};
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-`;
-
-const Input = styled.div`
-  padding: ${({ theme }) => theme.spacing.sm};
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-`;
-
-const RunButton = styled.button`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing.md};
-  background-color: ${({ theme }) => theme.colors.primary.main};
-  color: ${({ theme }) => theme.colors.text.inverse};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-weight: ${({ theme }) => theme.fonts.weight.semibold};
-  transition: background-color ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.primary.dark};
-  }
-`;
-
 const ResultsSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -134,8 +92,15 @@ const StatLabel = styled.p`
   margin-bottom: ${({ theme }) => theme.spacing.xs};
 `;
 
-const StatValue = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.sm};
+const StatValue = styled.p<{ $positive?: boolean; $negative?: boolean }>`
+  font-size: ${({ theme }) => theme.fonts.size.xl};
+  font-weight: ${({ theme }) => theme.fonts.weight.bold};
+  color: ${({ theme, $positive, $negative }) =>
+    $positive
+      ? theme.colors.success
+      : $negative
+        ? theme.colors.error
+        : theme.colors.text.primary};
 `;
 
 const ChartsGrid = styled.div`
@@ -184,14 +149,91 @@ const BannerLoginButton = styled.button`
   }
 `;
 
+const TradeTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const TableHead = styled.thead`
+  background-color: ${({ theme }) => theme.colors.background.tertiary};
+`;
+
+const TableHeader = styled.th`
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  text-align: left;
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.primary};
+`;
+
+const TableRow = styled.tr`
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.background.tertiary};
+  }
+`;
+
+const TableCell = styled.td<{ $positive?: boolean; $negative?: boolean }>`
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  color: ${({ theme, $positive, $negative }) =>
+    $positive
+      ? theme.colors.success
+      : $negative
+        ? theme.colors.error
+        : theme.colors.text.primary};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.primary};
+`;
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatPercent(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+}
+
 export function BacktestPage() {
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const { runBacktest, data, isPending, rateLimitError } = useRunBacktest();
+
+  // 초기 데이터로 샘플 데이터 사용
+  const [result, setResult] = useState<BacktestResult>(sampleBacktestResult);
+
+  // API 응답이 있으면 결과 업데이트
+  const displayResult = data ?? result;
 
   const handleLogin = () => {
     sessionStorage.setItem('returnUrl', location.pathname);
     window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/login/github`;
   };
+
+  const handleSubmit = (formData: BacktestRequestDto) => {
+    runBacktest(formData, {
+      onSuccess: (response) => {
+        setResult(response);
+      },
+    });
+  };
+
+  // 에러 메시지 생성
+  const errorMessage = rateLimitError?.message ?? null;
+
   return (
     <PageContainer data-testid="backtest-page">
       <PageHeader>
@@ -214,80 +256,41 @@ export function BacktestPage() {
 
       <MainLayout>
         <ConfigPanel>
-          <Card>
-            <CardTitle>Strategy Configuration</CardTitle>
-            <FormGroup>
-              <Label>Asset</Label>
-              <Select>BTC/USDT</Select>
-            </FormGroup>
-            <FormGroup>
-              <Label>Strategy</Label>
-              <Select>Select strategy...</Select>
-            </FormGroup>
-            <FormGroup>
-              <Label>Timeframe</Label>
-              <Select>1 Day</Select>
-            </FormGroup>
-            <FormGroup>
-              <Label>Period</Label>
-              <Input>2024-01-01 ~ 2024-12-31</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Initial Capital</Label>
-              <Input>$10,000</Input>
-            </FormGroup>
-            <RunButton>Run Backtest</RunButton>
-          </Card>
-
-          <Card>
-            <CardTitle>Strategy Parameters</CardTitle>
-            <FormGroup>
-              <Label>RSI Period</Label>
-              <Input>14</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>RSI Overbought</Label>
-              <Input>70</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>RSI Oversold</Label>
-              <Input>30</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Stop Loss (%)</Label>
-              <Input>5</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Take Profit (%)</Label>
-              <Input>10</Input>
-            </FormGroup>
-          </Card>
+          <BacktestForm
+            onSubmit={handleSubmit}
+            isPending={isPending}
+            error={errorMessage}
+          />
         </ConfigPanel>
 
         <ResultsSection>
           <StatsGrid>
             <StatCard>
               <StatLabel>Total Return</StatLabel>
-              <StatValue>
-                <TextSkeleton width="60%" />
+              <StatValue
+                $positive={displayResult.metrics.cumulativeReturn > 0}
+                $negative={displayResult.metrics.cumulativeReturn < 0}
+                data-testid="stat-return"
+              >
+                {formatPercent(displayResult.metrics.cumulativeReturn)}
               </StatValue>
             </StatCard>
             <StatCard>
               <StatLabel>Max Drawdown</StatLabel>
-              <StatValue>
-                <TextSkeleton width="50%" />
+              <StatValue $negative data-testid="stat-mdd">
+                -{displayResult.metrics.mdd.toFixed(2)}%
               </StatValue>
             </StatCard>
             <StatCard>
               <StatLabel>Win Rate</StatLabel>
-              <StatValue>
-                <TextSkeleton width="40%" />
+              <StatValue data-testid="stat-winrate">
+                {displayResult.metrics.winRate.toFixed(1)}%
               </StatValue>
             </StatCard>
             <StatCard>
               <StatLabel>Total Trades</StatLabel>
-              <StatValue>
-                <TextSkeleton width="30%" />
+              <StatValue data-testid="stat-trades">
+                {displayResult.metrics.tradeCount}
               </StatValue>
             </StatCard>
           </StatsGrid>
@@ -310,7 +313,44 @@ export function BacktestPage() {
 
           <Card>
             <CardTitle>Trade History</CardTitle>
-            <TableRowsSkeleton rows={8} />
+            {isPending ? (
+              <TableRowsSkeleton rows={8} />
+            ) : (
+              <TradeTable data-testid="trade-history">
+                <TableHead>
+                  <tr>
+                    <TableHeader>Entry Date</TableHeader>
+                    <TableHeader>Exit Date</TableHeader>
+                    <TableHeader>Entry Price</TableHeader>
+                    <TableHeader>Exit Price</TableHeader>
+                    <TableHeader>Profit</TableHeader>
+                    <TableHeader>Return</TableHeader>
+                  </tr>
+                </TableHead>
+                <tbody>
+                  {displayResult.trades.slice(0, 10).map((trade, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{formatDate(trade.entryTime)}</TableCell>
+                      <TableCell>{formatDate(trade.exitTime)}</TableCell>
+                      <TableCell>{formatCurrency(trade.entryPrice)}</TableCell>
+                      <TableCell>{formatCurrency(trade.exitPrice)}</TableCell>
+                      <TableCell
+                        $positive={trade.profit > 0}
+                        $negative={trade.profit < 0}
+                      >
+                        {formatCurrency(trade.profit)}
+                      </TableCell>
+                      <TableCell
+                        $positive={trade.profitPercent > 0}
+                        $negative={trade.profitPercent < 0}
+                      >
+                        {formatPercent(trade.profitPercent)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </tbody>
+              </TradeTable>
+            )}
           </Card>
         </ResultsSection>
       </MainLayout>
