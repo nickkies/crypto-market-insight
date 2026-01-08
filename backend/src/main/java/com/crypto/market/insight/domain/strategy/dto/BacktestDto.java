@@ -89,6 +89,18 @@ public class BacktestDto {
         @Schema(description = "전략 타입")
         private StrategyType strategyType;
 
+        @Schema(description = "RSI 파라미터")
+        private RsiParameterDto parameters;
+
+        @Schema(description = "타임프레임")
+        private String timeframe;
+
+        @Schema(description = "시작 날짜")
+        private LocalDate startDate;
+
+        @Schema(description = "종료 날짜")
+        private LocalDate endDate;
+
         @Schema(description = "성과 지표")
         private MetricsDto metrics;
 

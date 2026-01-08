@@ -10,11 +10,17 @@ export {
   DrawdownChart,
   MonthlyReturnsChart,
   TradeHistoryTable,
+  MyBacktestsPanel,
 } from './components';
 export type { BacktestFormValues } from './components';
 
 // Hooks
-export { useRunBacktest, useBacktestChartData } from './hooks';
+export {
+  useRunBacktest,
+  useBacktestChartData,
+  useMyBacktests,
+  useDeleteBacktest,
+} from './hooks';
 
 // Services
 export { backtestService, sampleBacktestResult } from './services';

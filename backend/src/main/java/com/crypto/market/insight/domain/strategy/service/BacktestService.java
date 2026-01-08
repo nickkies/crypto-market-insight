@@ -106,19 +106,7 @@ public class BacktestService {
         BacktestResult entity = backtestResultRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.BACKTEST_NOT_FOUND));
 
-        return BacktestDto.Response.builder()
-                .id(entity.getId())
-                .coinId(entity.getCoinId())
-                .strategyType(entity.getStrategyType())
-                .metrics(BacktestDto.MetricsDto.builder()
-                        .cumulativeReturn(entity.getCumulativeReturn())
-                        .mdd(entity.getMdd())
-                        .winRate(entity.getWinRate())
-                        .tradeCount(entity.getTradeCount())
-                        .build())
-                .trades(List.of()) // Trade 내역은 별도 저장하지 않음
-                .createdAt(entity.getCreatedAt())
-                .build();
+        return toResponseWithoutTrades(entity);
     }
 
     public List<BacktestDto.Response> getBacktestsByUserId(Long userId) {
@@ -140,10 +128,16 @@ public class BacktestService {
     }
 
     private BacktestDto.Response toResponseWithoutTrades(BacktestResult entity) {
+        BacktestDto.RsiParameterDto parameters = parseParameters(entity.getParameters());
+
         return BacktestDto.Response.builder()
                 .id(entity.getId())
                 .coinId(entity.getCoinId())
                 .strategyType(entity.getStrategyType())
+                .parameters(parameters)
+                .timeframe(entity.getTimeframe())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
                 .metrics(BacktestDto.MetricsDto.builder()
                         .cumulativeReturn(entity.getCumulativeReturn())
                         .mdd(entity.getMdd())
@@ -153,6 +147,15 @@ public class BacktestService {
                 .trades(List.of())
                 .createdAt(entity.getCreatedAt())
                 .build();
+    }
+
+    private BacktestDto.RsiParameterDto parseParameters(String parametersJson) {
+        try {
+            return objectMapper.readValue(parametersJson, BacktestDto.RsiParameterDto.class);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to parse parameters: {}", parametersJson);
+            return null;
+        }
     }
 
     private void validateParameters(BacktestDto.Request request) {
@@ -233,6 +236,9 @@ public class BacktestService {
                 .coinId(request.getCoinId())
                 .strategyType(request.getStrategyType())
                 .parameters(parametersJson)
+                .timeframe(request.getTimeframe())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
                 .cumulativeReturn(metrics.cumulativeReturn())
                 .mdd(metrics.mdd())
                 .winRate(metrics.winRate())
@@ -251,6 +257,10 @@ public class BacktestService {
                 .id(null)
                 .coinId(request.getCoinId())
                 .strategyType(request.getStrategyType())
+                .parameters(request.getParameters())
+                .timeframe(request.getTimeframe())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
                 .metrics(BacktestDto.MetricsDto.builder()
                         .cumulativeReturn(output.metrics().cumulativeReturn())
                         .mdd(output.metrics().mdd())
@@ -267,10 +277,16 @@ public class BacktestService {
                 .map(this::toTradeDto)
                 .toList();
 
+        BacktestDto.RsiParameterDto parameters = parseParameters(entity.getParameters());
+
         return BacktestDto.Response.builder()
                 .id(entity.getId())
                 .coinId(entity.getCoinId())
                 .strategyType(entity.getStrategyType())
+                .parameters(parameters)
+                .timeframe(entity.getTimeframe())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
                 .metrics(BacktestDto.MetricsDto.builder()
                         .cumulativeReturn(output.metrics().cumulativeReturn())
                         .mdd(output.metrics().mdd())

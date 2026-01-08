@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -50,6 +51,15 @@ public class BacktestResult {
     @Column(columnDefinition = "jsonb")
     private String parameters;
 
+    @Column(nullable = false)
+    private String timeframe;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
     @Column(nullable = false, precision = 10, scale = 4)
     private BigDecimal cumulativeReturn;
 
@@ -68,12 +78,16 @@ public class BacktestResult {
 
     @Builder
     public BacktestResult(Long userId, String coinId, StrategyType strategyType,
-                          String parameters, BigDecimal cumulativeReturn, BigDecimal mdd,
+                          String parameters, String timeframe, LocalDate startDate,
+                          LocalDate endDate, BigDecimal cumulativeReturn, BigDecimal mdd,
                           BigDecimal winRate, Integer tradeCount) {
         this.userId = userId;
         this.coinId = coinId;
         this.strategyType = strategyType;
         this.parameters = parameters;
+        this.timeframe = timeframe;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.cumulativeReturn = cumulativeReturn;
         this.mdd = mdd;
         this.winRate = winRate;
