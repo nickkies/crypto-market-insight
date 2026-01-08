@@ -111,7 +111,9 @@ test.describe('Market Page', () => {
     await page.waitForTimeout(500);
 
     // 검색 결과 확인 - Bitcoin 코인 카드가 표시되어야 함
-    await expect(page.locator('[data-testid="coin-name"]').filter({ hasText: 'Bitcoin' })).toBeVisible();
+    await expect(
+      page.locator('[data-testid="coin-name"]').filter({ hasText: 'Bitcoin' }),
+    ).toBeVisible();
   });
 
   test('검색어 클리어 버튼이 동작한다', async ({ page }) => {
