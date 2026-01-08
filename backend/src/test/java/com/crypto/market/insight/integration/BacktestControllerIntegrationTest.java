@@ -17,6 +17,7 @@ import com.crypto.market.insight.domain.strategy.repository.BacktestResultReposi
 import com.crypto.market.insight.security.jwt.JwtTokenProvider;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -134,7 +135,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 30,
                             "overbought": 70
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -168,7 +171,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 30,
                             "overbought": 70
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -218,7 +223,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 70,
                             "overbought": 30
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -283,7 +290,9 @@ class BacktestControllerIntegrationTest {
                             "oversold": 30,
                             "overbought": 70
                         },
-                        "timeframe": "1d"
+                        "timeframe": "1d",
+                        "startDate": "2024-03-01",
+                        "endDate": "2024-03-18"
                     }
                     """;
 
@@ -398,7 +407,10 @@ class BacktestControllerIntegrationTest {
                 .userId(userId)
                 .coinId(coinId)
                 .strategyType(StrategyType.RSI)
-                .parameters("{}")
+                .parameters("{\"period\":14,\"oversold\":30,\"overbought\":70}")
+                .timeframe("1d")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 12, 31))
                 .cumulativeReturn(BigDecimal.valueOf(10))
                 .mdd(BigDecimal.valueOf(5))
                 .winRate(BigDecimal.valueOf(60))

@@ -1,11 +1,25 @@
+import { useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   ChartSkeleton,
   TableRowsSkeleton,
-  TextSkeleton,
+  ErrorState,
 } from '@/features/common/components';
 import { useAuthStore } from '@/features/auth';
+import {
+  BacktestForm,
+  ResultSummary,
+  EquityCurve,
+  DrawdownChart,
+  MonthlyReturnsChart,
+  TradeHistoryTable,
+  MyBacktestsPanel,
+  useRunBacktest,
+  useBacktestChartData,
+  sampleBacktestResult,
+} from '@/features/backtest';
+import type { BacktestRequestDto, BacktestResult } from '@/features/backtest';
 
 const PageContainer = styled.div`
   display: flex;
@@ -60,82 +74,10 @@ const CardTitle = styled.h3`
   margin-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
-`;
-
-const Label = styled.label`
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  font-weight: ${({ theme }) => theme.fonts.weight.medium};
-  color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const Select = styled.div`
-  padding: ${({ theme }) => theme.spacing.sm};
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-`;
-
-const Input = styled.div`
-  padding: ${({ theme }) => theme.spacing.sm};
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-`;
-
-const RunButton = styled.button`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing.md};
-  background-color: ${({ theme }) => theme.colors.primary.main};
-  color: ${({ theme }) => theme.colors.text.inverse};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-weight: ${({ theme }) => theme.fonts.weight.semibold};
-  transition: background-color ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.primary.dark};
-  }
-`;
-
 const ResultsSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: ${({ theme }) => theme.spacing.md};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-`;
-
-const StatCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.secondary};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  padding: ${({ theme }) => theme.spacing.lg};
-`;
-
-const StatLabel = styled.p`
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-`;
-
-const StatValue = styled.div`
-  margin-top: ${({ theme }) => theme.spacing.sm};
 `;
 
 const ChartsGrid = styled.div`
@@ -146,6 +88,10 @@ const ChartsGrid = styled.div`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
   }
+`;
+
+const ChartWrapper = styled.div<{ $height?: string }>`
+  height: ${({ $height }) => $height ?? '300px'};
 `;
 
 const LoginBanner = styled.div`
@@ -187,11 +133,66 @@ const BannerLoginButton = styled.button`
 export function BacktestPage() {
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const {
+    runBacktest,
+    data,
+    isPending,
+    isError,
+    error,
+    rateLimitError,
+    reset,
+  } = useRunBacktest();
+
+  // 마지막 요청 저장 (재시도용)
+  const lastRequestRef = useRef<BacktestRequestDto | null>(null);
+
+  // 실행 전이면 샘플 데이터, 실행 후에는 API 응답
+  const displayResult = data ?? sampleBacktestResult;
+
+  // 차트 데이터 계산
+  const chartData = useBacktestChartData(displayResult);
 
   const handleLogin = () => {
     sessionStorage.setItem('returnUrl', location.pathname);
     window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/login/github`;
   };
+
+  const handleSubmit = (formData: BacktestRequestDto) => {
+    lastRequestRef.current = formData;
+    reset();
+    runBacktest(formData);
+  };
+
+  const handleSelectSavedResult = (result: BacktestResult) => {
+    // 저장된 백테스트의 파라미터로 다시 실행
+    const request: BacktestRequestDto = {
+      coinId: result.coinId,
+      strategyType: result.strategyType,
+      parameters: result.parameters,
+      timeframe: result.timeframe,
+      startDate: result.startDate,
+      endDate: result.endDate,
+    };
+    lastRequestRef.current = request;
+    reset();
+    runBacktest(request);
+  };
+
+  const handleRetry = () => {
+    if (lastRequestRef.current) {
+      reset();
+      runBacktest(lastRequestRef.current);
+    }
+  };
+
+  // 에러 메시지 생성
+  const getErrorMessage = () => {
+    if (rateLimitError) return rateLimitError.message;
+    if (error) return error.message || '백테스트 실행 중 오류가 발생했습니다.';
+    return null;
+  };
+  const errorMessage = getErrorMessage();
+
   return (
     <PageContainer data-testid="backtest-page">
       <PageHeader>
@@ -214,104 +215,69 @@ export function BacktestPage() {
 
       <MainLayout>
         <ConfigPanel>
-          <Card>
-            <CardTitle>Strategy Configuration</CardTitle>
-            <FormGroup>
-              <Label>Asset</Label>
-              <Select>BTC/USDT</Select>
-            </FormGroup>
-            <FormGroup>
-              <Label>Strategy</Label>
-              <Select>Select strategy...</Select>
-            </FormGroup>
-            <FormGroup>
-              <Label>Timeframe</Label>
-              <Select>1 Day</Select>
-            </FormGroup>
-            <FormGroup>
-              <Label>Period</Label>
-              <Input>2024-01-01 ~ 2024-12-31</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Initial Capital</Label>
-              <Input>$10,000</Input>
-            </FormGroup>
-            <RunButton>Run Backtest</RunButton>
-          </Card>
-
-          <Card>
-            <CardTitle>Strategy Parameters</CardTitle>
-            <FormGroup>
-              <Label>RSI Period</Label>
-              <Input>14</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>RSI Overbought</Label>
-              <Input>70</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>RSI Oversold</Label>
-              <Input>30</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Stop Loss (%)</Label>
-              <Input>5</Input>
-            </FormGroup>
-            <FormGroup>
-              <Label>Take Profit (%)</Label>
-              <Input>10</Input>
-            </FormGroup>
-          </Card>
+          <BacktestForm
+            onSubmit={handleSubmit}
+            isPending={isPending}
+            isRateLimitError={!!rateLimitError}
+          />
+          <MyBacktestsPanel onSelect={handleSelectSavedResult} />
         </ConfigPanel>
 
         <ResultsSection>
-          <StatsGrid>
-            <StatCard>
-              <StatLabel>Total Return</StatLabel>
-              <StatValue>
-                <TextSkeleton width="60%" />
-              </StatValue>
-            </StatCard>
-            <StatCard>
-              <StatLabel>Max Drawdown</StatLabel>
-              <StatValue>
-                <TextSkeleton width="50%" />
-              </StatValue>
-            </StatCard>
-            <StatCard>
-              <StatLabel>Win Rate</StatLabel>
-              <StatValue>
-                <TextSkeleton width="40%" />
-              </StatValue>
-            </StatCard>
-            <StatCard>
-              <StatLabel>Total Trades</StatLabel>
-              <StatValue>
-                <TextSkeleton width="30%" />
-              </StatValue>
-            </StatCard>
-          </StatsGrid>
+          {isError ? (
+            <ErrorState
+              message={errorMessage || '백테스트 실행 중 오류가 발생했습니다.'}
+              onRetry={handleRetry}
+              cooldown={rateLimitError ? 60 : 0}
+            />
+          ) : (
+            <>
+              <ResultSummary metrics={displayResult.metrics} />
 
-          <Card>
-            <CardTitle>Equity Curve</CardTitle>
-            <ChartSkeleton />
-          </Card>
+              <Card>
+                <CardTitle>Equity Curve</CardTitle>
+                {isPending ? (
+                  <ChartSkeleton />
+                ) : (
+                  <ChartWrapper>
+                    <EquityCurve data={chartData.equityCurve} />
+                  </ChartWrapper>
+                )}
+              </Card>
 
-          <ChartsGrid>
-            <Card>
-              <CardTitle>Drawdown</CardTitle>
-              <ChartSkeleton style={{ height: '250px' }} />
-            </Card>
-            <Card>
-              <CardTitle>Monthly Returns</CardTitle>
-              <ChartSkeleton style={{ height: '250px' }} />
-            </Card>
-          </ChartsGrid>
+              <ChartsGrid>
+                <Card>
+                  <CardTitle>Drawdown</CardTitle>
+                  {isPending ? (
+                    <ChartSkeleton style={{ height: '250px' }} />
+                  ) : (
+                    <ChartWrapper $height="250px">
+                      <DrawdownChart data={chartData.drawdownCurve} />
+                    </ChartWrapper>
+                  )}
+                </Card>
+                <Card>
+                  <CardTitle>Monthly Returns</CardTitle>
+                  {isPending ? (
+                    <ChartSkeleton style={{ height: '250px' }} />
+                  ) : (
+                    <ChartWrapper $height="250px">
+                      <MonthlyReturnsChart trades={displayResult.trades} />
+                    </ChartWrapper>
+                  )}
+                </Card>
+              </ChartsGrid>
 
-          <Card>
-            <CardTitle>Trade History</CardTitle>
-            <TableRowsSkeleton rows={8} />
-          </Card>
+              <Card>
+                <CardTitle>Trade History</CardTitle>
+                {isPending ? (
+                  <TableRowsSkeleton rows={8} />
+                ) : (
+                  <TradeHistoryTable trades={displayResult.trades} />
+                )}
+              </Card>
+            </>
+          )}
         </ResultsSection>
       </MainLayout>
     </PageContainer>

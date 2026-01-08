@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { MARKET_COLORS, CHART_COLORS } from '@/styles/marketColors';
+import {
+  MARKET_COLORS,
+  CHART_COLORS,
+  getGlassTooltipStyle,
+} from '@/styles/marketColors';
 import { useTheme } from '@/styles';
 import type { OhlcvDataDto } from '../../services';
 import { formatPrice } from '@/utils';
@@ -13,6 +17,7 @@ interface Props {
 export default function CandlestickChart({ data }: Props) {
   const { isDark } = useTheme();
   const colors = isDark ? CHART_COLORS.dark : CHART_COLORS.light;
+  const tooltipStyle = getGlassTooltipStyle(isDark);
 
   const option: EChartsOption = useMemo(
     () => ({
@@ -21,19 +26,30 @@ export default function CandlestickChart({ data }: Props) {
         axisPointer: {
           type: 'cross',
         },
-        backgroundColor: colors.tooltipBg,
-        textStyle: { color: colors.tooltipText },
+        ...tooltipStyle,
         formatter: (params: unknown) => {
           const param = (params as { data: number[]; axisValue: string }[])[0];
           if (!param) return '';
           const [open, close, low, high] = param.data;
           return `
-            <div style="font-size: 12px;">
-              <div><strong>${param.axisValue}</strong></div>
-              <div>Open: $${open.toLocaleString()}</div>
-              <div>High: $${high.toLocaleString()}</div>
-              <div>Low: $${low.toLocaleString()}</div>
-              <div>Close: $${close.toLocaleString()}</div>
+            <div style="font-size: 12px; line-height: 1.6;">
+              <div style="font-weight: 600; margin-bottom: 4px;">${param.axisValue}</div>
+              <div style="display: flex; justify-content: space-between; gap: 16px;">
+                <span style="opacity: 0.7;">Open</span>
+                <span style="font-weight: 500;">$${open.toLocaleString()}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 16px;">
+                <span style="opacity: 0.7;">High</span>
+                <span style="font-weight: 500;">$${high.toLocaleString()}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 16px;">
+                <span style="opacity: 0.7;">Low</span>
+                <span style="font-weight: 500;">$${low.toLocaleString()}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 16px;">
+                <span style="opacity: 0.7;">Close</span>
+                <span style="font-weight: 500;">$${close.toLocaleString()}</span>
+              </div>
             </div>
           `;
         },
@@ -73,7 +89,7 @@ export default function CandlestickChart({ data }: Props) {
         },
       ],
     }),
-    [data, colors],
+    [data, colors, tooltipStyle],
   );
 
   return (

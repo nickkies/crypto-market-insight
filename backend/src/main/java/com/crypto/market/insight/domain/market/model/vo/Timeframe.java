@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Timeframe {
 
-    ONE_HOUR("1h", "1"),
-    FOUR_HOURS("4h", "1"),
-    ONE_DAY("1d", "30"),
-    ONE_WEEK("1w", "90");
+    ONE_DAY("1d", "30", 1),
+    THREE_DAYS("3d", "90", 3),
+    ONE_WEEK("1w", "180", 7);
 
     private final String value;
     private final String days;
+    private final int aggregateDays; // 캔들 집계 일 수
 
     public static Timeframe fromValue(String value) {
         for (Timeframe timeframe : values()) {

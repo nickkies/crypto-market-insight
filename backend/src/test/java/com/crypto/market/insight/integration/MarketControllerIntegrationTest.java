@@ -201,21 +201,21 @@ class MarketControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("1h 타임프레임 조회 성공")
-        void oneHourTimeframe_success() throws Exception {
+        @DisplayName("3d 타임프레임 조회 성공")
+        void threeDayTimeframe_success() throws Exception {
             // given
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
-                    .withQueryParam("days", equalTo("1"))
+                    .withQueryParam("days", equalTo("90"))
                     .willReturn(okJson(OHLC_SINGLE_JSON)));
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
-                    .withQueryParam("days", equalTo("1"))
+                    .withQueryParam("days", equalTo("90"))
                     .willReturn(okJson(MARKET_CHART_EMPTY_JSON)));
 
             // when & then
             mockMvc.perform(get("/api/market/coins/bitcoin/ohlcv")
-                            .param("timeframe", "1h"))
+                            .param("timeframe", "3d"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.timeframe").value("1h"));
+                    .andExpect(jsonPath("$.timeframe").value("3d"));
         }
 
         @Test
@@ -223,10 +223,10 @@ class MarketControllerIntegrationTest {
         void oneWeekTimeframe_success() throws Exception {
             // given
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
-                    .withQueryParam("days", equalTo("90"))
+                    .withQueryParam("days", equalTo("180"))
                     .willReturn(okJson(OHLC_SINGLE_JSON)));
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
-                    .withQueryParam("days", equalTo("90"))
+                    .withQueryParam("days", equalTo("180"))
                     .willReturn(okJson(MARKET_CHART_EMPTY_JSON)));
 
             // when & then

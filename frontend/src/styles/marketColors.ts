@@ -22,3 +22,24 @@ export const CHART_COLORS = {
     tooltipText: '#F8FAFC',
   },
 } as const;
+
+// iOS 글래스모피즘 스타일 툴팁
+export const getGlassTooltipStyle = (isDark: boolean) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.01)',
+  borderColor: 'transparent',
+  borderWidth: 0,
+  textStyle: {
+    color: isDark ? '#F8FAFC' : '#0F172A',
+    fontSize: 12,
+  },
+  extraCssText: `
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+      0 2px 14px 0 rgba(255, 255, 255, 0.13) inset,
+      0 0 8px 1px rgba(255, 255, 255, 0.07) inset,
+      0 4px 16px rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 12px 18px;
+  `,
+});

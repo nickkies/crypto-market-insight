@@ -141,7 +141,7 @@ class MarketServiceTest {
     class ParseTimeframe {
 
         @ParameterizedTest
-        @ValueSource(strings = {"1h", "4h", "1d", "1w"})
+        @ValueSource(strings = {"1d", "3d", "1w"})
         @DisplayName("유효한 타임프레임을 파싱한다")
         void parsesValidTimeframe(String timeframe) {
             // when
@@ -153,7 +153,7 @@ class MarketServiceTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"1m", "5m", "2h", "3d", "invalid"})
+        @ValueSource(strings = {"1h", "4h", "1m", "5m", "2h", "invalid"})
         @DisplayName("유효하지 않은 타임프레임이면 예외가 발생한다")
         void throwsExceptionForInvalidTimeframe(String invalidTimeframe) {
             // when & then
@@ -191,13 +191,13 @@ class MarketServiceTest {
         @DisplayName("타임프레임에 따라 올바른 days 값을 사용한다")
         void useCorrectDaysForTimeframe() {
             // given
-            when(coinGeckoClient.getOhlc("bitcoin", "usd", "1"))
+            when(coinGeckoClient.getOhlc("bitcoin", "usd", "30"))
                     .thenReturn(List.of());
-            when(coinGeckoClient.getMarketChart("bitcoin", "usd", "1"))
+            when(coinGeckoClient.getMarketChart("bitcoin", "usd", "30"))
                     .thenReturn(new MarketChartData(List.of(), List.of(), List.of()));
 
             // when
-            marketService.getOhlcv("bitcoin", Timeframe.ONE_HOUR);
+            marketService.getOhlcv("bitcoin", Timeframe.ONE_DAY);
 
             // then - no exception means correct days value was used
         }
