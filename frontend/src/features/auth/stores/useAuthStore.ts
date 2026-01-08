@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { queryClient } from '@/features/common';
 
 export interface User {
   userId: number;
@@ -33,6 +34,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: () => {
     sessionStorage.removeItem(TOKEN_KEY);
+    queryClient.clear();
     set({ user: null, token: null, isAuthenticated: false });
   },
 

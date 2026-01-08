@@ -14,11 +14,12 @@ import {
   DrawdownChart,
   MonthlyReturnsChart,
   TradeHistoryTable,
+  MyBacktestsPanel,
   useRunBacktest,
   useBacktestChartData,
   sampleBacktestResult,
 } from '@/features/backtest';
-import type { BacktestRequestDto } from '@/features/backtest';
+import type { BacktestRequestDto, BacktestResult } from '@/features/backtest';
 
 const PageContainer = styled.div`
   display: flex;
@@ -145,7 +146,7 @@ export function BacktestPage() {
   // 마지막 요청 저장 (재시도용)
   const lastRequestRef = useRef<BacktestRequestDto | null>(null);
 
-  // 실행 전이면 샘플 데이터, 실행 후에는 API 응답 사용
+  // 실행 전이면 샘플 데이터, 실행 후에는 API 응답
   const displayResult = data ?? sampleBacktestResult;
 
   // 차트 데이터 계산
@@ -160,6 +161,21 @@ export function BacktestPage() {
     lastRequestRef.current = formData;
     reset();
     runBacktest(formData);
+  };
+
+  const handleSelectSavedResult = (result: BacktestResult) => {
+    // 저장된 백테스트의 파라미터로 다시 실행
+    const request: BacktestRequestDto = {
+      coinId: result.coinId,
+      strategyType: result.strategyType,
+      parameters: result.parameters,
+      timeframe: result.timeframe,
+      startDate: result.startDate,
+      endDate: result.endDate,
+    };
+    lastRequestRef.current = request;
+    reset();
+    runBacktest(request);
   };
 
   const handleRetry = () => {
@@ -204,6 +220,7 @@ export function BacktestPage() {
             isPending={isPending}
             isRateLimitError={!!rateLimitError}
           />
+          <MyBacktestsPanel onSelect={handleSelectSavedResult} />
         </ConfigPanel>
 
         <ResultsSection>
