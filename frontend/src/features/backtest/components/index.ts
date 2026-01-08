@@ -4,4 +4,7 @@ export { default as ParameterForm } from './ParameterForm';
 export { default as CoinSelect } from './CoinSelect';
 export { default as TimeframeSelect } from './TimeframeSelect';
 export { default as ResultSummary } from './ResultSummary';
+export { default as EquityCurve } from './EquityCurve';
+export { default as DrawdownChart } from './DrawdownChart';
+export { default as MonthlyReturnsChart } from './MonthlyReturnsChart';
 export type { BacktestFormValues } from './BacktestForm';
