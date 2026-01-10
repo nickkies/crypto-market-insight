@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {
   CardSkeleton,
   TableRowsSkeleton,
-  TextSkeleton,
   SearchInput,
   FilterTabs,
 } from '@/features/common/components';
@@ -13,8 +12,12 @@ import {
   CoinList,
   ChartContainer,
   TimeframeSelector,
+  TechnicalIndicatorsCard,
+  SignalSummaryCard,
   useOhlcv,
+  useIndicators,
   useMarketStore,
+  useCoinDetail,
 } from '@/features/market';
 
 const PageContainer = styled.div`
@@ -130,24 +133,6 @@ const Sidebar = styled.div`
   height: 100%;
 `;
 
-const IndicatorGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-
-const IndicatorCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  padding: ${({ theme }) => theme.spacing.md};
-`;
-
-const IndicatorLabel = styled.p`
-  font-size: ${({ theme }) => theme.fonts.size.xs};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-`;
-
 const Section = styled.section`
   display: flex;
   flex-direction: column;
@@ -210,9 +195,20 @@ export function MarketPage() {
     isLoading: isChartLoading,
     isError: isChartError,
     error: chartError,
-    refetch: refetchChart,
+    countdown: chartCountdown,
+    retry: retryChart,
   } = useOhlcv({ coinId: chartCoinId, timeframe });
   const chartErrorStatus = (chartError as { status?: number })?.status;
+
+  const {
+    data: indicatorData,
+    isLoading: isIndicatorLoading,
+    isError: isIndicatorError,
+  } = useIndicators({
+    coinId: chartCoinId,
+  });
+
+  const { data: coinDetail } = useCoinDetail(chartCoinId);
 
   return (
     <PageContainer data-testid="market-page">
@@ -244,39 +240,26 @@ export function MarketPage() {
               isLoading={isChartLoading}
               isError={isChartError}
               errorStatus={chartErrorStatus}
-              onRetry={() => refetchChart()}
+              cooldown={chartCountdown}
+              onRetry={retryChart}
             />
           </ChartCard>
         </ChartSection>
 
         <SidebarWrapper>
           <Sidebar>
-            <Card>
-              <CardTitle>Technical Indicators</CardTitle>
-              <IndicatorGrid>
-                <IndicatorCard>
-                  <IndicatorLabel>RSI (14)</IndicatorLabel>
-                  <TextSkeleton width="60%" />
-                </IndicatorCard>
-                <IndicatorCard>
-                  <IndicatorLabel>MACD</IndicatorLabel>
-                  <TextSkeleton width="70%" />
-                </IndicatorCard>
-                <IndicatorCard>
-                  <IndicatorLabel>MA (20)</IndicatorLabel>
-                  <TextSkeleton width="80%" />
-                </IndicatorCard>
-                <IndicatorCard>
-                  <IndicatorLabel>BB</IndicatorLabel>
-                  <TextSkeleton width="50%" />
-                </IndicatorCard>
-              </IndicatorGrid>
-            </Card>
+            <TechnicalIndicatorsCard
+              data={indicatorData}
+              isLoading={isIndicatorLoading}
+              isError={isIndicatorError}
+            />
 
-            <Card>
-              <CardTitle>Signal Summary</CardTitle>
-              <TableRowsSkeleton rows={4} />
-            </Card>
+            <SignalSummaryCard
+              data={indicatorData}
+              isLoading={isIndicatorLoading}
+              isError={isIndicatorError}
+              currentPrice={coinDetail?.currentPrice}
+            />
 
             <Card>
               <CardTitle>Top Gainers</CardTitle>

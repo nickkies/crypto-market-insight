@@ -4,6 +4,7 @@ import {
   formatPercent,
   formatMarketCap,
   formatVolume,
+  formatChartDate,
 } from './format';
 
 describe('formatPrice', () => {
@@ -101,5 +102,25 @@ describe('formatVolume', () => {
   it('null 또는 undefined는 - 를 반환한다', () => {
     expect(formatVolume(null)).toBe('-');
     expect(formatVolume(undefined)).toBe('-');
+  });
+});
+
+describe('formatChartDate', () => {
+  it('ISO date string을 MM.DD 형식으로 포맷팅한다', () => {
+    expect(formatChartDate('2024-01-15')).toBe('01.15');
+    expect(formatChartDate('2024-12-25')).toBe('12.25');
+  });
+
+  it('timestamp를 MM.DD 형식으로 포맷팅한다', () => {
+    // 2024-01-15 00:00:00 UTC
+    const timestamp = new Date('2024-01-15T00:00:00Z').getTime();
+    const result = formatChartDate(timestamp);
+    // 로컬 타임존에 따라 01.15 또는 01.14일 수 있음
+    expect(result).toMatch(/^\d{2}\.\d{2}$/);
+  });
+
+  it('월과 일을 2자리로 패딩한다', () => {
+    expect(formatChartDate('2024-05-03')).toBe('05.03');
+    expect(formatChartDate('2024-09-01')).toBe('09.01');
   });
 });

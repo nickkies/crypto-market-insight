@@ -95,8 +95,8 @@ public class MarketController {
     public ResponseEntity<IndicatorResponse> getIndicators(
             @Parameter(description = "코인 ID", example = "bitcoin")
             @PathVariable String coinId,
-            @Parameter(description = "분석 기간 (일)", example = "90")
-            @RequestParam(defaultValue = "90") @Min(14) @Max(365) int period
+            @Parameter(description = "분석 기간 (일)", example = "365")
+            @RequestParam(defaultValue = "365") @Min(14) @Max(365) int period
     ) {
         IndicatorResponse indicators = indicatorService.calculateIndicators(coinId, period);
         return ResponseEntity.ok(indicators);

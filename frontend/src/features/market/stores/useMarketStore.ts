@@ -1,6 +1,6 @@
 import { create } from 'zustand';
+import type { Timeframe } from '../services';
 
-type Timeframe = '1h' | '4h' | '1d' | '1w';
 type SortOrder =
   | 'market_cap_desc'
   | 'market_cap_asc'

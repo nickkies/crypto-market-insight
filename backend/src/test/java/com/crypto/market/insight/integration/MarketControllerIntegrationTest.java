@@ -303,14 +303,14 @@ class MarketControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("기본 period는 90")
+        @DisplayName("기본 period는 365")
         void defaultPeriod() throws Exception {
             // given
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
-                    .withQueryParam("days", equalTo("90"))
+                    .withQueryParam("days", equalTo("365"))
                     .willReturn(okJson(indicatorOhlcJson())));
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
-                    .withQueryParam("days", equalTo("90"))
+                    .withQueryParam("days", equalTo("365"))
                     .willReturn(okJson(indicatorMarketChartJson())));
 
             // when & then

@@ -118,16 +118,16 @@ describe('marketService', () => {
       const mockResponse = {
         data: {
           coinId: 'ethereum',
-          timeframe: '4h',
+          timeframe: '3d',
           data: [],
         },
       };
       vi.mocked(client.get).mockResolvedValue(mockResponse);
 
-      const result = await marketService.getOhlcv('ethereum', '4h');
+      const result = await marketService.getOhlcv('ethereum', '3d');
 
       expect(client.get).toHaveBeenCalledWith(
-        '/api/market/coins/ethereum/ohlcv?timeframe=4h',
+        '/api/market/coins/ethereum/ohlcv?timeframe=3d',
       );
       expect(result).toEqual(mockResponse.data);
     });
