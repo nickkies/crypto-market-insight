@@ -29,9 +29,9 @@ describe('useMarketStore', () => {
 
   describe('setTimeframe', () => {
     it('타임프레임을 변경한다', () => {
-      useMarketStore.getState().setTimeframe('1h');
+      useMarketStore.getState().setTimeframe('3d');
 
-      expect(useMarketStore.getState().timeframe).toBe('1h');
+      expect(useMarketStore.getState().timeframe).toBe('3d');
     });
   });
 
