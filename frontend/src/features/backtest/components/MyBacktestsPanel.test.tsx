@@ -19,6 +19,10 @@ const mockBacktests: BacktestResult[] = [
     id: 1,
     coinId: 'bitcoin',
     strategyType: 'RSI',
+    parameters: { period: 14, oversold: 30, overbought: 70 },
+    timeframe: '1d',
+    startDate: '2024-01-01',
+    endDate: '2024-06-15',
     trades: [],
     metrics: {
       cumulativeReturn: 15.5,
@@ -34,6 +38,10 @@ const mockBacktests: BacktestResult[] = [
     id: 2,
     coinId: 'ethereum',
     strategyType: 'RSI',
+    parameters: { period: 14, oversold: 30, overbought: 70 },
+    timeframe: '1d',
+    startDate: '2024-01-01',
+    endDate: '2024-06-10',
     trades: [],
     metrics: {
       cumulativeReturn: -5.3,

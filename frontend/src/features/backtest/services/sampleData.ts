@@ -5,6 +5,14 @@ export const sampleBacktestResult: BacktestResult = {
   id: 0,
   coinId: 'bitcoin',
   strategyType: 'RSI',
+  parameters: {
+    period: 14,
+    oversold: 30,
+    overbought: 70,
+  },
+  timeframe: '1d',
+  startDate: '2024-01-01',
+  endDate: '2024-12-31',
   metrics: {
     cumulativeReturn: 32.5,
     mdd: 12.8,
