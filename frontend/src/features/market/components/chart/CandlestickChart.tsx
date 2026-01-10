@@ -8,7 +8,7 @@ import {
 } from '@/styles/marketColors';
 import { useTheme } from '@/styles';
 import type { OhlcvDataDto } from '../../services';
-import { formatPrice } from '@/utils';
+import { formatPrice, formatChartDate } from '@/utils';
 
 interface Props {
   data: OhlcvDataDto[];
@@ -31,9 +31,10 @@ export default function CandlestickChart({ data }: Props) {
           const param = (params as { data: number[]; axisValue: string }[])[0];
           if (!param) return '';
           const [open, close, low, high] = param.data;
+          const dateStr = formatChartDate(Number(param.axisValue));
           return `
             <div style="font-size: 12px; line-height: 1.6;">
-              <div style="font-weight: 600; margin-bottom: 4px;">${param.axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 4px;">${dateStr}</div>
               <div style="display: flex; justify-content: space-between; gap: 16px;">
                 <span style="opacity: 0.7;">Open</span>
                 <span style="font-weight: 500;">$${open.toLocaleString()}</span>
@@ -62,9 +63,14 @@ export default function CandlestickChart({ data }: Props) {
       },
       xAxis: {
         type: 'category',
-        data: data.map((d) => new Date(d.timestamp).toLocaleDateString()),
+        data: data.map((d) => d.timestamp),
         axisLine: { lineStyle: { color: colors.axisLine } },
-        axisLabel: { color: colors.axisLabel },
+        axisLabel: {
+          color: colors.axisLabel,
+          fontSize: 11,
+          formatter: (value: string) => formatChartDate(Number(value)),
+          interval: Math.floor(data.length / 6),
+        },
       },
       yAxis: {
         type: 'value',

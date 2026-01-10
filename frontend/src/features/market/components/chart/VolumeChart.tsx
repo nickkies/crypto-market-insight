@@ -7,7 +7,7 @@ import {
   getGlassTooltipStyle,
 } from '@/styles/marketColors';
 import { useTheme } from '@/styles';
-import { formatVolume } from '@/utils';
+import { formatVolume, formatChartDate } from '@/utils';
 import type { OhlcvDataDto } from '../../services';
 
 interface Props {
@@ -31,9 +31,10 @@ export default function VolumeChart({ data }: Props) {
             params as { data: { value: number }; axisValue: string }[]
           )[0];
           if (!param) return '';
+          const dateStr = formatChartDate(Number(param.axisValue));
           return `
             <div style="font-size: 12px; line-height: 1.6;">
-              <div style="font-weight: 600; margin-bottom: 4px;">${param.axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 4px;">${dateStr}</div>
               <div style="display: flex; justify-content: space-between; gap: 16px;">
                 <span style="opacity: 0.7;">Volume</span>
                 <span style="font-weight: 500;">${param.data.value.toLocaleString()}</span>
@@ -50,9 +51,14 @@ export default function VolumeChart({ data }: Props) {
       },
       xAxis: {
         type: 'category',
-        data: volumeData.map((d) => new Date(d.timestamp).toLocaleDateString()),
+        data: volumeData.map((d) => d.timestamp),
         axisLine: { lineStyle: { color: colors.axisLine } },
-        axisLabel: { color: colors.axisLabel },
+        axisLabel: {
+          color: colors.axisLabel,
+          fontSize: 11,
+          formatter: (value: string) => formatChartDate(Number(value)),
+          interval: Math.floor(volumeData.length / 6),
+        },
       },
       yAxis: {
         type: 'value',
