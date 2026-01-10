@@ -227,4 +227,61 @@ public final class MarketFixture {
                 101.0, 100.0, 101.0, 100.0, 101.0
         );
     }
+
+    /**
+     * 지표 API 테스트용: 100개 OHLC 데이터 JSON 생성
+     */
+    public static String indicatorOhlcJson() {
+        StringBuilder sb = new StringBuilder("[");
+        long baseTimestamp = 1709395200000L;
+        double basePrice = 50000.0;
+
+        for (int i = 0; i < 100; i++) {
+            if (i > 0) sb.append(",");
+            long timestamp = baseTimestamp + (i * 86400000L);
+            double price = basePrice + (i * 100) + (Math.sin(i * 0.3) * 500);
+            double open = price - 50;
+            double high = price + 100;
+            double low = price - 100;
+            double close = price;
+            sb.append(String.format("[%d, %.2f, %.2f, %.2f, %.2f]",
+                    timestamp, open, high, low, close));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    /**
+     * 지표 API 테스트용: Market Chart JSON
+     */
+    public static String indicatorMarketChartJson() {
+        StringBuilder prices = new StringBuilder("[");
+        StringBuilder volumes = new StringBuilder("[");
+        long baseTimestamp = 1709395200000L;
+        double basePrice = 50000.0;
+        double baseVolume = 1000000000.0;
+
+        for (int i = 0; i < 100; i++) {
+            if (i > 0) {
+                prices.append(",");
+                volumes.append(",");
+            }
+            long timestamp = baseTimestamp + (i * 86400000L);
+            double price = basePrice + (i * 100) + (Math.sin(i * 0.3) * 500);
+            double volume = baseVolume + (Math.random() * 100000000);
+
+            prices.append(String.format("[%d, %.2f]", timestamp, price));
+            volumes.append(String.format("[%d, %.2f]", timestamp, volume));
+        }
+        prices.append("]");
+        volumes.append("]");
+
+        return String.format("""
+                {
+                    "prices": %s,
+                    "market_caps": [],
+                    "total_volumes": %s
+                }
+                """, prices, volumes);
+    }
 }
