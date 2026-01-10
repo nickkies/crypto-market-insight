@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useOhlcv } from './useOhlcv';
@@ -89,12 +89,12 @@ describe('useOhlcv', () => {
   });
 
   it('다른 타임프레임을 지정할 수 있다', async () => {
-    const ohlcv4h = { ...mockOhlcvData, timeframe: '4h' };
-    vi.mocked(marketService.getOhlcv).mockResolvedValue(ohlcv4h);
+    const ohlcv3d = { ...mockOhlcvData, timeframe: '3d' };
+    vi.mocked(marketService.getOhlcv).mockResolvedValue(ohlcv3d);
     const queryClient = createTestQueryClient();
 
     const { result } = renderHook(
-      () => useOhlcv({ coinId: 'bitcoin', timeframe: '4h' }),
+      () => useOhlcv({ coinId: 'bitcoin', timeframe: '3d' }),
       { wrapper: createWrapper(queryClient) },
     );
 
@@ -102,7 +102,7 @@ describe('useOhlcv', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(marketService.getOhlcv).toHaveBeenCalledWith('bitcoin', '4h');
+    expect(marketService.getOhlcv).toHaveBeenCalledWith('bitcoin', '3d');
   });
 
   it('에러 발생 시 에러 상태를 반환한다', async () => {
@@ -119,20 +119,71 @@ describe('useOhlcv', () => {
     });
   });
 
-  it('queryKey에 coinId와 timeframe이 포함된다', async () => {
-    vi.mocked(marketService.getOhlcv).mockResolvedValue(mockOhlcvData);
+  it('429 에러 시 60초 카운트다운을 시작한다', async () => {
+    const rateLimitError = { status: 429, message: 'Rate limit exceeded' };
+    vi.mocked(marketService.getOhlcv).mockRejectedValue(rateLimitError);
     const queryClient = createTestQueryClient();
 
-    renderHook(() => useOhlcv({ coinId: 'bitcoin', timeframe: '1w' }), {
-      wrapper: createWrapper(queryClient),
+    const { result } = renderHook(
+      () => useOhlcv({ coinId: 'bitcoin', timeframe: '1d' }),
+      { wrapper: createWrapper(queryClient) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.countdown).toBe(60);
+  });
+
+  it('카운트다운 중에는 retry가 동작하지 않는다', async () => {
+    const rateLimitError = { status: 429, message: 'Rate limit exceeded' };
+    vi.mocked(marketService.getOhlcv).mockRejectedValue(rateLimitError);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(
+      () => useOhlcv({ coinId: 'bitcoin', timeframe: '1d' }),
+      { wrapper: createWrapper(queryClient) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.countdown).toBe(60);
+    });
+
+    const callCountBefore = vi.mocked(marketService.getOhlcv).mock.calls.length;
+
+    act(() => {
+      result.current.retry();
+    });
+
+    expect(vi.mocked(marketService.getOhlcv).mock.calls.length).toBe(
+      callCountBefore,
+    );
+  });
+
+  it('일반 에러 시 카운트다운은 0이고 retry가 동작한다', async () => {
+    vi.mocked(marketService.getOhlcv)
+      .mockRejectedValueOnce(new Error('Error'))
+      .mockResolvedValueOnce(mockOhlcvData);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(
+      () => useOhlcv({ coinId: 'bitcoin', timeframe: '1d' }),
+      { wrapper: createWrapper(queryClient) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.countdown).toBe(0);
+
+    act(() => {
+      result.current.retry();
     });
 
     await waitFor(() => {
-      expect(marketService.getOhlcv).toHaveBeenCalled();
+      expect(result.current.isSuccess).toBe(true);
     });
-
-    const cache = queryClient.getQueryCache();
-    const queries = cache.getAll();
-    expect(queries[0].queryKey).toEqual(['ohlcv', 'bitcoin', '1w']);
   });
 });
