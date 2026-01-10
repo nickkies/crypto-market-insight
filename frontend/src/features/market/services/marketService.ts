@@ -51,7 +51,42 @@ export interface OhlcvResponseDto {
   data: OhlcvDataDto[];
 }
 
-export type Timeframe = '1h' | '4h' | '1d' | '1w';
+// Indicator Types
+export type RsiStatus = 'OVERBOUGHT' | 'OVERSOLD' | 'NEUTRAL';
+export type MacdStatus = 'BULLISH' | 'BEARISH';
+
+export interface RsiIndicatorDto {
+  value: number | null;
+  status: RsiStatus | null;
+}
+
+export interface MacdIndicatorDto {
+  macd: number | null;
+  signal: number | null;
+  histogram: number | null;
+  status: MacdStatus | null;
+}
+
+export interface MaIndicatorDto {
+  ma20: number | null;
+  ma50: number | null;
+}
+
+export interface BollingerBandsIndicatorDto {
+  upper: number | null;
+  middle: number | null;
+  lower: number | null;
+}
+
+export interface IndicatorResponseDto {
+  coinId: string;
+  rsi: RsiIndicatorDto;
+  macd: MacdIndicatorDto;
+  ma: MaIndicatorDto;
+  bollingerBands: BollingerBandsIndicatorDto;
+}
+
+export type Timeframe = '1d' | '3d' | '1w';
 
 interface GetCoinsParams {
   page?: number;
@@ -91,6 +126,16 @@ export const marketService = {
   ): Promise<OhlcvResponseDto> => {
     const { data } = await client.get<OhlcvResponseDto>(
       `/api/market/coins/${coinId}/ohlcv?timeframe=${timeframe}`,
+    );
+    return data;
+  },
+
+  getIndicators: async (
+    coinId: string,
+    period: number = 90,
+  ): Promise<IndicatorResponseDto> => {
+    const { data } = await client.get<IndicatorResponseDto>(
+      `/api/market/coins/${coinId}/indicators?period=${period}`,
     );
     return data;
   },
