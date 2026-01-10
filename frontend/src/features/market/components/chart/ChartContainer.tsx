@@ -32,6 +32,7 @@ interface Props {
   isLoading: boolean;
   isError: boolean;
   errorStatus?: number;
+  cooldown?: number;
   onRetry?: () => void;
 }
 
@@ -40,6 +41,7 @@ export default function ChartContainer({
   isLoading,
   isError,
   errorStatus,
+  cooldown = 0,
   onRetry,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -76,7 +78,11 @@ export default function ChartContainer({
 
     return (
       <ChartBox $height="100%">
-        <ErrorState message={errorMessage} onRetry={onRetry} />
+        <ErrorState
+          message={errorMessage}
+          onRetry={onRetry}
+          cooldown={cooldown}
+        />
       </ChartBox>
     );
   }
