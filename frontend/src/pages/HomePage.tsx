@@ -109,6 +109,19 @@ const Card = styled.div`
   padding: ${({ theme }) => theme.spacing.lg};
 `;
 
+const ChartCard = styled(Card)`
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const TopMoversCard = styled(Card)`
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
 const CardTitle = styled.h3`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
@@ -184,14 +197,14 @@ export function HomePage() {
           <ViewAllLink to="/market">View All</ViewAllLink>
         </SectionHeader>
         <ChartGrid>
-          <Card>
+          <ChartCard>
             <CardTitle>BTC/USDT</CardTitle>
             <BtcMiniChart />
-          </Card>
-          <Card>
+          </ChartCard>
+          <TopMoversCard>
             <CardTitle>Top Movers</CardTitle>
-            <TopMoversList />
-          </Card>
+            <TopMoversList fillHeight />
+          </TopMoversCard>
         </ChartGrid>
       </Section>
 
