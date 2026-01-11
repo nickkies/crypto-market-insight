@@ -5,5 +5,6 @@ export {
   VolumeChart,
   ChartContainer,
   TimeframeSelector,
+  IndicatorSelector,
 } from './chart';
 export { TechnicalIndicatorsCard, SignalSummaryCard } from './indicators';

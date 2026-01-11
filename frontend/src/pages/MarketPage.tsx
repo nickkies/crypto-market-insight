@@ -12,6 +12,7 @@ import {
   CoinList,
   ChartContainer,
   TimeframeSelector,
+  IndicatorSelector,
   TechnicalIndicatorsCard,
   SignalSummaryCard,
   useOhlcv,
@@ -113,6 +114,15 @@ const CardHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing.md};
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
+const ChartControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.md};
+  flex-wrap: wrap;
 `;
 
 const CardTitle = styled.h3`
@@ -187,7 +197,8 @@ export function MarketPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const { timeframe, setTimeframe, selectedCoinId } = useMarketStore();
+  const { timeframe, setTimeframe, selectedCoinId, selectedIndicators } =
+    useMarketStore();
   const chartCoinId = selectedCoinId || 'bitcoin';
 
   const {
@@ -233,7 +244,10 @@ export function MarketPage() {
           <ChartCard>
             <CardHeader>
               <CardTitle>{chartCoinId.toUpperCase()}/USD</CardTitle>
-              <TimeframeSelector value={timeframe} onChange={setTimeframe} />
+              <ChartControls>
+                <IndicatorSelector />
+                <TimeframeSelector value={timeframe} onChange={setTimeframe} />
+              </ChartControls>
             </CardHeader>
             <ChartContainer
               data={ohlcvData?.data}
@@ -242,6 +256,7 @@ export function MarketPage() {
               errorStatus={chartErrorStatus}
               cooldown={chartCountdown}
               onRetry={retryChart}
+              selectedIndicators={selectedIndicators}
             />
           </ChartCard>
         </ChartSection>
