@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {
   CardSkeleton,
   TableRowsSkeleton,
-  TextSkeleton,
   SearchInput,
   FilterTabs,
 } from '@/features/common/components';
@@ -13,8 +12,13 @@ import {
   CoinList,
   ChartContainer,
   TimeframeSelector,
+  IndicatorSelector,
+  TechnicalIndicatorsCard,
+  SignalSummaryCard,
   useOhlcv,
+  useIndicators,
   useMarketStore,
+  useCoinDetail,
 } from '@/features/market';
 
 const PageContainer = styled.div`
@@ -110,6 +114,15 @@ const CardHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing.md};
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
+const ChartControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.md};
+  flex-wrap: wrap;
 `;
 
 const CardTitle = styled.h3`
@@ -128,24 +141,6 @@ const Sidebar = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
   height: 100%;
-`;
-
-const IndicatorGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-
-const IndicatorCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.tertiary};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  padding: ${({ theme }) => theme.spacing.md};
-`;
-
-const IndicatorLabel = styled.p`
-  font-size: ${({ theme }) => theme.fonts.size.xs};
-  color: ${({ theme }) => theme.colors.text.tertiary};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
 `;
 
 const Section = styled.section`
@@ -202,7 +197,8 @@ export function MarketPage() {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const { timeframe, setTimeframe, selectedCoinId } = useMarketStore();
+  const { timeframe, setTimeframe, selectedCoinId, selectedIndicators } =
+    useMarketStore();
   const chartCoinId = selectedCoinId || 'bitcoin';
 
   const {
@@ -210,9 +206,20 @@ export function MarketPage() {
     isLoading: isChartLoading,
     isError: isChartError,
     error: chartError,
-    refetch: refetchChart,
+    countdown: chartCountdown,
+    retry: retryChart,
   } = useOhlcv({ coinId: chartCoinId, timeframe });
   const chartErrorStatus = (chartError as { status?: number })?.status;
+
+  const {
+    data: indicatorData,
+    isLoading: isIndicatorLoading,
+    isError: isIndicatorError,
+  } = useIndicators({
+    coinId: chartCoinId,
+  });
+
+  const { data: coinDetail } = useCoinDetail(chartCoinId);
 
   return (
     <PageContainer data-testid="market-page">
@@ -237,46 +244,37 @@ export function MarketPage() {
           <ChartCard>
             <CardHeader>
               <CardTitle>{chartCoinId.toUpperCase()}/USD</CardTitle>
-              <TimeframeSelector value={timeframe} onChange={setTimeframe} />
+              <ChartControls>
+                <IndicatorSelector />
+                <TimeframeSelector value={timeframe} onChange={setTimeframe} />
+              </ChartControls>
             </CardHeader>
             <ChartContainer
               data={ohlcvData?.data}
               isLoading={isChartLoading}
               isError={isChartError}
               errorStatus={chartErrorStatus}
-              onRetry={() => refetchChart()}
+              cooldown={chartCountdown}
+              onRetry={retryChart}
+              selectedIndicators={selectedIndicators}
             />
           </ChartCard>
         </ChartSection>
 
         <SidebarWrapper>
           <Sidebar>
-            <Card>
-              <CardTitle>Technical Indicators</CardTitle>
-              <IndicatorGrid>
-                <IndicatorCard>
-                  <IndicatorLabel>RSI (14)</IndicatorLabel>
-                  <TextSkeleton width="60%" />
-                </IndicatorCard>
-                <IndicatorCard>
-                  <IndicatorLabel>MACD</IndicatorLabel>
-                  <TextSkeleton width="70%" />
-                </IndicatorCard>
-                <IndicatorCard>
-                  <IndicatorLabel>MA (20)</IndicatorLabel>
-                  <TextSkeleton width="80%" />
-                </IndicatorCard>
-                <IndicatorCard>
-                  <IndicatorLabel>BB</IndicatorLabel>
-                  <TextSkeleton width="50%" />
-                </IndicatorCard>
-              </IndicatorGrid>
-            </Card>
+            <TechnicalIndicatorsCard
+              data={indicatorData}
+              isLoading={isIndicatorLoading}
+              isError={isIndicatorError}
+            />
 
-            <Card>
-              <CardTitle>Signal Summary</CardTitle>
-              <TableRowsSkeleton rows={4} />
-            </Card>
+            <SignalSummaryCard
+              data={indicatorData}
+              isLoading={isIndicatorLoading}
+              isError={isIndicatorError}
+              currentPrice={coinDetail?.currentPrice}
+            />
 
             <Card>
               <CardTitle>Top Gainers</CardTitle>

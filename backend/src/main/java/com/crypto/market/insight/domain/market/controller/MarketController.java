@@ -1,12 +1,14 @@
 package com.crypto.market.insight.domain.market.controller;
 
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
+import com.crypto.market.insight.domain.market.dto.IndicatorDto.IndicatorResponse;
 import com.crypto.market.insight.domain.market.dto.MarketDto.CoinListResponse;
 import com.crypto.market.insight.domain.market.dto.MarketDto.CoinSummary;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvDataDto;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvResponse;
 import com.crypto.market.insight.domain.market.dto.OhlcvData;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
+import com.crypto.market.insight.domain.market.service.IndicatorService;
 import com.crypto.market.insight.domain.market.service.MarketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MarketController {
 
     private final MarketService marketService;
+    private final IndicatorService indicatorService;
 
     @Operation(
             summary = "코인 목록 조회",
@@ -82,5 +85,20 @@ public class MarketController {
                 .map(OhlcvDataDto::from)
                 .toList();
         return ResponseEntity.ok(OhlcvResponse.of(coinId, tf.getValue(), ohlcvDataDtos));
+    }
+
+    @Operation(
+            summary = "기술적 지표 조회",
+            description = "특정 코인의 기술적 지표(RSI, MACD, MA, Bollinger Bands)를 계산하여 조회합니다."
+    )
+    @GetMapping("/coins/{coinId}/indicators")
+    public ResponseEntity<IndicatorResponse> getIndicators(
+            @Parameter(description = "코인 ID", example = "bitcoin")
+            @PathVariable String coinId,
+            @Parameter(description = "분석 기간 (일)", example = "365")
+            @RequestParam(defaultValue = "365") @Min(14) @Max(365) int period
+    ) {
+        IndicatorResponse indicators = indicatorService.calculateIndicators(coinId, period);
+        return ResponseEntity.ok(indicators);
     }
 }

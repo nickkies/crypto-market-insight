@@ -15,9 +15,11 @@ public class CacheConfig {
 
     public static final String COIN_MARKETS = "coinMarkets";
     public static final String OHLC = "ohlc";
+    public static final String INDICATORS = "indicators";
 
     private static final long COIN_MARKETS_TTL_SECONDS = 600;     // 시세: 10분
     private static final long OHLC_TTL_SECONDS = 600;             // OHLC: 10분
+    private static final long INDICATORS_TTL_SECONDS = 300;       // 지표: 5분
     private static final long MAX_SIZE = 1000;
 
     @Bean
@@ -25,6 +27,7 @@ public class CacheConfig {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.registerCustomCache(COIN_MARKETS, buildCache(COIN_MARKETS_TTL_SECONDS));
         cacheManager.registerCustomCache(OHLC, buildCache(OHLC_TTL_SECONDS));
+        cacheManager.registerCustomCache(INDICATORS, buildCache(INDICATORS_TTL_SECONDS));
         return cacheManager;
     }
 

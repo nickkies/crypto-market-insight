@@ -28,9 +28,9 @@ const TimeframeButton = styled.button<{ $isActive: boolean }>`
 `;
 
 const TIMEFRAME_OPTIONS: { value: Timeframe; label: string }[] = [
-  { value: '1h', label: '1H' },
-  { value: '4h', label: '4H' },
   { value: '1d', label: '1D' },
+  { value: '3d', label: '3D' },
+  { value: '1w', label: '1W' },
 ];
 
 interface Props {

@@ -7,15 +7,8 @@ import {
   getGlassTooltipStyle,
 } from '@/styles/marketColors';
 import { useTheme } from '@/styles';
+import { formatChartDate } from '@/utils';
 import type { DrawdownPoint } from '../types';
-
-// 날짜 포맷 (MM.DD)
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${month}.${day}`;
-}
 
 interface Props {
   data: DrawdownPoint[];
@@ -60,7 +53,7 @@ export default function DrawdownChart({ data }: Props) {
         axisLabel: {
           color: colors.axisLabel,
           fontSize: 11,
-          formatter: (value: string) => formatDate(value),
+          formatter: (value: string) => formatChartDate(value),
           interval: Math.floor(data.length / 5),
         },
         boundaryGap: false,

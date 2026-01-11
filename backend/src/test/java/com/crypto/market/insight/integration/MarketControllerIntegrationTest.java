@@ -1,7 +1,21 @@
 package com.crypto.market.insight.integration;
 
-import static com.crypto.market.insight.support.fixture.MarketFixture.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.crypto.market.insight.support.fixture.MarketFixture.BITCOIN_MARKET_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.EMPTY_ARRAY_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.ETHEREUM_MARKET_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.MARKET_CHART_EMPTY_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.MARKET_CHART_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.OHLC_DATA_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.OHLC_SINGLE_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.coinsMarketsJson;
+import static com.crypto.market.insight.support.fixture.MarketFixture.indicatorMarketChartJson;
+import static com.crypto.market.insight.support.fixture.MarketFixture.indicatorOhlcJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,6 +70,7 @@ class MarketControllerIntegrationTest {
     void setUp() {
         Objects.requireNonNull(cacheManager.getCache(CacheConfig.COIN_MARKETS)).clear();
         Objects.requireNonNull(cacheManager.getCache(CacheConfig.OHLC)).clear();
+        Objects.requireNonNull(cacheManager.getCache(CacheConfig.INDICATORS)).clear();
         wireMockServer.resetAll();
     }
 
@@ -234,6 +249,74 @@ class MarketControllerIntegrationTest {
                             .param("timeframe", "1w"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.timeframe").value("1w"));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/market/coins/{coinId}/indicators")
+    class GetIndicators {
+
+        @Test
+        @DisplayName("기술적 지표 조회 성공")
+        void success() throws Exception {
+            // given
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
+                    .willReturn(okJson(indicatorOhlcJson())));
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
+                    .willReturn(okJson(indicatorMarketChartJson())));
+
+            // when & then
+            mockMvc.perform(get("/api/market/coins/bitcoin/indicators")
+                            .param("period", "90"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.coinId").value("bitcoin"))
+                    .andExpect(jsonPath("$.rsi.value").isNumber())
+                    .andExpect(jsonPath("$.rsi.status").isString())
+                    .andExpect(jsonPath("$.macd.macd").isNumber())
+                    .andExpect(jsonPath("$.macd.signal").isNumber())
+                    .andExpect(jsonPath("$.macd.histogram").isNumber())
+                    .andExpect(jsonPath("$.macd.status").isString())
+                    .andExpect(jsonPath("$.ma.ma20").isNumber())
+                    .andExpect(jsonPath("$.ma.ma50").isNumber())
+                    .andExpect(jsonPath("$.bollingerBands.upper").isNumber())
+                    .andExpect(jsonPath("$.bollingerBands.middle").isNumber())
+                    .andExpect(jsonPath("$.bollingerBands.lower").isNumber());
+        }
+
+        @Test
+        @DisplayName("period가 13이면 422 에러")
+        void periodTooSmall_returns422() throws Exception {
+            mockMvc.perform(get("/api/market/coins/bitcoin/indicators")
+                            .param("period", "13"))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.code").value("INVALID_PARAMETER"));
+        }
+
+        @Test
+        @DisplayName("period가 366이면 422 에러")
+        void periodTooLarge_returns422() throws Exception {
+            mockMvc.perform(get("/api/market/coins/bitcoin/indicators")
+                            .param("period", "366"))
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.code").value("INVALID_PARAMETER"));
+        }
+
+        @Test
+        @DisplayName("기본 period는 365")
+        void defaultPeriod() throws Exception {
+            // given
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
+                    .withQueryParam("days", equalTo("365"))
+                    .willReturn(okJson(indicatorOhlcJson())));
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/market_chart"))
+                    .withQueryParam("days", equalTo("365"))
+                    .willReturn(okJson(indicatorMarketChartJson())));
+
+            // when & then
+            mockMvc.perform(get("/api/market/coins/bitcoin/indicators"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.coinId").value("bitcoin"));
         }
     }
 }
