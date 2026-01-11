@@ -3,6 +3,7 @@ package com.crypto.market.insight.integration;
 import static com.crypto.market.insight.support.fixture.MarketFixture.BITCOIN_MARKET_JSON;
 import static com.crypto.market.insight.support.fixture.MarketFixture.EMPTY_ARRAY_JSON;
 import static com.crypto.market.insight.support.fixture.MarketFixture.ETHEREUM_MARKET_JSON;
+import static com.crypto.market.insight.support.fixture.MarketFixture.GLOBAL_STATS_JSON;
 import static com.crypto.market.insight.support.fixture.MarketFixture.MARKET_CHART_EMPTY_JSON;
 import static com.crypto.market.insight.support.fixture.MarketFixture.MARKET_CHART_JSON;
 import static com.crypto.market.insight.support.fixture.MarketFixture.OHLC_DATA_JSON;
@@ -71,6 +72,7 @@ class MarketControllerIntegrationTest {
         Objects.requireNonNull(cacheManager.getCache(CacheConfig.COIN_MARKETS)).clear();
         Objects.requireNonNull(cacheManager.getCache(CacheConfig.OHLC)).clear();
         Objects.requireNonNull(cacheManager.getCache(CacheConfig.INDICATORS)).clear();
+        Objects.requireNonNull(cacheManager.getCache(CacheConfig.GLOBAL_STATS)).clear();
         wireMockServer.resetAll();
     }
 
@@ -317,6 +319,50 @@ class MarketControllerIntegrationTest {
             mockMvc.perform(get("/api/market/coins/bitcoin/indicators"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.coinId").value("bitcoin"));
+        }
+    }
+
+    @Nested
+    @DisplayName("GET /api/market/global")
+    class GetGlobalStats {
+
+        @Test
+        @DisplayName("글로벌 시장 통계 조회 성공")
+        void success() throws Exception {
+            // given
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/global"))
+                    .willReturn(okJson(GLOBAL_STATS_JSON)));
+
+            // when & then
+            mockMvc.perform(get("/api/market/global"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.totalMarketCap").value(2500000000000L))
+                    .andExpect(jsonPath("$.total24hVolume").value(85000000000L))
+                    .andExpect(jsonPath("$.btcDominance").value(52.5))
+                    .andExpect(jsonPath("$.activeCryptocurrencies").value(14500))
+                    .andExpect(jsonPath("$.marketCapChange24h").value(-1.25));
+        }
+
+        @Test
+        @DisplayName("캐싱 동작 확인")
+        void caching() throws Exception {
+            // given
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/global"))
+                    .willReturn(okJson(GLOBAL_STATS_JSON)));
+
+            // when - 첫 번째 호출
+            mockMvc.perform(get("/api/market/global"))
+                    .andExpect(status().isOk());
+
+            // then - 두 번째 호출 (캐시 히트)
+            mockMvc.perform(get("/api/market/global"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalMarketCap").value(2500000000000L));
+
+            // WireMock은 한 번만 호출되어야 함 (캐시로 인해)
+            com.github.tomakehurst.wiremock.client.WireMock.verify(1,
+                    com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor(urlPathEqualTo("/global")));
         }
     }
 }

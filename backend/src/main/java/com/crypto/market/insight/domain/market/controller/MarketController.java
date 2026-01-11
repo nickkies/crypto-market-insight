@@ -1,6 +1,7 @@
 package com.crypto.market.insight.domain.market.controller;
 
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
+import com.crypto.market.insight.domain.market.dto.GlobalStatsDto.GlobalStatsResponse;
 import com.crypto.market.insight.domain.market.dto.IndicatorDto.IndicatorResponse;
 import com.crypto.market.insight.domain.market.dto.MarketDto.CoinListResponse;
 import com.crypto.market.insight.domain.market.dto.MarketDto.CoinSummary;
@@ -100,5 +101,15 @@ public class MarketController {
     ) {
         IndicatorResponse indicators = indicatorService.calculateIndicators(coinId, period);
         return ResponseEntity.ok(indicators);
+    }
+
+    @Operation(
+            summary = "글로벌 시장 통계 조회",
+            description = "암호화폐 시장 전체의 통계 데이터(총 시가총액, 거래량, BTC 도미넌스 등)를 조회합니다."
+    )
+    @GetMapping("/global")
+    public ResponseEntity<GlobalStatsResponse> getGlobalStats() {
+        GlobalStatsResponse stats = marketService.getGlobalStats();
+        return ResponseEntity.ok(stats);
     }
 }

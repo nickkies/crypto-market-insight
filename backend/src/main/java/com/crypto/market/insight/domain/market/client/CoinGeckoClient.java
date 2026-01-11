@@ -2,6 +2,7 @@ package com.crypto.market.insight.domain.market.client;
 
 import com.crypto.market.insight.config.CacheConfig;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
+import com.crypto.market.insight.domain.market.dto.GlobalStatsDto.CoinGeckoGlobalResponse;
 import com.crypto.market.insight.domain.market.dto.MarketChartData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
 import com.crypto.market.insight.domain.market.exception.CoinGeckoApiException;
@@ -23,6 +24,7 @@ public class CoinGeckoClient {
     private static final String COINS_MARKETS_PATH = "/coins/markets";
     private static final String OHLC_PATH = "/coins/{id}/ohlc";
     private static final String MARKET_CHART_PATH = "/coins/{id}/market_chart";
+    private static final String GLOBAL_PATH = "/global";
 
     private final RestClient coinGeckoRestClient;
 
@@ -109,6 +111,20 @@ public class CoinGeckoClient {
                         .build(coinId))
                 .retrieve()
                 .body(MarketChartData.class));
+    }
+
+    /**
+     * 글로벌 시장 통계 조회
+     *
+     * @return 글로벌 시장 데이터 (총 시가총액, 거래량, BTC 도미넌스 등)
+     */
+    @Cacheable(value = CacheConfig.GLOBAL_STATS)
+    public CoinGeckoGlobalResponse getGlobal() {
+        log.info("Cache MISS - fetching Global stats");
+        return execute(() -> coinGeckoRestClient.get()
+                .uri(GLOBAL_PATH)
+                .retrieve()
+                .body(CoinGeckoGlobalResponse.class));
     }
 
     private <T> T execute(Supplier<T> request) {
