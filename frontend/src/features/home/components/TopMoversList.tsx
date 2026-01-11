@@ -1,36 +1,37 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { marketService } from '@/features/market/services';
 import { formatPrice, formatPercent } from '@/utils';
 import { TableRowsSkeleton } from '@/features/common/components';
+import { useTopMovers } from '../hooks';
 
-export function TopMoversList() {
+type FilterType = 'all' | 'gainers' | 'losers';
+
+interface Props {
+  filter?: FilterType;
+  count?: number;
+  maxHeight?: string;
+  fillHeight?: boolean;
+}
+
+export function TopMoversList({
+  filter = 'all',
+  count = 10,
+  maxHeight,
+  fillHeight = false,
+}: Props) {
   const navigate = useNavigate();
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['topMovers'],
-    queryFn: () => marketService.getCoins({ page: 1, size: 50 }),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const topMovers = useMemo(() => {
-    if (!data?.coins) return [];
-    return [...data.coins]
-      .sort(
-        (a, b) =>
-          Math.abs(b.priceChangePercentage24h) -
-          Math.abs(a.priceChangePercentage24h),
-      )
-      .slice(0, 5);
-  }, [data]);
+  const {
+    data: topMovers,
+    isLoading,
+    isError,
+  } = useTopMovers({ filter, count });
 
   const handleClick = (coinId: string) => {
     navigate(`/market/${coinId}`);
   };
 
   if (isLoading) {
-    return <TableRowsSkeleton rows={5} />;
+    return <TableRowsSkeleton rows={Math.min(count, 5)} />;
   }
 
   if (isError || topMovers.length === 0) {
@@ -42,7 +43,11 @@ export function TopMoversList() {
   }
 
   return (
-    <Container data-testid="top-movers-list">
+    <Container
+      $maxHeight={maxHeight}
+      $fillHeight={fillHeight}
+      data-testid="top-movers-list"
+    >
       {topMovers.map((coin) => {
         const isPositive = coin.priceChangePercentage24h >= 0;
         return (
@@ -71,19 +76,53 @@ export function TopMoversList() {
   );
 }
 
-const Container = styled.div`
+const Container = styled.div<{ $maxHeight?: string; $fillHeight?: boolean }>`
   display: flex;
   flex-direction: column;
+
+  ${({ $fillHeight }) =>
+    $fillHeight &&
+    `
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  `}
+
+  ${({ $maxHeight }) =>
+    $maxHeight &&
+    `
+    max-height: ${$maxHeight};
+    overflow-y: auto;
+  `}
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+  }
 `;
 
 const MoverItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => theme.spacing.md} 0;
+  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.sm};
+  margin-right: ${({ theme }) => theme.spacing.xs};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.primary};
   cursor: pointer;
   transition: ${({ theme }) => theme.transitions.fast};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
 
   &:last-child {
     border-bottom: none;
@@ -91,8 +130,6 @@ const MoverItem = styled.div`
 
   &:hover {
     background: ${({ theme }) => theme.colors.background.tertiary};
-    margin: 0 -${({ theme }) => theme.spacing.md};
-    padding: ${({ theme }) => theme.spacing.md};
   }
 `;
 
