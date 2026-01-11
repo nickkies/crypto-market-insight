@@ -52,13 +52,24 @@ public class GlobalStatsDto {
     ) {
         public static GlobalStatsResponse from(CoinGeckoGlobalResponse response) {
             var data = response.data();
+            if (data == null) {
+                return new GlobalStatsResponse(
+                        BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0, BigDecimal.ZERO
+                );
+            }
             return new GlobalStatsResponse(
-                    data.totalMarketCap().getOrDefault("usd", BigDecimal.ZERO),
-                    data.totalVolume().getOrDefault("usd", BigDecimal.ZERO),
-                    data.marketCapPercentage().getOrDefault("btc", BigDecimal.ZERO),
-                    data.activeCryptocurrencies(),
-                    data.marketCapChangePercentage24hUsd()
+                    getMapValue(data.totalMarketCap(), "usd"),
+                    getMapValue(data.totalVolume(), "usd"),
+                    getMapValue(data.marketCapPercentage(), "btc"),
+                    data.activeCryptocurrencies() != null ? data.activeCryptocurrencies() : 0,
+                    data.marketCapChangePercentage24hUsd() != null
+                            ? data.marketCapChangePercentage24hUsd() : BigDecimal.ZERO
             );
+        }
+
+        private static BigDecimal getMapValue(java.util.Map<String, BigDecimal> map, String key) {
+            if (map == null) return BigDecimal.ZERO;
+            return map.getOrDefault(key, BigDecimal.ZERO);
         }
     }
 }
