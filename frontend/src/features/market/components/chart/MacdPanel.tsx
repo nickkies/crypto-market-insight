@@ -101,9 +101,13 @@ export default function MacdPanel({ data }: Props) {
                 ? param.data.value
                 : param.data;
             if (value !== null) {
+              const numValue = value as number;
+              const absValue = Math.abs(numValue);
+              // 값 크기에 따라 소수점 자릿수 조절
+              const decimals = absValue < 0.01 ? 6 : absValue < 1 ? 4 : 2;
               content += `<div style="display: flex; justify-content: space-between; gap: 16px;">
                 <span style="opacity: 0.7;">${param.seriesName}</span>
-                <span style="font-weight: 500; color: ${param.color}">${(value as number).toFixed(2)}</span>
+                <span style="font-weight: 500; color: ${param.color}">${numValue.toFixed(decimals)}</span>
               </div>`;
             }
           });

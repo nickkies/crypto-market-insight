@@ -1,10 +1,14 @@
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { useGlobalStats } from '@/features/market/hooks';
 import {
-  CardSkeleton,
-  ChartSkeleton,
-  TableRowsSkeleton,
-} from '@/features/common/components';
+  StatCard,
+  BtcMiniChart,
+  TopMoversList,
+  EcosystemPlaceholder,
+} from '@/features/home';
+import { CardSkeleton } from '@/features/common/components';
+import { formatVolume } from '@/utils';
 
 const PageContainer = styled.div`
   display: flex;
@@ -105,6 +109,19 @@ const Card = styled.div`
   padding: ${({ theme }) => theme.spacing.lg};
 `;
 
+const ChartCard = styled(Card)`
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const TopMoversCard = styled(Card)`
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
 const CardTitle = styled.h3`
   font-size: ${({ theme }) => theme.fonts.size.sm};
   font-weight: ${({ theme }) => theme.fonts.weight.medium};
@@ -112,7 +129,17 @@ const CardTitle = styled.h3`
   margin-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
+function formatMarketCapShort(value: number): string {
+  const trillion = 1_000_000_000_000;
+  if (value >= trillion) {
+    return `$${(value / trillion).toFixed(2)}T`;
+  }
+  return `$${formatVolume(value)}`;
+}
+
 export function HomePage() {
+  const { data: globalStats, isLoading: isGlobalLoading } = useGlobalStats();
+
   return (
     <PageContainer data-testid="home-page">
       <HeroSection>
@@ -127,10 +154,40 @@ export function HomePage() {
       <Section>
         <SectionTitle>Market Overview</SectionTitle>
         <StatsGrid>
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
+          {isGlobalLoading ? (
+            <>
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+            </>
+          ) : (
+            <>
+              <StatCard
+                icon="💰"
+                label="Total Market Cap"
+                value={formatMarketCapShort(globalStats?.totalMarketCap ?? 0)}
+                change={globalStats?.marketCapChange24h}
+              />
+              <StatCard
+                icon="📊"
+                label="24h Volume"
+                value={`$${formatVolume(globalStats?.total24hVolume ?? 0)}`}
+              />
+              <StatCard
+                icon="₿"
+                label="BTC Dominance"
+                value={`${globalStats?.btcDominance?.toFixed(1) ?? '-'}%`}
+              />
+              <StatCard
+                icon="🪙"
+                label="Active Coins"
+                value={
+                  globalStats?.activeCryptocurrencies?.toLocaleString() ?? '-'
+                }
+              />
+            </>
+          )}
         </StatsGrid>
       </Section>
 
@@ -140,14 +197,14 @@ export function HomePage() {
           <ViewAllLink to="/market">View All</ViewAllLink>
         </SectionHeader>
         <ChartGrid>
-          <Card>
+          <ChartCard>
             <CardTitle>BTC/USDT</CardTitle>
-            <ChartSkeleton />
-          </Card>
-          <Card>
+            <BtcMiniChart />
+          </ChartCard>
+          <TopMoversCard>
             <CardTitle>Top Movers</CardTitle>
-            <TableRowsSkeleton rows={6} />
-          </Card>
+            <TopMoversList fillHeight />
+          </TopMoversCard>
         </ChartGrid>
       </Section>
 
@@ -156,12 +213,7 @@ export function HomePage() {
           <SectionTitle>Ecosystem Overview</SectionTitle>
           <ViewAllLink to="/market">View All</ViewAllLink>
         </SectionHeader>
-        <StatsGrid>
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-        </StatsGrid>
+        <EcosystemPlaceholder />
       </Section>
     </PageContainer>
   );

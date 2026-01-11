@@ -86,6 +86,14 @@ export interface IndicatorResponseDto {
   bollingerBands: BollingerBandsIndicatorDto;
 }
 
+export interface GlobalStatsDto {
+  totalMarketCap: number;
+  total24hVolume: number;
+  btcDominance: number;
+  activeCryptocurrencies: number;
+  marketCapChange24h: number;
+}
+
 export type Timeframe = '1d' | '3d' | '1w';
 
 interface GetCoinsParams {
@@ -137,6 +145,11 @@ export const marketService = {
     const { data } = await client.get<IndicatorResponseDto>(
       `/api/market/coins/${coinId}/indicators?period=${period}`,
     );
+    return data;
+  },
+
+  getGlobalStats: async (): Promise<GlobalStatsDto> => {
+    const { data } = await client.get<GlobalStatsDto>('/api/market/global');
     return data;
   },
 };
