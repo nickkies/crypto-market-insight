@@ -193,6 +193,10 @@ const Card = styled.div`
   padding: ${({ theme }) => theme.spacing.lg};
 `;
 
+const ChartCard = styled(Card)`
+  height: 700px;
+`;
+
 function LoadingSkeleton() {
   return (
     <Container>
@@ -229,7 +233,8 @@ function LoadingSkeleton() {
   );
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price?: number): string {
+  if (price == null) return '-';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -238,7 +243,8 @@ function formatPrice(price: number): string {
   }).format(price);
 }
 
-function formatLargeNumber(num: number): string {
+function formatLargeNumber(num?: number): string {
+  if (num == null) return '-';
   if (num >= 1_000_000_000_000) {
     return `$${(num / 1_000_000_000_000).toFixed(2)}T`;
   }
@@ -251,7 +257,8 @@ function formatLargeNumber(num: number): string {
   return `$${num.toLocaleString()}`;
 }
 
-function formatSupply(num: number): string {
+function formatSupply(num?: number): string {
+  if (num == null) return '-';
   if (num >= 1_000_000_000) {
     return `${(num / 1_000_000_000).toFixed(2)}B`;
   }
@@ -314,7 +321,8 @@ export function CoinDetailPage() {
     );
   }
 
-  const isPositive = coinData.priceChangePercentage24h >= 0;
+  const priceChange24h = coinData.priceChangePercentage24h ?? 0;
+  const isPositive = priceChange24h >= 0;
 
   return (
     <Container data-testid="coin-detail-page">
@@ -346,7 +354,7 @@ export function CoinDetailPage() {
           <CurrentPrice>{formatPrice(coinData.currentPrice)}</CurrentPrice>
           <PriceChange $isPositive={isPositive}>
             {isPositive ? '+' : ''}
-            {coinData.priceChangePercentage24h.toFixed(2)}%
+            {priceChange24h.toFixed(2)}%
           </PriceChange>
         </PriceSection>
       </Header>
@@ -400,7 +408,7 @@ export function CoinDetailPage() {
           <ChartTitle>Price Chart</ChartTitle>
           <TimeframeSelector value={timeframe} onChange={setTimeframe} />
         </ChartHeader>
-        <Card>
+        <ChartCard>
           <ChartContainer
             data={ohlcvData?.data}
             isLoading={isChartLoading}
@@ -408,7 +416,7 @@ export function CoinDetailPage() {
             errorStatus={chartErrorStatus}
             onRetry={() => refetchChart()}
           />
-        </Card>
+        </ChartCard>
       </ChartSection>
     </Container>
   );
