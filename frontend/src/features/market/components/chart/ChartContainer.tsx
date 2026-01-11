@@ -2,8 +2,11 @@ import { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CandlestickChart from './CandlestickChart';
 import VolumeChart from './VolumeChart';
+import RsiPanel from './RsiPanel';
+import MacdPanel from './MacdPanel';
 import { ChartSkeleton, ErrorState } from '@/features/common/components';
 import type { OhlcvDataDto } from '../../services';
+import type { IndicatorType } from '../../stores/useMarketStore';
 
 const Container = styled.div`
   width: 100%;
@@ -34,6 +37,7 @@ interface Props {
   errorStatus?: number;
   cooldown?: number;
   onRetry?: () => void;
+  selectedIndicators?: IndicatorType[];
 }
 
 export default function ChartContainer({
@@ -43,6 +47,7 @@ export default function ChartContainer({
   errorStatus,
   cooldown = 0,
   onRetry,
+  selectedIndicators = [],
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [, setDimensions] = useState({ width: 0, height: 0 });
@@ -95,20 +100,34 @@ export default function ChartContainer({
     );
   }
 
+  // 차트 높이 계산: 캔들 35%, 거래량 15%, RSI 25%, MACD 25%
   return (
     <Container ref={containerRef}>
-      <ChartBox $height={hasVolume ? '70%' : '100%'}>
+      <ChartBox $height={hasVolume ? '35%' : '40%'}>
         <ChartWrapper>
-          <CandlestickChart data={data} />
+          <CandlestickChart
+            data={data}
+            selectedIndicators={selectedIndicators}
+          />
         </ChartWrapper>
       </ChartBox>
       {hasVolume && (
-        <ChartBox $height="30%">
+        <ChartBox $height="15%">
           <ChartWrapper>
             <VolumeChart data={data} />
           </ChartWrapper>
         </ChartBox>
       )}
+      <ChartBox $height="25%">
+        <ChartWrapper>
+          <RsiPanel data={data} />
+        </ChartWrapper>
+      </ChartBox>
+      <ChartBox $height="25%">
+        <ChartWrapper>
+          <MacdPanel data={data} />
+        </ChartWrapper>
+      </ChartBox>
     </Container>
   );
 }
