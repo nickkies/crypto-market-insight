@@ -21,12 +21,7 @@ describe('StatCard', () => {
 
   it('displays positive change with green color', () => {
     renderWithTheme(
-      <StatCard
-        icon="📊"
-        label="24h Volume"
-        value="$100B"
-        change={5.25}
-      />,
+      <StatCard icon="📊" label="24h Volume" value="$100B" change={5.25} />,
     );
 
     const changeElement = screen.getByTestId('stat-change');
@@ -35,12 +30,7 @@ describe('StatCard', () => {
 
   it('displays negative change without plus sign', () => {
     renderWithTheme(
-      <StatCard
-        icon="📉"
-        label="Market Cap"
-        value="$2T"
-        change={-3.5}
-      />,
+      <StatCard icon="📉" label="Market Cap" value="$2T" change={-3.5} />,
     );
 
     const changeElement = screen.getByTestId('stat-change');
@@ -48,9 +38,7 @@ describe('StatCard', () => {
   });
 
   it('does not display change when not provided', () => {
-    renderWithTheme(
-      <StatCard icon="🪙" label="Active Coins" value="15,000" />,
-    );
+    renderWithTheme(<StatCard icon="🪙" label="Active Coins" value="15,000" />);
 
     expect(screen.queryByTestId('stat-change')).not.toBeInTheDocument();
   });
