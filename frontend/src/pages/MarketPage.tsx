@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import {
-  CardSkeleton,
-  TableRowsSkeleton,
-  SearchInput,
-  FilterTabs,
-} from '@/features/common/components';
+import { SearchInput, FilterTabs } from '@/features/common/components';
+import { TopMoversList, EcosystemPlaceholder } from '@/features/home';
 import type { FilterTab } from '@/features/common/components';
 import { useDebounce } from '@/features/common/hooks';
 import {
@@ -70,10 +66,15 @@ const FilterButton = styled.button<{ $active?: boolean }>`
       $active ? theme.colors.primary.main : theme.colors.border.primary};
   transition: all ${({ theme }) => theme.transitions.fast};
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: ${({ theme }) => theme.colors.primary.main};
     color: ${({ theme, $active }) =>
       $active ? theme.colors.text.inverse : theme.colors.primary.main};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -178,20 +179,6 @@ const SectionControls = styled.div`
   }
 `;
 
-const EcosystemGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: ${({ theme }) => theme.spacing.md};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    grid-template-columns: 1fr;
-  }
-`;
-
 export function MarketPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
@@ -233,9 +220,15 @@ export function MarketPage() {
       <FilterBar>
         <FilterGroup>
           <FilterButton $active>All</FilterButton>
-          <FilterButton>BTC</FilterButton>
-          <FilterButton>ETH</FilterButton>
-          <FilterButton>SOL</FilterButton>
+          <FilterButton disabled title="준비중">
+            BTC
+          </FilterButton>
+          <FilterButton disabled title="준비중">
+            ETH
+          </FilterButton>
+          <FilterButton disabled title="준비중">
+            SOL
+          </FilterButton>
         </FilterGroup>
       </FilterBar>
 
@@ -278,7 +271,7 @@ export function MarketPage() {
 
             <Card>
               <CardTitle>Top Gainers</CardTitle>
-              <TableRowsSkeleton rows={5} />
+              <TopMoversList filter="gainers" maxHeight="400px" />
             </Card>
           </Sidebar>
         </SidebarWrapper>
@@ -286,11 +279,7 @@ export function MarketPage() {
 
       <Section>
         <SectionTitle>Ecosystem Analysis</SectionTitle>
-        <EcosystemGrid>
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-        </EcosystemGrid>
+        <EcosystemPlaceholder />
       </Section>
 
       <Section>

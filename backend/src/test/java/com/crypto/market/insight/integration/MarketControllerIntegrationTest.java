@@ -159,7 +159,7 @@ class MarketControllerIntegrationTest {
                     .andExpect(jsonPath("$.id").value("bitcoin"))
                     .andExpect(jsonPath("$.symbol").value("btc"))
                     .andExpect(jsonPath("$.name").value("Bitcoin"))
-                    .andExpect(jsonPath("$.current_price").value(97500.25));
+                    .andExpect(jsonPath("$.currentPrice").value(97500.25));
         }
 
         @Test

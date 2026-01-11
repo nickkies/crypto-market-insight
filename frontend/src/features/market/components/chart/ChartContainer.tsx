@@ -22,7 +22,7 @@ const ChartBox = styled.div<{ $height: string }>`
   background: ${({ theme }) => theme.colors.background.secondary};
   border: 1px solid ${({ theme }) => theme.colors.border.primary};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  overflow: hidden;
+  overflow: visible;
 `;
 
 const ChartWrapper = styled.div`
