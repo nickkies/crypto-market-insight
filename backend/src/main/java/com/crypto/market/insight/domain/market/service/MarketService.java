@@ -4,6 +4,8 @@ import com.crypto.market.insight.common.exception.BusinessException;
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
+import com.crypto.market.insight.domain.market.dto.GlobalStatsDto.CoinGeckoGlobalResponse;
+import com.crypto.market.insight.domain.market.dto.GlobalStatsDto.GlobalStatsResponse;
 import com.crypto.market.insight.domain.market.dto.MarketChartData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
 import com.crypto.market.insight.domain.market.dto.OhlcvData;
@@ -107,5 +109,10 @@ public class MarketService {
                         Math.abs(e2.getKey() - timestamp)))
                 .map(Map.Entry::getValue)
                 .orElse(null);
+    }
+
+    public GlobalStatsResponse getGlobalStats() {
+        CoinGeckoGlobalResponse response = coinGeckoClient.getGlobal();
+        return GlobalStatsResponse.from(response);
     }
 }
