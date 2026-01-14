@@ -318,4 +318,69 @@ public class IndicatorCalculator {
             List<BigDecimal> middle,
             List<BigDecimal> lower
     ) {}
+
+    /**
+     * Bollinger Bands %B 계산
+     * %B = (Price - Lower Band) / (Upper Band - Lower Band)
+     *
+     * @param candles OHLCV 데이터 리스트
+     * @param period  이동평균 기간 (기본 20)
+     * @param stdDev  표준편차 배수 (기본 2)
+     * @return %B 값 리스트 (0 미만: 하단밴드 아래, 1 초과: 상단밴드 위)
+     */
+    public List<BigDecimal> calculatePercentB(List<OhlcvData> candles, int period, double stdDev) {
+        BollingerBandsResult bb = calculateBollingerBands(candles, period, stdDev);
+
+        List<BigDecimal> percentBValues = new ArrayList<>();
+        for (int i = 0; i < candles.size(); i++) {
+            BigDecimal upper = bb.upper().get(i);
+            BigDecimal lower = bb.lower().get(i);
+
+            if (upper == null || lower == null) {
+                percentBValues.add(null);
+                continue;
+            }
+
+            BigDecimal price = candles.get(i).close();
+            BigDecimal range = upper.subtract(lower);
+
+            if (range.compareTo(BigDecimal.ZERO) == 0) {
+                percentBValues.add(BigDecimal.valueOf(0.5));
+            } else {
+                BigDecimal percentB = price.subtract(lower)
+                        .divide(range, SCALE, RoundingMode.HALF_UP)
+                        .setScale(RESULT_SCALE, RoundingMode.HALF_UP);
+                percentBValues.add(percentB);
+            }
+        }
+
+        return percentBValues;
+    }
+
+    /**
+     * Moving Average Difference 계산 (단기 MA - 장기 MA)
+     *
+     * @param candles     OHLCV 데이터 리스트
+     * @param shortPeriod 단기 MA 기간
+     * @param longPeriod  장기 MA 기간
+     * @return MA 차이 값 리스트 (양수: 단기 > 장기, 음수: 단기 < 장기)
+     */
+    public List<BigDecimal> calculateMaDiff(List<OhlcvData> candles, int shortPeriod, int longPeriod) {
+        List<BigDecimal> shortMa = calculateSma(candles, shortPeriod);
+        List<BigDecimal> longMa = calculateSma(candles, longPeriod);
+
+        List<BigDecimal> maDiffValues = new ArrayList<>();
+        for (int i = 0; i < candles.size(); i++) {
+            BigDecimal shortValue = i < shortMa.size() ? shortMa.get(i) : null;
+            BigDecimal longValue = i < longMa.size() ? longMa.get(i) : null;
+
+            if (shortValue == null || longValue == null) {
+                maDiffValues.add(null);
+            } else {
+                maDiffValues.add(shortValue.subtract(longValue).setScale(RESULT_SCALE, RoundingMode.HALF_UP));
+            }
+        }
+
+        return maDiffValues;
+    }
 }
