@@ -4,7 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
-import { queryClient } from '@/features/common';
+import { queryClient, ErrorBoundary } from '@/features/common';
 import '@/index.css';
 import { router } from '@/routes';
 import { ThemeProvider } from '@/styles';
@@ -120,7 +120,9 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <GlobalStyles />
-        <RouterProvider router={router} />
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+        </ErrorBoundary>
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

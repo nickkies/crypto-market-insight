@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '@/styles';
 import { useAuthStore, useUser } from '@/features/auth';
+import { ConfirmModal } from './ConfirmModal';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -186,6 +187,7 @@ export function Layout() {
   const { toggleTheme, isDark } = useTheme();
   const { isAuthenticated, user, logout, initializeAuth } = useAuthStore();
   const { data: userData } = useUser();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     initializeAuth();
@@ -203,9 +205,12 @@ export function Layout() {
   };
 
   const handleLogout = () => {
-    if (window.confirm('로그아웃 하시겠습니까?')) {
-      logout();
-    }
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    logout();
+    setShowLogoutModal(false);
   };
 
   const displayUser = userData || user;
@@ -260,6 +265,15 @@ export function Layout() {
           Crypto Market Insight - Data-driven crypto analysis
         </FooterInner>
       </Footer>
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        title="로그아웃"
+        message="로그아웃 하시겠습니까?"
+        confirmText="로그아웃"
+        cancelText="취소"
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </Container>
   );
 }

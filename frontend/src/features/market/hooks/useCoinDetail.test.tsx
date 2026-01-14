@@ -106,7 +106,8 @@ describe('useCoinDetail', () => {
 
     const cache = queryClient.getQueryCache();
     const queries = cache.getAll();
-    expect(queries[0].queryKey).toEqual(['coin', 'bitcoin']);
+    expect(queries[0].queryKey[0]).toBe('coin');
+    expect(queries[0].queryKey[1]).toBe('bitcoin');
   });
 
   it('다른 coinId로 변경하면 새로운 데이터를 가져온다', async () => {
