@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useForm, FormProvider } from 'react-hook-form';
-import type { StrategyType, RsiParameters, BacktestRequestDto } from '../types';
+import type {
+  StrategyType,
+  RsiParameters,
+  MacdParameters,
+  BollingerBandsParameters,
+  MovingAverageParameters,
+  BacktestRequestDto,
+} from '../types';
+import {
+  DEFAULT_RSI_PARAMS,
+  DEFAULT_MACD_PARAMS,
+  DEFAULT_BOLLINGER_BANDS_PARAMS,
+  DEFAULT_MOVING_AVERAGE_PARAMS,
+} from '../types';
 import StrategySelect from './StrategySelect';
 import ParameterForm from './ParameterForm';
 import CoinSelect from './CoinSelect';
@@ -11,10 +24,15 @@ import DateRangePicker from './DateRangePicker';
 export interface BacktestFormValues {
   coinId: string;
   strategyType: StrategyType;
-  timeframe: string;
+  timeframe: string; // 1d=90일, 3d=180일, 1w=365일 (기간은 타임프레임으로 자동 결정)
+  // 전략별 파라미터
+  rsiParameters: RsiParameters;
+  macdParameters: MacdParameters;
+  bollingerBandsParameters: BollingerBandsParameters;
+  movingAverageParameters: MovingAverageParameters;
+  // Backward compatibility
   parameters: RsiParameters;
-  startDate: string;
-  endDate: string;
+  endDate: string; // 종료일만 선택 (시작일은 타임프레임 기반 자동 계산)
 }
 
 interface Props {
@@ -100,28 +118,87 @@ const Spinner = styled.span`
   }
 `;
 
-// 기본 날짜 범위: 1년 전 ~ 오늘
-const getDefaultDates = () => {
-  const today = new Date();
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(today.getFullYear() - 1);
+const DateRangeCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs};
+  padding: ${({ theme }) => theme.spacing.md};
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.primary.main}15,
+    ${({ theme }) => theme.colors.background.tertiary}
+  );
+  border: 1px solid ${({ theme }) => theme.colors.primary.main}30;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  margin-top: ${({ theme }) => theme.spacing.sm};
+`;
 
-  return {
-    startDate: oneYearAgo.toISOString().split('T')[0],
-    endDate: today.toISOString().split('T')[0],
-  };
+const DateRangeHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: ${({ theme }) => theme.fonts.size.xs};
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const DateRangePeriod = styled.span`
+  background-color: ${({ theme }) => theme.colors.primary.main}20;
+  color: ${({ theme }) => theme.colors.primary.main};
+  padding: 2px 8px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+`;
+
+const DateRangeDates = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+`;
+
+const DateValue = styled.span`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-weight: ${({ theme }) => theme.fonts.weight.semibold};
+  font-family: monospace;
+`;
+
+const DateArrow = styled.span`
+  color: ${({ theme }) => theme.colors.text.tertiary};
+`;
+
+// 타임프레임별 백테스트 기간 (일)
+const TIMEFRAME_PERIODS: Record<string, number> = {
+  '1d': 30,
+  '3d': 90,
+  '1w': 180,
+};
+
+// 시작일 계산
+const calculateStartDate = (endDate: string, timeframe: string): string => {
+  const end = endDate ? new Date(endDate) : new Date();
+  const period = TIMEFRAME_PERIODS[timeframe] || 90;
+  const start = new Date(end);
+  start.setDate(start.getDate() - period);
+  return start.toISOString().split('T')[0];
+};
+
+// 기본 종료일: 오늘 (시작일은 타임프레임 기반 자동 계산)
+const getDefaultEndDate = () => {
+  return new Date().toISOString().split('T')[0];
 };
 
 const defaultValues: BacktestFormValues = {
   coinId: 'bitcoin',
   strategyType: 'RSI',
   timeframe: '1d',
-  parameters: {
-    period: 7,
-    oversold: 40,
-    overbought: 60,
-  },
-  ...getDefaultDates(),
+  rsiParameters: DEFAULT_RSI_PARAMS,
+  macdParameters: DEFAULT_MACD_PARAMS,
+  bollingerBandsParameters: DEFAULT_BOLLINGER_BANDS_PARAMS,
+  movingAverageParameters: DEFAULT_MOVING_AVERAGE_PARAMS,
+  parameters: DEFAULT_RSI_PARAMS, // Backward compatibility
+  endDate: getDefaultEndDate(),
 };
 
 export default function BacktestForm({
@@ -157,16 +234,45 @@ export default function BacktestForm({
 
   const handleSubmit = methods.handleSubmit((data) => {
     if (countdown > 0) return;
-    onSubmit(data);
+
+    // 전략 타입에 따라 적절한 파라미터만 전송
+    // startDate는 백엔드에서 타임프레임 기반 자동 계산
+    const request: BacktestRequestDto = {
+      coinId: data.coinId,
+      strategyType: data.strategyType,
+      timeframe: data.timeframe,
+      endDate: data.endDate || undefined, // 빈 문자열이면 undefined로 (백엔드가 오늘로 처리)
+    };
+
+    switch (data.strategyType) {
+      case 'RSI':
+        request.rsiParameters = data.rsiParameters;
+        request.parameters = data.rsiParameters; // Backward compatibility
+        break;
+      case 'MACD':
+        request.macdParameters = data.macdParameters;
+        break;
+      case 'BOLLINGER_BANDS':
+        request.bollingerBandsParameters = data.bollingerBandsParameters;
+        break;
+      case 'MOVING_AVERAGE':
+        request.movingAverageParameters = data.movingAverageParameters;
+        break;
+    }
+
+    onSubmit(request);
   });
 
   const strategyType = methods.watch('strategyType');
+  const timeframe = methods.watch('timeframe');
+  const endDate = methods.watch('endDate');
+  const startDate = calculateStartDate(endDate, timeframe);
 
   const isDisabled = isPending || countdown > 0;
 
   const getButtonText = () => {
     if (isPending) return 'Running...';
-    if (countdown > 0) return `Run Backtest (${countdown}초)`;
+    if (countdown > 0) return `Run Backtest (${countdown}s)`;
     return 'Run Backtest';
   };
 
@@ -192,14 +298,27 @@ export default function BacktestForm({
               <TimeframeSelect />
             </FormGroup>
             <FormGroup>
-              <Label>Date Range</Label>
+              <Label>End Date</Label>
               <DateRangePicker />
             </FormGroup>
+            <DateRangeCard data-testid="date-range-info">
+              <DateRangeHeader>
+                <span>Analysis Period</span>
+                <DateRangePeriod>
+                  {TIMEFRAME_PERIODS[timeframe] || 90} days
+                </DateRangePeriod>
+              </DateRangeHeader>
+              <DateRangeDates>
+                <DateValue>{startDate}</DateValue>
+                <DateArrow>→</DateArrow>
+                <DateValue>{endDate || getDefaultEndDate()}</DateValue>
+              </DateRangeDates>
+            </DateRangeCard>
           </Card>
 
           <Card>
             <CardTitle>Strategy Parameters</CardTitle>
-            <ParameterForm />
+            <ParameterForm strategyType={strategyType} />
           </Card>
 
           <RunButton

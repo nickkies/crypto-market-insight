@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 
 /**
  * RSI 기반 시그널 생성기
- * - RSI < oversold → BUY
- * - RSI > overbought → SELL
+ * - RSI <= oversold → BUY (과매도)
+ * - RSI >= overbought → SELL (과매수)
  * - 그 외 → HOLD
  */
 public class RsiSignalGenerator implements SignalGenerator {
@@ -25,10 +25,12 @@ public class RsiSignalGenerator implements SignalGenerator {
         if (rsiValue == null) {
             return Signal.HOLD;
         }
-        if (rsiValue.compareTo(oversold) < 0) {
+        // <= 로 경계값 포함
+        if (rsiValue.compareTo(oversold) <= 0) {
             return Signal.BUY;
         }
-        if (rsiValue.compareTo(overbought) > 0) {
+        // >= 로 경계값 포함
+        if (rsiValue.compareTo(overbought) >= 0) {
             return Signal.SELL;
         }
         return Signal.HOLD;

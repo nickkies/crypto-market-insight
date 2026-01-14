@@ -40,9 +40,7 @@ const Container = styled.div`
     }
   }
 
-  .react-datepicker__day--selected,
-  .react-datepicker__day--in-selecting-range,
-  .react-datepicker__day--in-range {
+  .react-datepicker__day--selected {
     background-color: ${({ theme }) => theme.colors.primary.main};
     color: ${({ theme }) => theme.colors.text.inverse};
 
@@ -109,58 +107,32 @@ const DateInput = styled.input<{ $isDark?: boolean }>`
   }
 `;
 
-const ErrorMessage = styled.span`
-  font-size: ${({ theme }) => theme.fonts.size.xs};
-  color: ${({ theme }) => theme.colors.error};
-  margin-top: ${({ theme }) => theme.spacing.xs};
-  display: block;
-`;
-
+// 종료일만 선택 (시작일은 타임프레임 기반 자동 계산)
 export default function DateRangePicker() {
   const { isDark } = useTheme();
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext<BacktestFormValues>();
+  const { control } = useFormContext<BacktestFormValues>();
 
   return (
     <Container>
       <Controller
         control={control}
-        name="startDate"
-        rules={{ required: 'Date range is required' }}
+        name="endDate"
         render={({ field }) => (
-          <Controller
-            control={control}
-            name="endDate"
-            render={({ field: endField }) => (
-              <DatePicker
-                selectsRange
-                startDate={field.value ? new Date(field.value) : null}
-                endDate={endField.value ? new Date(endField.value) : null}
-                onChange={(dates) => {
-                  const [start, end] = dates as [Date | null, Date | null];
-                  field.onChange(
-                    start ? start.toISOString().split('T')[0] : '',
-                  );
-                  endField.onChange(end ? end.toISOString().split('T')[0] : '');
-                }}
-                maxDate={new Date()}
-                dateFormat="yyyy-MM-dd"
-                placeholderText="Select date range"
-                customInput={
-                  <DateInput $isDark={isDark} data-testid="date-range-input" />
-                }
-                monthsShown={2}
-                showPopperArrow={false}
-              />
-            )}
+          <DatePicker
+            selected={field.value ? new Date(field.value) : new Date()}
+            onChange={(date: Date | null) => {
+              field.onChange(date ? date.toISOString().split('T')[0] : '');
+            }}
+            maxDate={new Date()}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="Select end date (default: today)"
+            customInput={
+              <DateInput $isDark={isDark} data-testid="date-range-input" />
+            }
+            showPopperArrow={false}
           />
         )}
       />
-      {errors.startDate && (
-        <ErrorMessage>{errors.startDate.message}</ErrorMessage>
-      )}
     </Container>
   );
 }

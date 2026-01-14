@@ -119,6 +119,9 @@ export default function CandlestickChart({
         trigger: 'axis',
         axisPointer: {
           type: 'cross',
+          label: {
+            show: false,
+          },
         },
         ...tooltipStyle,
         formatter: (params: unknown) => {

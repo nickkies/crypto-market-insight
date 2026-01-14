@@ -29,9 +29,10 @@ export default function DrawdownChart({ data }: Props) {
         formatter: (params: unknown) => {
           const param = (params as { data: number; axisValue: string }[])[0];
           if (!param) return '';
+          const dateStr = formatChartDate(param.axisValue);
           return `
             <div style="font-size: 12px; line-height: 1.6;">
-              <div style="font-weight: 600; margin-bottom: 4px;">${param.axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 4px;">${dateStr}</div>
               <div style="display: flex; justify-content: space-between; gap: 16px;">
                 <span style="opacity: 0.7;">Drawdown</span>
                 <span style="font-weight: 500; color: ${MARKET_COLORS.down};">${param.data.toFixed(2)}%</span>

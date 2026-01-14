@@ -173,7 +173,7 @@ class MarketServiceTest {
         @Test
         @DisplayName("OHLCV 데이터를 조회한다")
         void returnsOhlcvData() {
-            // given
+            // given - ONE_DAY uses "30" days
             when(coinGeckoClient.getOhlc("bitcoin", "usd", "30"))
                     .thenReturn(defaultOhlcList());
             when(coinGeckoClient.getMarketChart("bitcoin", "usd", "30"))
@@ -190,7 +190,7 @@ class MarketServiceTest {
         @Test
         @DisplayName("타임프레임에 따라 올바른 days 값을 사용한다")
         void useCorrectDaysForTimeframe() {
-            // given
+            // given - ONE_DAY uses "30" days
             when(coinGeckoClient.getOhlc("bitcoin", "usd", "30"))
                     .thenReturn(List.of());
             when(coinGeckoClient.getMarketChart("bitcoin", "usd", "30"))

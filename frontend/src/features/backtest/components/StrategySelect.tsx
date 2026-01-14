@@ -22,8 +22,31 @@ const Select = styled.select`
   }
 `;
 
-const strategies: { value: StrategyType; label: string }[] = [
-  { value: 'RSI', label: 'RSI (Relative Strength Index)' },
+const strategies: {
+  value: StrategyType;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: 'RSI',
+    label: 'RSI (Relative Strength Index)',
+    description: '과매수/과매도 구간 기반 매매',
+  },
+  {
+    value: 'MACD',
+    label: 'MACD (Moving Average Convergence Divergence)',
+    description: 'MACD와 Signal Line 교차 기반 매매',
+  },
+  {
+    value: 'BOLLINGER_BANDS',
+    label: 'Bollinger Bands',
+    description: '밴드 상단/하단 터치 기반 매매',
+  },
+  {
+    value: 'MOVING_AVERAGE',
+    label: 'Moving Average Crossover',
+    description: '단기/장기 이동평균 교차 기반 매매',
+  },
 ];
 
 export default function StrategySelect({ value, onChange }: Props) {

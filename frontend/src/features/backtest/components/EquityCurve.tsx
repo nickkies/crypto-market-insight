@@ -28,9 +28,10 @@ export default function EquityCurve({ data }: Props) {
           const equity = param.data;
           const returnPct = ((equity / initialEquity - 1) * 100).toFixed(2);
           const sign = Number(returnPct) >= 0 ? '+' : '';
+          const dateStr = formatChartDate(param.axisValue);
           return `
             <div style="font-size: 12px; line-height: 1.6;">
-              <div style="font-weight: 600; margin-bottom: 4px;">${param.axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 4px;">${dateStr}</div>
               <div style="display: flex; justify-content: space-between; gap: 16px;">
                 <span style="opacity: 0.7;">Equity</span>
                 <span style="font-weight: 500;">$${equity.toLocaleString()}</span>
