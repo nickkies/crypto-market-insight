@@ -50,6 +50,33 @@ export class ApiError extends Error {
     return this.status === 429;
   }
 
+  /**
+   * 사용자 친화적 에러 메시지 반환
+   */
+  getUserMessage(): string {
+    switch (this.status) {
+      case 0:
+        return '네트워크 연결을 확인해주세요';
+      case 400:
+        return '잘못된 요청입니다';
+      case 401:
+        return '로그인이 필요합니다';
+      case 403:
+        return '접근 권한이 없습니다';
+      case 404:
+        return '페이지를 찾을 수 없습니다';
+      case 429:
+        return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요';
+      case 500:
+        return '서버 오류가 발생했습니다';
+      default:
+        if (this.status >= 500) {
+          return '서버 오류가 발생했습니다';
+        }
+        return this.message || '알 수 없는 오류가 발생했습니다';
+    }
+  }
+
   static fromResponse(status: number, data: ErrorResponseData): ApiError {
     return new ApiError(status, data.code, data.message, data.timestamp);
   }
