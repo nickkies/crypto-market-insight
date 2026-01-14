@@ -31,8 +31,8 @@ describe('BacktestForm', () => {
     expect(screen.getByTestId('strategy-select')).toHaveValue('RSI');
     expect(screen.getByTestId('timeframe-select')).toHaveValue('1d');
     expect(screen.getByTestId('param-period')).toHaveValue(7);
-    expect(screen.getByTestId('param-oversold')).toHaveValue(40);
-    expect(screen.getByTestId('param-overbought')).toHaveValue(60);
+    expect(screen.getByTestId('param-oversold')).toHaveValue(45);
+    expect(screen.getByTestId('param-overbought')).toHaveValue(55);
   });
 
   it('실행 버튼이 표시된다', () => {
@@ -57,7 +57,7 @@ describe('BacktestForm', () => {
 
     const button = screen.getByTestId('run-backtest-button');
     expect(button).toBeDisabled();
-    expect(screen.getByText(/Run Backtest \(\d+초\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Run Backtest \(\d+s\)/)).toBeInTheDocument();
   });
 
   it('Period 입력 유효성 검증이 동작한다', async () => {
@@ -69,9 +69,7 @@ describe('BacktestForm', () => {
     await user.type(periodInput, '1');
     await user.tab();
 
-    expect(
-      screen.getByText('Period는 2 이상이어야 합니다'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Period must be at least 2')).toBeInTheDocument();
   });
 
   it('Oversold 입력 유효성 검증이 동작한다', async () => {
@@ -84,7 +82,7 @@ describe('BacktestForm', () => {
     await user.tab();
 
     expect(
-      screen.getByText('Oversold는 100 이하여야 합니다'),
+      screen.getByText('Oversold must be at most 100'),
     ).toBeInTheDocument();
   });
 });
