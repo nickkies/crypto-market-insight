@@ -217,8 +217,8 @@ export default function MyBacktestsPanel({ onSelect }: MyBacktestsPanelProps) {
                     {backtest.metrics.cumulativeReturn.toFixed(2)}%
                   </ReturnValue>
                   <DeleteButton
-                    onClick={(e) => handleDelete(e, backtest.id)}
-                    disabled={deleteMutation.isPending}
+                    onClick={(e) => backtest.id && handleDelete(e, backtest.id)}
+                    disabled={deleteMutation.isPending || !backtest.id}
                     title="삭제"
                   >
                     ✕
