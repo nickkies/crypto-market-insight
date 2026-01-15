@@ -43,9 +43,16 @@ class FavoriteServiceTest {
     }
 
     private FavoriteDto.Request createRequest(String coinId) {
-        FavoriteDto.Request request = new FavoriteDto.Request();
-        ReflectionTestUtils.setField(request, "coinId", coinId);
-        return request;
+        try {
+            java.lang.reflect.Constructor<FavoriteDto.Request> constructor =
+                    FavoriteDto.Request.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            FavoriteDto.Request request = constructor.newInstance();
+            ReflectionTestUtils.setField(request, "coinId", coinId);
+            return request;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create FavoriteDto.Request", e);
+        }
     }
 
     @Nested
