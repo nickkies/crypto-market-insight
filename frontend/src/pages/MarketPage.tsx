@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { SearchInput, FilterTabs } from '@/features/common/components';
-import { TopMoversList, EcosystemPlaceholder } from '@/features/home';
+import { TopMoversList } from '@/features/home';
 import type { FilterTab } from '@/features/common/components';
 import { useDebounce } from '@/features/common/hooks';
 import {
@@ -277,10 +277,10 @@ export function MarketPage() {
         </SidebarWrapper>
       </MainContent>
 
-      <Section>
+      {/* <Section>
         <SectionTitle>Ecosystem Analysis</SectionTitle>
         <EcosystemPlaceholder />
-      </Section>
+      </Section> */}
 
       <Section>
         <SectionHeader>

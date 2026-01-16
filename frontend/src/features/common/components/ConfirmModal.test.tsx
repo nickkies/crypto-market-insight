@@ -67,11 +67,7 @@ describe('ConfirmModal', () => {
 
   it('커스텀 버튼 텍스트를 표시한다', () => {
     renderWithTheme(
-      <ConfirmModal
-        {...defaultProps}
-        confirmText="삭제"
-        cancelText="아니오"
-      />,
+      <ConfirmModal {...defaultProps} confirmText="삭제" cancelText="아니오" />,
     );
 
     expect(screen.getByText('삭제')).toBeInTheDocument();

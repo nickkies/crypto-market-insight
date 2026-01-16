@@ -58,7 +58,7 @@ export function NotFoundPage() {
     fetch(LOTTIE_URL)
       .then((res) => res.json())
       .then(setAnimationData)
-      .catch(console.error);
+      .catch(() => {});
   }, []);
 
   return (
