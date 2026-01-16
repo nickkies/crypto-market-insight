@@ -184,4 +184,37 @@ describe('useRunBacktest', () => {
     // After reset, isPending should be false since request is null
     expect(result.current.isPending).toBe(false);
   });
+
+  it('에러 후 같은 요청으로 재시도하면 새로운 요청이 실행된다', async () => {
+    vi.mocked(backtestService.runBacktest)
+      .mockRejectedValueOnce(new Error('API Error'))
+      .mockResolvedValueOnce(mockBacktestResult);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(() => useRunBacktest(), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    // 첫 번째 요청 (에러)
+    act(() => {
+      result.current.runBacktest(mockRequest);
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    // 같은 요청으로 재시도
+    act(() => {
+      result.current.reset();
+      result.current.runBacktest(mockRequest);
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(false);
+      expect(result.current.data).toBeDefined();
+    });
+
+    expect(backtestService.runBacktest).toHaveBeenCalledTimes(2);
+  });
 });
