@@ -1,5 +1,9 @@
 # ⚙️ Backend – Crypto Market Insight
 
+![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+
 ## 1. 백엔드 역할 개요
 
 본 백엔드는 가상자산 시장 데이터를 기반으로

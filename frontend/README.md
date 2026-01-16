@@ -1,5 +1,9 @@
 # 🖥️ Frontend – Crypto Market Insight
 
+![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
+
 ## 1. 프론트엔드 역할 개요
 
 본 프론트엔드는 가상자산 시장 데이터를
@@ -42,9 +46,10 @@
 src/
 ├── features/          # 기능별 모듈
 │   ├── common/        # 공통 컴포넌트, 훅, 서비스
+│   ├── auth/          # 인증 (OAuth2)
+│   ├── home/          # 홈 대시보드
 │   ├── market/        # 시장 데이터, 차트
-│   ├── backtest/      # 백테스트 실행/결과
-│   └── portfolio/     # 모의 투자
+│   └── backtest/      # 백테스트 실행/결과
 ├── pages/             # 라우트 진입점
 ├── constants/         # 상수 정의
 ├── utils/             # 유틸리티
@@ -203,7 +208,7 @@ E2E 테스트는 `Playwright`를 사용하며, 외부 API 의존성을 제거하
 npm run test:e2e
 ```
 
-**API Mocking 구조**
+#### API Mocking 구조
 
 ```bash
 e2e/
@@ -215,7 +220,7 @@ e2e/
 └── home.spec.ts       # 홈페이지 테스트
 ```
 
-**왜 API Mocking을 사용하나요?**
+#### 왜 API Mocking을 사용하나요?
 
 - CoinGecko API 요청 제한 (rate limit) 회피
 - 테스트 실행 속도 향상
