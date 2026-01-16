@@ -20,6 +20,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: crypto_market_insight
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,6 +51,12 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build --no-daemon
+        env:
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
 
       - name: Test
         run: ./gradlew test --no-daemon
+        env:
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
