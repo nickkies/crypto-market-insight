@@ -1,0 +1,71 @@
+# ===========================================
+# Docker Compose - Production
+# ===========================================
+# 프로덕션 환경 배포용
+# 사용법: docker-compose -f docker-compose.prod.yml up -d
+#
+# 환경변수 설정 필요:
+# - .env 파일 생성 또는
+# - 환경변수 직접 설정
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: crypto-market-insight-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-crypto_market_insight}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d ${DB_NAME:-crypto_market_insight}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crypto-market-insight-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-crypto_market_insight}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      # JPA
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-create}
+      JPA_SHOW_SQL: 'false'
+      # Security
+      JWT_SECRET: ${JWT_SECRET:-your-256-bit-secret-key-for-development-only-change-in-production}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-test-client-id}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-test-client-secret}
+      OAUTH2_REDIRECT_URI: ${OAUTH2_REDIRECT_URI:-http://localhost:3000/oauth2/callback}
+      # CORS
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - '8080:8080'
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+    container_name: crypto-market-insight-frontend
+    depends_on:
+      - backend
+    ports:
+      - '3000:80'
+    restart: unless-stopped
+
+volumes:
+  db_data:

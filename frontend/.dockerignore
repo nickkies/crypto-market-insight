@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Docker
+Dockerfile.dev
+
+# Test
+coverage/
+test-results/
+
+# Misc
+*.log
+.DS_Store
