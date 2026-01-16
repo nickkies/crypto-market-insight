@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useCoinDetail } from './useCoinDetail';
@@ -148,5 +148,46 @@ describe('useCoinDetail', () => {
     });
 
     expect(result.current.isLoading).toBe(true);
+  });
+
+  it('429 에러 시 60초 카운트다운을 시작한다', async () => {
+    const rateLimitError = { status: 429, message: 'Rate limit exceeded' };
+    vi.mocked(marketService.getCoinDetail).mockRejectedValue(rateLimitError);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(() => useCoinDetail('bitcoin'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.countdown).toBe(60);
+  });
+
+  it('일반 에러 시 retry가 동작한다', async () => {
+    vi.mocked(marketService.getCoinDetail)
+      .mockRejectedValueOnce(new Error('Error'))
+      .mockResolvedValueOnce(mockCoinDetail);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(() => useCoinDetail('bitcoin'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.countdown).toBe(0);
+
+    act(() => {
+      result.current.retry();
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
   });
 });

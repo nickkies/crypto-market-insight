@@ -202,11 +202,19 @@ export function MarketPage() {
     data: indicatorData,
     isLoading: isIndicatorLoading,
     isError: isIndicatorError,
+    refetch: refetchIndicators,
   } = useIndicators({
     coinId: chartCoinId,
   });
 
-  const { data: coinDetail } = useCoinDetail(chartCoinId);
+  const { data: coinDetail, retry: retryCoinDetail } =
+    useCoinDetail(chartCoinId);
+
+  const handleRetryAll = () => {
+    retryChart();
+    refetchIndicators();
+    retryCoinDetail();
+  };
 
   return (
     <PageContainer data-testid="market-page">
@@ -248,7 +256,7 @@ export function MarketPage() {
               isError={isChartError}
               errorStatus={chartErrorStatus}
               cooldown={chartCountdown}
-              onRetry={retryChart}
+              onRetry={handleRetryAll}
               selectedIndicators={selectedIndicators}
             />
           </ChartCard>

@@ -23,9 +23,10 @@ interface UseRunBacktestResult {
 export function useRunBacktest(): UseRunBacktestResult {
   const queryClient = useQueryClient();
   const [request, setRequest] = useState<BacktestRequestDto | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   const query = useQuery({
-    queryKey: ['backtest', request],
+    queryKey: ['backtest', request, retryTrigger],
     queryFn: () => backtestService.runBacktest(request!),
     enabled: !!request,
     staleTime: 1000 * 60 * 30, // 30분 (같은 파라미터면 캐시 사용)
@@ -51,6 +52,8 @@ export function useRunBacktest(): UseRunBacktestResult {
   }
 
   const runBacktest = (newRequest: BacktestRequestDto) => {
+    // 같은 request로 재시도할 때 캐시된 에러를 피하기 위해 trigger 증가
+    setRetryTrigger((t) => t + 1);
     setRequest(newRequest);
   };
 

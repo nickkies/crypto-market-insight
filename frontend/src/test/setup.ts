@@ -46,6 +46,19 @@ class ResizeObserverMock {
 }
 global.ResizeObserver = ResizeObserverMock;
 
+// IntersectionObserver mock
+class IntersectionObserverMock {
+  readonly root: Element | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+  takeRecords = vi.fn().mockReturnValue([]);
+}
+global.IntersectionObserver =
+  IntersectionObserverMock as unknown as typeof IntersectionObserver;
+
 // echarts-for-react mock
 vi.mock('echarts-for-react', () => ({
   default: () => null,

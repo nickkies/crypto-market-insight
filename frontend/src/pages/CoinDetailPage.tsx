@@ -280,7 +280,7 @@ export function CoinDetailPage() {
     isLoading: isCoinLoading,
     isError: isCoinError,
     error: coinError,
-    refetch: refetchCoin,
+    retry: retryCoin,
     countdown: coinCountdown,
   } = useCoinDetail(coinId ?? null);
 
@@ -289,7 +289,7 @@ export function CoinDetailPage() {
     isLoading: isChartLoading,
     isError: isChartError,
     error: chartError,
-    refetch: refetchChart,
+    retry: retryChart,
     countdown: chartCountdown,
   } = useOhlcv({ coinId: coinId ?? null, timeframe });
 
@@ -311,7 +311,7 @@ export function CoinDetailPage() {
         <BackButton onClick={() => navigate('/market')}>← 목록으로</BackButton>
         <ErrorState
           message={errorMessage}
-          onRetry={() => refetchCoin()}
+          onRetry={retryCoin}
           cooldown={coinCountdown}
         />
       </Container>
@@ -421,7 +421,7 @@ export function CoinDetailPage() {
             isError={isChartError}
             errorStatus={chartErrorStatus}
             cooldown={chartCountdown}
-            onRetry={() => refetchChart()}
+            onRetry={retryChart}
           />
         </ChartCard>
       </ChartSection>
