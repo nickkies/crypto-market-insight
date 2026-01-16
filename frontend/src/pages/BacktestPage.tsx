@@ -165,12 +165,12 @@ export function BacktestPage() {
 
   const handleSelectSavedResult = (result: BacktestResult) => {
     // 저장된 백테스트의 파라미터로 다시 실행
+    // startDate는 백엔드에서 타임프레임 기반 자동 계산
     const request: BacktestRequestDto = {
       coinId: result.coinId,
       strategyType: result.strategyType,
       parameters: result.parameters,
       timeframe: result.timeframe,
-      startDate: result.startDate,
       endDate: result.endDate,
     };
     lastRequestRef.current = request;

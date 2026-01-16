@@ -220,7 +220,7 @@ class MarketControllerIntegrationTest {
         @Test
         @DisplayName("3d 타임프레임 조회 성공")
         void threeDayTimeframe_success() throws Exception {
-            // given
+            // given - 3d uses "90" days
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
                     .withQueryParam("days", equalTo("90"))
                     .willReturn(okJson(OHLC_SINGLE_JSON)));
@@ -238,7 +238,7 @@ class MarketControllerIntegrationTest {
         @Test
         @DisplayName("1w 타임프레임 조회 성공")
         void oneWeekTimeframe_success() throws Exception {
-            // given
+            // given - 1w uses "180" days
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/bitcoin/ohlc"))
                     .withQueryParam("days", equalTo("180"))
                     .willReturn(okJson(OHLC_SINGLE_JSON)));

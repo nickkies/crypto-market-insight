@@ -275,4 +275,121 @@ class IndicatorCalculatorTest {
                     .isEqualByComparingTo(result.middle().get(lastIndex));
         }
     }
+
+    @Nested
+    @DisplayName("Bollinger Bands %B 계산")
+    class CalculatePercentB {
+
+        @Test
+        @DisplayName("가격이 하단 밴드 아래면 %B < 0")
+        void priceBelowLowerBand_percentBNegative() {
+            // 하락 추세로 가격이 하단 밴드 아래로
+            double[] prices = new double[25];
+            for (int i = 0; i < 20; i++) {
+                prices[i] = 100.0;
+            }
+            // 급락
+            for (int i = 20; i < 25; i++) {
+                prices[i] = 100.0 - (i - 19) * 10;
+            }
+            List<OhlcvData> candles = ohlcvFromPrices(prices);
+
+            List<BigDecimal> percentB = calculator.calculatePercentB(candles, 20, 2.0);
+
+            BigDecimal lastPercentB = percentB.get(percentB.size() - 1);
+            assertThat(lastPercentB).isLessThan(BigDecimal.ZERO);
+        }
+
+        @Test
+        @DisplayName("가격이 상단 밴드 위면 %B > 1")
+        void priceAboveUpperBand_percentBGreaterThanOne() {
+            // 상승 추세로 가격이 상단 밴드 위로
+            double[] prices = new double[25];
+            for (int i = 0; i < 20; i++) {
+                prices[i] = 100.0;
+            }
+            // 급등
+            for (int i = 20; i < 25; i++) {
+                prices[i] = 100.0 + (i - 19) * 10;
+            }
+            List<OhlcvData> candles = ohlcvFromPrices(prices);
+
+            List<BigDecimal> percentB = calculator.calculatePercentB(candles, 20, 2.0);
+
+            BigDecimal lastPercentB = percentB.get(percentB.size() - 1);
+            assertThat(lastPercentB).isGreaterThan(BigDecimal.ONE);
+        }
+
+        @Test
+        @DisplayName("가격이 밴드 내부면 0 < %B < 1")
+        void priceWithinBands_percentBBetweenZeroAndOne() {
+            // 가격이 밴드 내부에 있는 일반적인 경우
+            double[] prices = new double[25];
+            for (int i = 0; i < 25; i++) {
+                prices[i] = 100.0;
+            }
+            List<OhlcvData> candles = ohlcvFromPrices(prices);
+
+            List<BigDecimal> percentB = calculator.calculatePercentB(candles, 20, 2.0);
+
+            // 변동성이 없으면 %B = 0.5
+            BigDecimal lastPercentB = percentB.get(percentB.size() - 1);
+            assertThat(lastPercentB).isEqualByComparingTo(BigDecimal.valueOf(0.5));
+        }
+    }
+
+    @Nested
+    @DisplayName("MA Diff 계산")
+    class CalculateMaDiff {
+
+        @Test
+        @DisplayName("상승 추세에서 단기 MA > 장기 MA (양수)")
+        void uptrend_shortAboveLong() {
+            // 지속 상승
+            double[] prices = new double[30];
+            for (int i = 0; i < 30; i++) {
+                prices[i] = 100.0 + i * 2;
+            }
+            List<OhlcvData> candles = ohlcvFromPrices(prices);
+
+            List<BigDecimal> maDiff = calculator.calculateMaDiff(candles, 5, 20);
+
+            BigDecimal lastMaDiff = maDiff.get(maDiff.size() - 1);
+            assertThat(lastMaDiff).isGreaterThan(BigDecimal.ZERO);
+        }
+
+        @Test
+        @DisplayName("하락 추세에서 단기 MA < 장기 MA (음수)")
+        void downtrend_shortBelowLong() {
+            // 지속 하락
+            double[] prices = new double[30];
+            for (int i = 0; i < 30; i++) {
+                prices[i] = 200.0 - i * 2;
+            }
+            List<OhlcvData> candles = ohlcvFromPrices(prices);
+
+            List<BigDecimal> maDiff = calculator.calculateMaDiff(candles, 5, 20);
+
+            BigDecimal lastMaDiff = maDiff.get(maDiff.size() - 1);
+            assertThat(lastMaDiff).isLessThan(BigDecimal.ZERO);
+        }
+
+        @Test
+        @DisplayName("첫 longPeriod-1개는 null")
+        void firstValuesAreNull() {
+            double[] prices = new double[30];
+            for (int i = 0; i < 30; i++) {
+                prices[i] = 100.0 + i;
+            }
+            List<OhlcvData> candles = ohlcvFromPrices(prices);
+
+            List<BigDecimal> maDiff = calculator.calculateMaDiff(candles, 5, 20);
+
+            // 장기 MA가 20이므로 첫 19개는 null
+            for (int i = 0; i < 19; i++) {
+                assertThat(maDiff.get(i)).isNull();
+            }
+            assertThat(maDiff.get(19)).isNotNull();
+        }
+    }
 }

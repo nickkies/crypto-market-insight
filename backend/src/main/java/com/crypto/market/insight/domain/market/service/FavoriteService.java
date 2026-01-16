@@ -7,9 +7,11 @@ import com.crypto.market.insight.domain.market.model.entity.Favorite;
 import com.crypto.market.insight.domain.market.repository.FavoriteRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
