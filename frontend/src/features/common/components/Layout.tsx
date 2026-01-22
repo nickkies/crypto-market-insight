@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { useTheme } from '@/styles';
+import { useTheme } from '@/features/common/styles';
 import { useAuthStore, useUser } from '@/features/auth';
-import { ConfirmModal } from './ConfirmModal';
+import ConfirmModal from './ConfirmModal';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -182,7 +182,7 @@ const FooterInner = styled.div`
   font-size: ${({ theme }) => theme.fonts.size.sm};
 `;
 
-export function Layout() {
+export default function Layout() {
   const location = useLocation();
   const { toggleTheme, isDark } = useTheme();
   const { isAuthenticated, user, logout, initializeAuth } = useAuthStore();

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ThemeProvider } from '@/styles';
-import { ErrorBoundary } from './ErrorBoundary';
+import { ThemeProvider } from '@/features/common/styles';
+import ErrorBoundary from './ErrorBoundary';
 
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.crypto.market.insight.common.exception.BusinessException;
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.dto.FavoriteDto;
+import com.crypto.market.insight.domain.market.mapper.FavoriteMapper;
 import com.crypto.market.insight.domain.market.model.entity.Favorite;
 import com.crypto.market.insight.domain.market.repository.FavoriteRepository;
 import com.crypto.market.insight.domain.market.service.FavoriteService;
@@ -28,6 +29,9 @@ class FavoriteServiceTest {
 
     @Mock
     private FavoriteRepository favoriteRepository;
+
+    @Mock
+    private FavoriteMapper favoriteMapper;
 
     @InjectMocks
     private FavoriteService favoriteService;
@@ -66,11 +70,20 @@ class FavoriteServiceTest {
             Long userId = 1L;
             FavoriteDto.Request request = createRequest("bitcoin");
             Favorite savedFavorite = createFavorite(1L, userId, "bitcoin");
+            FavoriteDto.Response expectedResponse = FavoriteDto.Response.builder()
+                    .id(1L)
+                    .coinId("bitcoin")
+                    .createdAt(savedFavorite.getCreatedAt())
+                    .build();
 
             when(favoriteRepository.existsByUserIdAndCoinId(userId, "bitcoin"))
                     .thenReturn(false);
+            when(favoriteMapper.toEntity(userId, "bitcoin"))
+                    .thenReturn(savedFavorite);
             when(favoriteRepository.save(any(Favorite.class)))
                     .thenReturn(savedFavorite);
+            when(favoriteMapper.toResponse(savedFavorite))
+                    .thenReturn(expectedResponse);
 
             // when
             FavoriteDto.Response response = favoriteService.addFavorite(userId, request);
@@ -151,13 +164,19 @@ class FavoriteServiceTest {
         void returnsFavorites() {
             // given
             Long userId = 1L;
-            List<Favorite> favorites = List.of(
-                    createFavorite(1L, userId, "bitcoin"),
-                    createFavorite(2L, userId, "ethereum")
-            );
+            Favorite favorite1 = createFavorite(1L, userId, "bitcoin");
+            Favorite favorite2 = createFavorite(2L, userId, "ethereum");
+            List<Favorite> favorites = List.of(favorite1, favorite2);
+
+            FavoriteDto.Response response1 = FavoriteDto.Response.builder()
+                    .id(1L).coinId("bitcoin").createdAt(favorite1.getCreatedAt()).build();
+            FavoriteDto.Response response2 = FavoriteDto.Response.builder()
+                    .id(2L).coinId("ethereum").createdAt(favorite2.getCreatedAt()).build();
 
             when(favoriteRepository.findByUserId(userId))
                     .thenReturn(favorites);
+            when(favoriteMapper.toResponse(favorite1)).thenReturn(response1);
+            when(favoriteMapper.toResponse(favorite2)).thenReturn(response2);
 
             // when
             List<FavoriteDto.Response> result = favoriteService.getFavorites(userId);

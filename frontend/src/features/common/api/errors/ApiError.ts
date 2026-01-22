@@ -8,18 +8,21 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   readonly timestamp: string;
+  readonly retryAfterSeconds: number | null;
 
   constructor(
     status: number,
     code: string,
     message: string,
     timestamp?: string,
+    retryAfterSeconds?: number,
   ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.timestamp = timestamp ?? new Date().toISOString();
+    this.retryAfterSeconds = retryAfterSeconds ?? null;
   }
 
   get isNetworkError(): boolean {
@@ -77,8 +80,18 @@ export class ApiError extends Error {
     }
   }
 
-  static fromResponse(status: number, data: ErrorResponseData): ApiError {
-    return new ApiError(status, data.code, data.message, data.timestamp);
+  static fromResponse(
+    status: number,
+    data: ErrorResponseData,
+    retryAfterSeconds?: number,
+  ): ApiError {
+    return new ApiError(
+      status,
+      data.code,
+      data.message,
+      data.timestamp,
+      retryAfterSeconds,
+    );
   }
 
   static networkError(): ApiError {

@@ -4,7 +4,6 @@ import com.crypto.market.insight.common.exception.BusinessException;
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.dto.OhlcvData;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
-import com.crypto.market.insight.domain.market.service.MarketService;
 import com.crypto.market.insight.domain.strategy.dto.BacktestDto;
 import com.crypto.market.insight.domain.strategy.engine.BacktestConfig;
 import com.crypto.market.insight.domain.strategy.engine.BacktestEngine;
@@ -44,24 +43,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class BacktestService {
 
-    private final MarketService marketService;
     private final BacktestEngine backtestEngine;
     private final IndicatorCalculator indicatorCalculator;
     private final BacktestResultRepository backtestResultRepository;
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public BacktestDto.Response runBacktest(BacktestDto.Request request, Long userId) {
+    public BacktestDto.Response runBacktest(
+            BacktestDto.Request request,
+            Long userId,
+            List<OhlcvData> rawCandles,
+            Timeframe timeframe
+    ) {
         // 1. 파라미터 검증
         validateParameters(request);
 
-        // 2. Timeframe 파싱 및 날짜 계산
-        Timeframe timeframe = marketService.parseTimeframe(request.getTimeframe());
+        // 2. 날짜 계산
         LocalDate endDate = request.getEffectiveEndDate();
         LocalDate startDate = endDate.minusDays(timeframe.getBacktestPeriod());
 
-        // 3. OHLCV 데이터 조회 (타임프레임 기반 고정 기간)
-        List<OhlcvData> candles = marketService.getOhlcv(request.getCoinId(), timeframe.getDays());
+        // 3. OHLCV 데이터 (Facade에서 전달받음)
+        List<OhlcvData> candles = rawCandles;
 
         // 4. 시간순 정렬 (CoinGecko는 보통 시간순이지만 확실히 하기 위해)
         candles = candles.stream()

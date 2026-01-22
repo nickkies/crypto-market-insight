@@ -117,6 +117,22 @@ com.crypto.market.insight
 백테스트는 기간 및 대상 코인 수를 제한하여
 서버 자원 사용을 통제합니다.
 
+### 6.2 Rate Limit
+
+Caffeine 캐시 기반 Sliding Window 방식으로 Rate Limit을 적용합니다.
+
+| 사용자 유형 | 제한     | 윈도우 |
+| ----------- | -------- | ------ |
+| 익명 (IP)   | 5 req    | 1 min  |
+| 인증 사용자 | 10 req   | 1 min  |
+| 전체 시스템 | 100 req  | 1 min  |
+
+**Rate Limit 초과 시:**
+
+- HTTP 429 (Too Many Requests) 응답
+- `Retry-After` 헤더에 남은 대기 시간(초) 포함
+- 프론트엔드에서 해당 값을 읽어 카운트다운 타이머에 사용
+
 ---
 
 ## 7. 데이터베이스 사용 원칙

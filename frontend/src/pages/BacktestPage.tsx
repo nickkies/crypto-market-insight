@@ -6,6 +6,7 @@ import {
   TableRowsSkeleton,
   ErrorState,
 } from '@/features/common/components';
+import { RATE_LIMIT_ERROR_MESSAGE } from '@/features/common/constants';
 import { useAuthStore } from '@/features/auth';
 import {
   BacktestForm,
@@ -187,7 +188,7 @@ export function BacktestPage() {
 
   // 에러 메시지 생성
   const getErrorMessage = () => {
-    if (rateLimitError) return rateLimitError.message;
+    if (rateLimitError) return RATE_LIMIT_ERROR_MESSAGE;
     if (error) return error.message || '백테스트 실행 중 오류가 발생했습니다.';
     return null;
   };

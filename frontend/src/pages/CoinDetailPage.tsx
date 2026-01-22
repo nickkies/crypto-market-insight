@@ -14,7 +14,7 @@ import {
   ChartSkeleton,
   ErrorState,
 } from '@/features/common/components';
-import { MARKET_COLORS } from '@/styles/marketColors';
+import { MARKET_COLORS } from '@/features/common/styles/marketColors';
 
 const Container = styled.div`
   display: flex;

@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
 import { BrowserRouter } from 'react-router-dom';
-import { darkTheme } from '@/styles/theme';
+import { darkTheme } from '@/features/common/styles/theme';
 import CoinList from './CoinList';
 import { useFavoritesStore } from '../stores';
 import { marketService } from '../services';

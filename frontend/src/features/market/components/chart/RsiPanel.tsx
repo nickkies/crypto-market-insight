@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { CHART_COLORS, getGlassTooltipStyle } from '@/styles/marketColors';
-import { useTheme } from '@/styles';
+import {
+  CHART_COLORS,
+  getGlassTooltipStyle,
+} from '@/features/common/styles/marketColors';
+import { useTheme } from '@/features/common/styles';
 import type { OhlcvDataDto } from '../../services';
 import { formatChartDate } from '@/utils';
 

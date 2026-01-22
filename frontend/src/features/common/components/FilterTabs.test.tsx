@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider } from '@/styles/ThemeProvider';
-import { FilterTabs } from './FilterTabs';
+import { ThemeProvider } from '@/features/common/styles';
+import FilterTabs from './FilterTabs';
 
 const renderFilterTabs = (props = {}) => {
   const defaultProps = {

@@ -13,7 +13,7 @@ export function useTopMovers({
   filter = 'all',
   count = 10,
 }: UseTopMoversOptions = {}) {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['topMovers'],
     queryFn: () => marketService.getCoins({ page: 1, size: 50 }),
     staleTime: 5 * 60 * 1000,
@@ -43,5 +43,7 @@ export function useTopMovers({
     data: topMovers,
     isLoading,
     isError,
+    error,
+    refetch,
   };
 }

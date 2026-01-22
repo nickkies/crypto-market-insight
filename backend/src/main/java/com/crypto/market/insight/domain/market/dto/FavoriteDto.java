@@ -1,6 +1,5 @@
 package com.crypto.market.insight.domain.market.dto;
 
-import com.crypto.market.insight.domain.market.model.entity.Favorite;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -34,13 +33,5 @@ public class FavoriteDto {
 
         @Schema(description = "생성 시각")
         private LocalDateTime createdAt;
-
-        public static Response from(Favorite favorite) {
-            return Response.builder()
-                    .id(favorite.getId())
-                    .coinId(favorite.getCoinId())
-                    .createdAt(favorite.getCreatedAt())
-                    .build();
-        }
     }
 }

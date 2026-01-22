@@ -3,7 +3,7 @@ import { useFormContext, Controller } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { BacktestFormValues } from './BacktestForm';
-import { useTheme } from '@/styles';
+import { useTheme } from '@/features/common/styles';
 
 const Container = styled.div`
   .react-datepicker-wrapper {

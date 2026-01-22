@@ -1,4 +1,4 @@
-export { Layout } from './Layout';
+export { default as Layout } from './Layout';
 export {
   CardSkeleton,
   ChartSkeleton,
@@ -8,10 +8,10 @@ export {
   CoinCardSkeleton,
   CoinListSkeleton,
 } from './Skeleton';
-export { SearchInput } from './SearchInput';
-export { FilterTabs } from './FilterTabs';
+export { default as SearchInput } from './SearchInput';
+export { default as FilterTabs } from './FilterTabs';
 export type { FilterTab } from './FilterTabs';
-export { ErrorState } from './ErrorState';
-export { EmptyState } from './EmptyState';
-export { ErrorBoundary } from './ErrorBoundary';
-export { ConfirmModal } from './ConfirmModal';
+export { default as ErrorState } from './ErrorState';
+export { default as EmptyState } from './EmptyState';
+export { default as ErrorBoundary } from './ErrorBoundary';
+export { default as ConfirmModal } from './ConfirmModal';

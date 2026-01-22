@@ -7,7 +7,7 @@ import { createGlobalStyle } from 'styled-components';
 import { queryClient, ErrorBoundary } from '@/features/common';
 import '@/index.css';
 import { router } from '@/routes';
-import { ThemeProvider } from '@/styles';
+import { ThemeProvider } from '@/features/common/styles';
 
 const GlobalStyles = createGlobalStyle`
   *,

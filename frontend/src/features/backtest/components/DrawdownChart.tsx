@@ -5,8 +5,8 @@ import {
   MARKET_COLORS,
   CHART_COLORS,
   getGlassTooltipStyle,
-} from '@/styles/marketColors';
-import { useTheme } from '@/styles';
+} from '@/features/common/styles/marketColors';
+import { useTheme } from '@/features/common/styles';
 import { formatChartDate } from '@/utils';
 import type { DrawdownPoint } from '../types';
 
