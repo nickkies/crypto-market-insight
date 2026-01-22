@@ -33,6 +33,7 @@ const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.text.primary};
     background-color: ${({ theme }) => theme.colors.background.primary};
     min-height: 100vh;
+    overflow-x: hidden;
     transition: background-color ${({ theme }) => theme.transitions.normal},
                 color ${({ theme }) => theme.transitions.normal};
   }
