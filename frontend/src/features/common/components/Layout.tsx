@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { useTheme } from '@/styles';
+import { useTheme } from '@/features/common/styles';
 import { useAuthStore, useUser } from '@/features/auth';
-import { ConfirmModal } from './ConfirmModal';
+import ConfirmModal from './ConfirmModal';
 
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
 `;
 
 const Header = styled.header`
@@ -29,8 +31,7 @@ const HeaderInner = styled.div`
   justify-content: space-between;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => theme.spacing.sm}
-      ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.sm} 4vw;
   }
 `;
 
@@ -41,9 +42,15 @@ const Logo = styled(Link)`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary.main};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fonts.size.md};
   }
 `;
 
@@ -51,9 +58,11 @@ const Nav = styled.nav`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.md};
+  flex-shrink: 1;
+  min-width: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.xs};
   }
 `;
 
@@ -98,6 +107,13 @@ const AuthSection = styled.div`
   margin-left: ${({ theme }) => theme.spacing.md};
   padding-left: ${({ theme }) => theme.spacing.md};
   border-left: 1px solid ${({ theme }) => theme.colors.border.primary};
+  flex-shrink: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-left: ${({ theme }) => theme.spacing.sm};
+    padding-left: ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const LoginButton = styled.button`
@@ -132,6 +148,13 @@ const UserInfo = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: ${({ theme }) => theme.fonts.size.xs};
+    gap: ${({ theme }) => theme.spacing.xs};
+  }
+`;
+
+const UserName = styled.span`
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    display: none;
   }
 `;
 
@@ -163,8 +186,7 @@ const Main = styled.main`
   padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.lg};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => theme.spacing.lg}
-      ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.lg} 4vw;
   }
 `;
 
@@ -180,9 +202,13 @@ const FooterInner = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.text.tertiary};
   font-size: ${({ theme }) => theme.fonts.size.sm};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.md} 4vw;
+  }
 `;
 
-export function Layout() {
+export default function Layout() {
   const location = useLocation();
   const { toggleTheme, isDark } = useTheme();
   const { isAuthenticated, user, logout, initializeAuth } = useAuthStore();
@@ -243,7 +269,9 @@ export function Layout() {
                         alt={displayUser.nickname}
                       />
                     )}
-                    {displayUser?.nickname || displayUser?.email}
+                    <UserName>
+                      {displayUser?.nickname || displayUser?.email}
+                    </UserName>
                   </UserInfo>
                   <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
                 </>

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export function EcosystemPlaceholder() {
+export default function EcosystemPlaceholder() {
   return (
     <Container data-testid="ecosystem-placeholder">
       <IconWrapper>

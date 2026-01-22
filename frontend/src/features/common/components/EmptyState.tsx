@@ -8,7 +8,7 @@ interface EmptyStateProps {
   onAction?: () => void;
 }
 
-export function EmptyState({
+export default function EmptyState({
   icon = '📭',
   title,
   description,

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
-import { darkTheme } from '@/styles/theme';
+import { darkTheme } from '@/features/common/styles/theme';
 import TechnicalIndicatorsCard from './TechnicalIndicatorsCard';
 import type { IndicatorResponseDto } from '../../services';
 

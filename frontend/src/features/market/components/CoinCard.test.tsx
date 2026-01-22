@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { darkTheme } from '@/styles/theme';
+import { darkTheme } from '@/features/common/styles/theme';
 import CoinCard from './CoinCard';
 import { useFavoritesStore, useMarketStore } from '../stores';
 import type { CoinSummaryDto } from '../services';

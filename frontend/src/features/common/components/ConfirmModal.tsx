@@ -12,7 +12,7 @@ interface ConfirmModalProps {
   onCancel: () => void;
 }
 
-export function ConfirmModal({
+export default function ConfirmModal({
   isOpen,
   title,
   message,

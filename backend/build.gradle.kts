@@ -61,10 +61,15 @@ dependencies {
     // API Documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
+    // MapStruct (must come after Lombok annotation processor)
+    implementation("org.mapstruct:mapstruct:1.6.3")
+
     // Dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

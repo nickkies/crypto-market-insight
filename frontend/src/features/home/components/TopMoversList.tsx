@@ -1,7 +1,12 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { formatPrice, formatPercent } from '@/utils';
-import { TableRowsSkeleton } from '@/features/common/components';
+import { TableRowsSkeleton, ErrorState } from '@/features/common/components';
+import {
+  RATE_LIMIT_COOLDOWN_SECONDS,
+  RATE_LIMIT_ERROR_MESSAGE,
+} from '@/features/common/constants';
+import { useRateLimitCountdown } from '@/features/common/hooks';
 import { useTopMovers } from '../hooks';
 
 type FilterType = 'all' | 'gainers' | 'losers';
@@ -11,30 +16,60 @@ interface Props {
   count?: number;
   maxHeight?: string;
   fillHeight?: boolean;
+  onRetry?: () => void;
 }
 
-export function TopMoversList({
+export default function TopMoversList({
   filter = 'all',
   count = 10,
   maxHeight,
   fillHeight = false,
+  onRetry,
 }: Props) {
   const navigate = useNavigate();
   const {
     data: topMovers,
     isLoading,
     isError,
+    error,
+    refetch,
   } = useTopMovers({ filter, count });
+
+  const typedError = error as { status?: number } | null;
+  const isRateLimitError = typedError?.status === 429;
+  const { countdown } = useRateLimitCountdown(typedError);
 
   const handleClick = (coinId: string) => {
     navigate(`/market/${coinId}`);
+  };
+
+  const handleRetry = () => {
+    if (onRetry) {
+      onRetry();
+    } else {
+      refetch();
+    }
   };
 
   if (isLoading) {
     return <TableRowsSkeleton rows={Math.min(count, 5)} />;
   }
 
-  if (isError || topMovers.length === 0) {
+  if (isError) {
+    return (
+      <ErrorState
+        message={
+          isRateLimitError
+            ? RATE_LIMIT_ERROR_MESSAGE
+            : '데이터를 불러오는 중 오류가 발생했습니다.'
+        }
+        onRetry={handleRetry}
+        cooldown={isRateLimitError ? RATE_LIMIT_COOLDOWN_SECONDS : countdown}
+      />
+    );
+  }
+
+  if (topMovers.length === 0) {
     return (
       <ErrorContainer>
         <ErrorText>데이터를 불러올 수 없습니다</ErrorText>

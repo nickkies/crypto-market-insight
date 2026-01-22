@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from '@/styles/ThemeProvider';
+import { ThemeProvider } from '@/features/common/styles/ThemeProvider';
 import ResultSummary from './ResultSummary';
 import type { MetricsDto } from '../types';
 

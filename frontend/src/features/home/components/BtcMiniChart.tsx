@@ -3,15 +3,30 @@ import styled from 'styled-components';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { useOhlcv } from '@/features/market/hooks';
-import { MARKET_COLORS, getGlassTooltipStyle } from '@/styles/marketColors';
-import { useTheme } from '@/styles';
+import {
+  MARKET_COLORS,
+  getGlassTooltipStyle,
+} from '@/features/common/styles/marketColors';
+import { useTheme } from '@/features/common/styles';
 import { formatPrice, formatChartDate } from '@/utils';
-import { ChartSkeleton } from '@/features/common/components';
+import { ChartSkeleton, ErrorState } from '@/features/common/components';
+import {
+  RATE_LIMIT_COOLDOWN_SECONDS,
+  RATE_LIMIT_ERROR_MESSAGE,
+} from '@/features/common/constants';
 
-export function BtcMiniChart() {
-  const { data, isLoading, isError } = useOhlcv({ coinId: 'bitcoin' });
+interface Props {
+  onRetry?: () => void;
+}
+
+export default function BtcMiniChart({ onRetry }: Props) {
+  const { data, isLoading, isError, error, refetch, countdown } = useOhlcv({
+    coinId: 'bitcoin',
+  });
   const { isDark } = useTheme();
   const tooltipStyle = getGlassTooltipStyle(isDark);
+
+  const isRateLimitError = (error as { status?: number })?.status === 429;
 
   const chartData = useMemo(() => {
     if (!data?.data) return [];
@@ -97,7 +112,29 @@ export function BtcMiniChart() {
     return <ChartSkeleton />;
   }
 
-  if (isError || chartData.length === 0) {
+  const handleRetry = () => {
+    if (onRetry) {
+      onRetry();
+    } else {
+      refetch();
+    }
+  };
+
+  if (isError) {
+    return (
+      <ErrorState
+        message={
+          isRateLimitError
+            ? RATE_LIMIT_ERROR_MESSAGE
+            : '차트를 불러오는 중 오류가 발생했습니다.'
+        }
+        onRetry={handleRetry}
+        cooldown={isRateLimitError ? RATE_LIMIT_COOLDOWN_SECONDS : countdown}
+      />
+    );
+  }
+
+  if (chartData.length === 0) {
     return (
       <ErrorContainer>
         <ErrorText>차트를 불러올 수 없습니다</ErrorText>

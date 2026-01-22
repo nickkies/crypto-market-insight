@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider } from '@/styles/ThemeProvider';
-import { SearchInput } from './SearchInput';
+import { ThemeProvider } from '@/features/common/styles';
+import SearchInput from './SearchInput';
 
 const renderSearchInput = (props = {}) => {
   const defaultProps = {

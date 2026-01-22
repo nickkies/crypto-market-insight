@@ -136,6 +136,27 @@ describe('useOhlcv', () => {
     expect(result.current.countdown).toBe(60);
   });
 
+  it('429 에러에 retryAfterSeconds가 있으면 해당 값으로 카운트다운한다', async () => {
+    const rateLimitError = {
+      status: 429,
+      message: 'Rate limit exceeded',
+      retryAfterSeconds: 45,
+    };
+    vi.mocked(marketService.getOhlcv).mockRejectedValue(rateLimitError);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(
+      () => useOhlcv({ coinId: 'bitcoin', timeframe: '1d' }),
+      { wrapper: createWrapper(queryClient) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.countdown).toBe(45);
+  });
+
   it('카운트다운 중에는 retry가 동작하지 않는다', async () => {
     const rateLimitError = { status: 429, message: 'Rate limit exceeded' };
     vi.mocked(marketService.getOhlcv).mockRejectedValue(rateLimitError);

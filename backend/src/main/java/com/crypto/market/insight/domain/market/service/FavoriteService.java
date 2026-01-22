@@ -3,6 +3,7 @@ package com.crypto.market.insight.domain.market.service;
 import com.crypto.market.insight.common.exception.BusinessException;
 import com.crypto.market.insight.common.exception.ErrorCode;
 import com.crypto.market.insight.domain.market.dto.FavoriteDto;
+import com.crypto.market.insight.domain.market.mapper.FavoriteMapper;
 import com.crypto.market.insight.domain.market.model.entity.Favorite;
 import com.crypto.market.insight.domain.market.repository.FavoriteRepository;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
+    private final FavoriteMapper favoriteMapper;
 
     @Transactional
     public FavoriteDto.Response addFavorite(Long userId, FavoriteDto.Request request) {
@@ -25,13 +27,9 @@ public class FavoriteService {
             throw new BusinessException(ErrorCode.FAVORITE_ALREADY_EXISTS);
         }
 
-        Favorite favorite = Favorite.builder()
-                .userId(userId)
-                .coinId(request.getCoinId())
-                .build();
-
+        Favorite favorite = favoriteMapper.toEntity(userId, request.getCoinId());
         Favorite saved = favoriteRepository.save(favorite);
-        return FavoriteDto.Response.from(saved);
+        return favoriteMapper.toResponse(saved);
     }
 
     @Transactional
@@ -45,7 +43,7 @@ public class FavoriteService {
 
     public List<FavoriteDto.Response> getFavorites(Long userId) {
         return favoriteRepository.findByUserId(userId).stream()
-                .map(FavoriteDto.Response::from)
+                .map(favoriteMapper::toResponse)
                 .toList();
     }
 }
