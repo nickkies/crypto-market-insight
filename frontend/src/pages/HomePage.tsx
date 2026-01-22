@@ -16,6 +16,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xl};
+  max-width: 100%;
 `;
 
 const HeroSection = styled.section`

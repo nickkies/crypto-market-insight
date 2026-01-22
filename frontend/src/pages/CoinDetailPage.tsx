@@ -20,6 +20,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xl};
+  max-width: 100%;
 `;
 
 const BackButton = styled.button`
@@ -194,7 +195,15 @@ const Card = styled.div`
 `;
 
 const ChartCard = styled(Card)`
-  height: 700px;
+  height: 500px;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    height: 600px;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    height: 700px;
+  }
 `;
 
 function LoadingSkeleton() {

@@ -26,6 +26,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xl};
+  max-width: 100%;
 `;
 
 const PageHeader = styled.div`
@@ -49,6 +50,7 @@ const MainLayout = styled.div`
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: ${({ theme }) => theme.spacing.lg};
+  max-width: 100%;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
@@ -59,6 +61,8 @@ const ConfigPanel = styled.aside`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
+  max-width: 100%;
+  min-width: 0;
 `;
 
 const Card = styled.div`
@@ -66,6 +70,12 @@ const Card = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   border: 1px solid ${({ theme }) => theme.colors.border.primary};
   padding: ${({ theme }) => theme.spacing.lg};
+  max-width: 100%;
+  overflow-x: auto;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const CardTitle = styled.h3`
@@ -79,12 +89,15 @@ const ResultsSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
+  max-width: 100%;
+  min-width: 0;
 `;
 
 const ChartsGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: ${({ theme }) => theme.spacing.lg};
+  max-width: 100%;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
