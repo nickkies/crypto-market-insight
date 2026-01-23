@@ -15,3 +15,4 @@ export { default as ErrorState } from './ErrorState';
 export { default as EmptyState } from './EmptyState';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ConfirmModal } from './ConfirmModal';
+export { default as MobileDrawer } from './MobileDrawer';
