@@ -21,6 +21,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xl};
+  max-width: 100%;
 `;
 
 const PageHeader = styled.div`
@@ -91,6 +92,7 @@ const MainContent = styled.div`
 const ChartSection = styled.div`
   display: flex;
   flex-direction: column;
+  height: 100%;
 `;
 
 const ChartCard = styled.div`
@@ -99,8 +101,17 @@ const ChartCard = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border.primary};
   padding: ${({ theme }) => theme.spacing.lg};
   height: 100%;
+  min-height: 550px;
   display: flex;
   flex-direction: column;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-height: 600px;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    min-height: 700px;
+  }
 `;
 
 const Card = styled.div`

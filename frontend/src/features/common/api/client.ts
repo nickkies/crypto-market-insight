@@ -18,10 +18,15 @@ const createClient = () => {
         return Promise.reject(ApiError.networkError());
       }
 
-      const { status, data } = error.response;
+      const { status, data, headers } = error.response;
 
       if (data?.code && data?.message) {
-        const apiError = ApiError.fromResponse(status, data);
+        const retryAfterHeader = headers['retry-after'];
+        const retryAfterSeconds = retryAfterHeader
+          ? parseInt(retryAfterHeader, 10)
+          : undefined;
+
+        const apiError = ApiError.fromResponse(status, data, retryAfterSeconds);
 
         if (status === 422) {
           alert(data.message);

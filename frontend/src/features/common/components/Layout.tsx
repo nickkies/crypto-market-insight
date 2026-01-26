@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { useTheme } from '@/styles';
+import { useTheme } from '@/features/common/styles';
 import { useAuthStore, useUser } from '@/features/auth';
-import { ConfirmModal } from './ConfirmModal';
+import { NAV_ITEMS } from '@/features/common/constants';
+import ConfirmModal from './ConfirmModal';
+import MobileDrawer from './MobileDrawer';
 
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
 `;
 
 const Header = styled.header`
@@ -29,8 +33,7 @@ const HeaderInner = styled.div`
   justify-content: space-between;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => theme.spacing.sm}
-      ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.sm} 4vw;
   }
 `;
 
@@ -41,9 +44,15 @@ const Logo = styled(Link)`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary.main};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.fonts.size.md};
   }
 `;
 
@@ -51,9 +60,41 @@ const Nav = styled.nav`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.md};
+  flex-shrink: 1;
+  min-width: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    gap: ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.xs};
+  }
+`;
+
+const DesktopNav = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.md};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
+`;
+
+const HamburgerButton = styled.button`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  transition: all ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary.main};
+    background-color: ${({ theme }) => theme.colors.background.secondary};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: flex;
   }
 `;
 
@@ -98,6 +139,13 @@ const AuthSection = styled.div`
   margin-left: ${({ theme }) => theme.spacing.md};
   padding-left: ${({ theme }) => theme.spacing.md};
   border-left: 1px solid ${({ theme }) => theme.colors.border.primary};
+  flex-shrink: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    margin-left: ${({ theme }) => theme.spacing.sm};
+    padding-left: ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const LoginButton = styled.button`
@@ -132,6 +180,13 @@ const UserInfo = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     font-size: ${({ theme }) => theme.fonts.size.xs};
+    gap: ${({ theme }) => theme.spacing.xs};
+  }
+`;
+
+const UserName = styled.span`
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    display: none;
   }
 `;
 
@@ -163,8 +218,7 @@ const Main = styled.main`
   padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.lg};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => theme.spacing.lg}
-      ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.lg} 4vw;
   }
 `;
 
@@ -180,24 +234,23 @@ const FooterInner = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.colors.text.tertiary};
   font-size: ${({ theme }) => theme.fonts.size.sm};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.md} 4vw;
+  }
 `;
 
-export function Layout() {
+export default function Layout() {
   const location = useLocation();
   const { toggleTheme, isDark } = useTheme();
   const { isAuthenticated, user, logout, initializeAuth } = useAuthStore();
   const { data: userData } = useUser();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
-
-  const navItems = [
-    { path: '/', label: 'Home' },
-    { path: '/market', label: 'Market' },
-    { path: '/backtest', label: 'Backtest' },
-  ];
 
   const handleLogin = () => {
     sessionStorage.setItem('returnUrl', location.pathname);
@@ -219,17 +272,26 @@ export function Layout() {
     <Container>
       <Header>
         <HeaderInner>
+          <HamburgerButton
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="Open menu"
+            data-testid="hamburger-button"
+          >
+            <HamburgerIcon />
+          </HamburgerButton>
           <Logo to="/">Crypto Insight</Logo>
           <Nav>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                $active={location.pathname === item.path}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            <DesktopNav>
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  $active={location.pathname === item.path}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </DesktopNav>
             <ThemeToggle onClick={toggleTheme} aria-label="Toggle theme">
               {isDark ? '☀️' : '🌙'}
             </ThemeToggle>
@@ -243,7 +305,9 @@ export function Layout() {
                         alt={displayUser.nickname}
                       />
                     )}
-                    {displayUser?.nickname || displayUser?.email}
+                    <UserName>
+                      {displayUser?.nickname || displayUser?.email}
+                    </UserName>
                   </UserInfo>
                   <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
                 </>
@@ -274,6 +338,11 @@ export function Layout() {
         onConfirm={handleConfirmLogout}
         onCancel={() => setShowLogoutModal(false)}
       />
+      <MobileDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        navItems={NAV_ITEMS}
+      />
     </Container>
   );
 }
@@ -288,6 +357,25 @@ function GitHubIcon() {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
+function HamburgerIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   );
 }

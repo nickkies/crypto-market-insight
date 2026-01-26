@@ -1,5 +1,7 @@
+import { useCallback } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useGlobalStats } from '@/features/market/hooks';
 import {
   StatCard,
@@ -14,6 +16,7 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xl};
+  max-width: 100%;
 `;
 
 const HeroSection = styled.section`
@@ -138,7 +141,14 @@ function formatMarketCapShort(value: number): string {
 }
 
 export function HomePage() {
+  const queryClient = useQueryClient();
   const { data: globalStats, isLoading: isGlobalLoading } = useGlobalStats();
+
+  const handleRefetchAll = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['globalStats'] });
+    queryClient.invalidateQueries({ queryKey: ['topMovers'] });
+    queryClient.invalidateQueries({ queryKey: ['ohlcv', 'bitcoin'] });
+  }, [queryClient]);
 
   return (
     <PageContainer data-testid="home-page">
@@ -199,11 +209,11 @@ export function HomePage() {
         <ChartGrid>
           <ChartCard>
             <CardTitle>BTC/USDT</CardTitle>
-            <BtcMiniChart />
+            <BtcMiniChart onRetry={handleRefetchAll} />
           </ChartCard>
           <TopMoversCard>
             <CardTitle>Top Movers</CardTitle>
-            <TopMoversList fillHeight />
+            <TopMoversList fillHeight onRetry={handleRefetchAll} />
           </TopMoversCard>
         </ChartGrid>
       </Section>

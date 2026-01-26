@@ -7,7 +7,10 @@ interface FilterTabsProps {
   onTabChange: (tab: FilterTab) => void;
 }
 
-export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
+export default function FilterTabs({
+  activeTab,
+  onTabChange,
+}: FilterTabsProps) {
   return (
     <Container>
       <Tab

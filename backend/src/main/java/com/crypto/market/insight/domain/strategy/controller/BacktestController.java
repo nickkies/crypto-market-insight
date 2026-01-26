@@ -2,7 +2,7 @@ package com.crypto.market.insight.domain.strategy.controller;
 
 import com.crypto.market.insight.common.ratelimit.RateLimiter;
 import com.crypto.market.insight.domain.strategy.dto.BacktestDto;
-import com.crypto.market.insight.domain.strategy.service.BacktestService;
+import com.crypto.market.insight.domain.strategy.service.BacktestFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Backtest", description = "백테스트 API")
 public class BacktestController {
 
-    private final BacktestService backtestService;
+    private final BacktestFacadeService backtestFacadeService;
     private final RateLimiter rateLimiter;
 
     @Operation(
@@ -64,7 +64,7 @@ public class BacktestController {
         rateLimiter.checkLimit(key, authenticated);
 
         // 백테스트 실행
-        BacktestDto.Response response = backtestService.runBacktest(request, userId);
+        BacktestDto.Response response = backtestFacadeService.runBacktest(request, userId);
         return ResponseEntity.ok(response);
     }
 
@@ -77,7 +77,7 @@ public class BacktestController {
     public ResponseEntity<BacktestDto.Response> getBacktest(
             @Parameter(description = "백테스트 ID") @PathVariable Long id
     ) {
-        BacktestDto.Response response = backtestService.getBacktest(id);
+        BacktestDto.Response response = backtestFacadeService.getBacktest(id);
         return ResponseEntity.ok(response);
     }
 
@@ -90,7 +90,7 @@ public class BacktestController {
     public ResponseEntity<List<BacktestDto.Response>> getMyBacktests(
             @AuthenticationPrincipal Long userId
     ) {
-        List<BacktestDto.Response> responses = backtestService.getBacktestsByUserId(userId);
+        List<BacktestDto.Response> responses = backtestFacadeService.getBacktestsByUserId(userId);
         return ResponseEntity.ok(responses);
     }
 
@@ -106,7 +106,7 @@ public class BacktestController {
             @AuthenticationPrincipal Long userId,
             @Parameter(description = "백테스트 ID") @PathVariable Long id
     ) {
-        backtestService.deleteBacktest(userId, id);
+        backtestFacadeService.deleteBacktest(userId, id);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ThemeProvider } from '@/styles';
-import { ConfirmModal } from './ConfirmModal';
+import { ThemeProvider } from '@/features/common/styles';
+import ConfirmModal from './ConfirmModal';
 
 const renderWithTheme = (ui: React.ReactElement) => {
   return render(<ThemeProvider>{ui}</ThemeProvider>);

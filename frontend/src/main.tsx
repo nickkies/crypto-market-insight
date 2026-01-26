@@ -7,7 +7,7 @@ import { createGlobalStyle } from 'styled-components';
 import { queryClient, ErrorBoundary } from '@/features/common';
 import '@/index.css';
 import { router } from '@/routes';
-import { ThemeProvider } from '@/styles';
+import { ThemeProvider } from '@/features/common/styles';
 
 const GlobalStyles = createGlobalStyle`
   *,
@@ -33,6 +33,7 @@ const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.text.primary};
     background-color: ${({ theme }) => theme.colors.background.primary};
     min-height: 100vh;
+    overflow-x: hidden;
     transition: background-color ${({ theme }) => theme.transitions.normal},
                 color ${({ theme }) => theme.transitions.normal};
   }

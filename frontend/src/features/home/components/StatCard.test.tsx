@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ThemeProvider } from 'styled-components';
-import { StatCard } from './StatCard';
-import { lightTheme } from '@/styles';
+import StatCard from './StatCard';
+import { lightTheme } from '@/features/common/styles';
 
 const renderWithTheme = (ui: React.ReactElement) => {
   return render(<ThemeProvider theme={lightTheme}>{ui}</ThemeProvider>);

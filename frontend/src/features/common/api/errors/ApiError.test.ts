@@ -19,6 +19,24 @@ describe('ApiError', () => {
 
       expect(error.timestamp).toBe(timestamp);
     });
+
+    it('should store retryAfterSeconds when provided', () => {
+      const error = new ApiError(
+        429,
+        'RATE_LIMIT',
+        'Too many requests',
+        undefined,
+        45,
+      );
+
+      expect(error.retryAfterSeconds).toBe(45);
+    });
+
+    it('should have null retryAfterSeconds when not provided', () => {
+      const error = new ApiError(429, 'RATE_LIMIT', 'Too many requests');
+
+      expect(error.retryAfterSeconds).toBeNull();
+    });
   });
 
   describe('factory methods', () => {
@@ -58,6 +76,18 @@ describe('ApiError', () => {
       expect(error.code).toBe('INVALID_PARAMETER');
       expect(error.message).toBe('잘못된 파라미터입니다');
       expect(error.timestamp).toBe('2025-01-01T00:00:00');
+    });
+
+    it('fromResponse should include retryAfterSeconds when provided', () => {
+      const data = {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: '요청이 너무 많습니다',
+        timestamp: '2025-01-01T00:00:00',
+      };
+      const error = ApiError.fromResponse(429, data, 30);
+
+      expect(error.status).toBe(429);
+      expect(error.retryAfterSeconds).toBe(30);
     });
   });
 

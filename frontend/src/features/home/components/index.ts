@@ -1,4 +1,4 @@
-export { StatCard } from './StatCard';
-export { BtcMiniChart } from './BtcMiniChart';
-export { TopMoversList } from './TopMoversList';
-export { EcosystemPlaceholder } from './EcosystemPlaceholder';
+export { default as StatCard } from './StatCard';
+export { default as BtcMiniChart } from './BtcMiniChart';
+export { default as TopMoversList } from './TopMoversList';
+export { default as EcosystemPlaceholder } from './EcosystemPlaceholder';

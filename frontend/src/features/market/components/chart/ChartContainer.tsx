@@ -8,12 +8,65 @@ import { ChartSkeleton, ErrorState } from '@/features/common/components';
 import type { OhlcvDataDto } from '../../services';
 import type { IndicatorType } from '../../stores/useMarketStore';
 
-const Container = styled.div`
+// Desktop: 모든 차트 세로 배치
+const DesktopContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: flex;
+  }
+`;
+
+// Mobile/Tablet: 캐로셀 컨테이너
+const CarouselContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
+
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: none;
+  }
+`;
+
+const CarouselTabs = styled.div`
+  display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+`;
+
+const CarouselTab = styled.button<{ $active: boolean }>`
+  flex: 1;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-size: ${({ theme }) => theme.fonts.size.sm};
+  font-weight: ${({ theme }) => theme.fonts.weight.medium};
+  border: 1px solid
+    ${({ theme, $active }) =>
+      $active ? theme.colors.primary.main : theme.colors.border.primary};
+  background-color: ${({ theme, $active }) =>
+    $active ? theme.colors.primary.main : 'transparent'};
+  color: ${({ theme, $active }) =>
+    $active ? theme.colors.text.inverse : theme.colors.text.secondary};
+  transition: all ${({ theme }) => theme.transitions.fast};
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary.main};
+    color: ${({ theme, $active }) =>
+      $active ? theme.colors.text.inverse : theme.colors.primary.main};
+  }
+`;
+
+const CarouselSlide = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+  min-height: 0;
 `;
 
 const ChartBox = styled.div<{ $height: string }>`
@@ -51,6 +104,7 @@ export default function ChartContainer({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [, setDimensions] = useState({ width: 0, height: 0 });
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -100,34 +154,87 @@ export default function ChartContainer({
     );
   }
 
-  // 차트 높이 계산: 캔들 35%, 거래량 15%, RSI 25%, MACD 25%
   return (
-    <Container ref={containerRef}>
-      <ChartBox $height={hasVolume ? '35%' : '40%'}>
-        <ChartWrapper>
-          <CandlestickChart
-            data={data}
-            selectedIndicators={selectedIndicators}
-          />
-        </ChartWrapper>
-      </ChartBox>
-      {hasVolume && (
-        <ChartBox $height="15%">
+    <>
+      {/* Desktop: 모든 차트 세로 배치 */}
+      <DesktopContainer ref={containerRef}>
+        <ChartBox $height={hasVolume ? '35%' : '40%'}>
           <ChartWrapper>
-            <VolumeChart data={data} />
+            <CandlestickChart
+              data={data}
+              selectedIndicators={selectedIndicators}
+            />
           </ChartWrapper>
         </ChartBox>
-      )}
-      <ChartBox $height="25%">
-        <ChartWrapper>
-          <RsiPanel data={data} />
-        </ChartWrapper>
-      </ChartBox>
-      <ChartBox $height="25%">
-        <ChartWrapper>
-          <MacdPanel data={data} />
-        </ChartWrapper>
-      </ChartBox>
-    </Container>
+        {hasVolume && (
+          <ChartBox $height="15%">
+            <ChartWrapper>
+              <VolumeChart data={data} />
+            </ChartWrapper>
+          </ChartBox>
+        )}
+        <ChartBox $height="25%">
+          <ChartWrapper>
+            <RsiPanel data={data} />
+          </ChartWrapper>
+        </ChartBox>
+        <ChartBox $height="25%">
+          <ChartWrapper>
+            <MacdPanel data={data} />
+          </ChartWrapper>
+        </ChartBox>
+      </DesktopContainer>
+
+      {/* Mobile/Tablet: 캐로셀 */}
+      <CarouselContainer>
+        <CarouselTabs>
+          <CarouselTab
+            $active={activeSlide === 0}
+            onClick={() => setActiveSlide(0)}
+          >
+            Price
+          </CarouselTab>
+          <CarouselTab
+            $active={activeSlide === 1}
+            onClick={() => setActiveSlide(1)}
+          >
+            Indicators
+          </CarouselTab>
+        </CarouselTabs>
+
+        {activeSlide === 0 ? (
+          <CarouselSlide>
+            <ChartBox $height={hasVolume ? '70%' : '100%'}>
+              <ChartWrapper>
+                <CandlestickChart
+                  data={data}
+                  selectedIndicators={selectedIndicators}
+                />
+              </ChartWrapper>
+            </ChartBox>
+            {hasVolume && (
+              <ChartBox $height="30%">
+                <ChartWrapper>
+                  <VolumeChart data={data} />
+                </ChartWrapper>
+              </ChartBox>
+            )}
+          </CarouselSlide>
+        ) : (
+          <CarouselSlide>
+            <ChartBox $height="50%">
+              <ChartWrapper>
+                <RsiPanel data={data} />
+              </ChartWrapper>
+            </ChartBox>
+            <ChartBox $height="50%">
+              <ChartWrapper>
+                <MacdPanel data={data} />
+              </ChartWrapper>
+            </ChartBox>
+          </CarouselSlide>
+        )}
+      </CarouselContainer>
+    </>
   );
 }

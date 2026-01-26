@@ -7,7 +7,7 @@ interface Props {
   change?: number | null;
 }
 
-export function StatCard({ icon, label, value, change }: Props) {
+export default function StatCard({ icon, label, value, change }: Props) {
   const isPositive = change != null && change >= 0;
 
   return (

@@ -18,6 +18,20 @@
 | Backend API | [crypto-market-insight.onrender.com](https://crypto-market-insight.onrender.com) |
 | API Docs    | [Swagger UI](https://crypto-market-insight.onrender.com/swagger-ui/index.html)   |
 
+## PWA Install
+
+앱스토어 없이 홈 화면에 설치할 수 있습니다.
+
+### Mobile (Chrome/Safari)
+
+1. [crypto-market-insight.vercel.app](https://crypto-market-insight.vercel.app) 접속
+2. 브라우저 메뉴 → "홈 화면에 추가" 선택
+
+### Desktop (Chrome/Edge)
+
+1. 사이트 접속
+2. 주소창 오른쪽 설치 아이콘 클릭
+
 ---
 
 ## 프로젝트 소개

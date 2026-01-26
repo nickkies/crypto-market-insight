@@ -166,6 +166,26 @@ describe('useCoinDetail', () => {
     expect(result.current.countdown).toBe(60);
   });
 
+  it('429 에러에 retryAfterSeconds가 있으면 해당 값으로 카운트다운한다', async () => {
+    const rateLimitError = {
+      status: 429,
+      message: 'Rate limit exceeded',
+      retryAfterSeconds: 30,
+    };
+    vi.mocked(marketService.getCoinDetail).mockRejectedValue(rateLimitError);
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(() => useCoinDetail('bitcoin'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.countdown).toBe(30);
+  });
+
   it('일반 에러 시 retry가 동작한다', async () => {
     vi.mocked(marketService.getCoinDetail)
       .mockRejectedValueOnce(new Error('Error'))
