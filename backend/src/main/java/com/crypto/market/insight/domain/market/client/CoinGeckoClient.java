@@ -33,27 +33,42 @@ public class CoinGeckoClient {
      *
      * @param vsCurrency 기준 통화 (예: "usd", "krw")
      * @param ids        코인 ID 목록 (예: "bitcoin,ethereum")
+     * @param category   카테고리 ID (예: "layer-1", "meme-token")
      * @param perPage    페이지당 개수 (최대 250)
      * @param page       페이지 번호
      * @return 코인 마켓 데이터 목록
      */
-    @Cacheable(value = CacheConfig.COIN_MARKETS, key = "#vsCurrency + ':' + #ids + ':' + #perPage + ':' + #page")
-    public List<CoinMarketData> getCoinsMarkets(String vsCurrency, String ids, int perPage, int page) {
-        log.info("Cache MISS - fetching coinMarkets: vsCurrency={}, ids={}", vsCurrency, ids);
+    @Cacheable(value = CacheConfig.COIN_MARKETS, key = "#vsCurrency + ':' + #ids + ':' + #category + ':' + #perPage + ':' + #page")
+    public List<CoinMarketData> getCoinsMarkets(String vsCurrency, String ids, String category, int perPage, int page) {
+        log.info("Cache MISS - fetching coinMarkets: vsCurrency={}, ids={}, category={}", vsCurrency, ids, category);
         return execute(() -> {
             CoinMarketData[] response = coinGeckoRestClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(COINS_MARKETS_PATH)
-                            .queryParam("vs_currency", vsCurrency)
-                            .queryParam("ids", ids)
-                            .queryParam("per_page", perPage)
-                            .queryParam("page", page)
-                            .build())
+                    .uri(uriBuilder -> {
+                        uriBuilder
+                                .path(COINS_MARKETS_PATH)
+                                .queryParam("vs_currency", vsCurrency)
+                                .queryParam("per_page", perPage)
+                                .queryParam("page", page);
+                        if (ids != null && !ids.isBlank()) {
+                            uriBuilder.queryParam("ids", ids);
+                        }
+                        if (category != null && !category.isBlank()) {
+                            uriBuilder.queryParam("category", category);
+                        }
+                        return uriBuilder.build();
+                    })
                     .retrieve()
                     .body(CoinMarketData[].class);
 
             return response != null ? List.of(response) : List.of();
         });
+    }
+
+    /**
+     * 코인 마켓 데이터 조회 (category 없이)
+     */
+    public List<CoinMarketData> getCoinsMarkets(String vsCurrency, String ids, int perPage, int page) {
+        return getCoinsMarkets(vsCurrency, ids, null, perPage, page);
     }
 
     /**
