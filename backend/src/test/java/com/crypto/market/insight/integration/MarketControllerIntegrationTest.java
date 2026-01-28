@@ -125,18 +125,27 @@ class MarketControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("키워드로 필터링 성공")
-        void filterByKeyword() throws Exception {
+        @DisplayName("카테고리로 필터링 성공")
+        void filterByCategory() throws Exception {
             // given
             stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/markets"))
+                    .withQueryParam("category", equalTo("layer-1"))
                     .willReturn(okJson(coinsMarketsJson(BITCOIN_MARKET_JSON, ETHEREUM_MARKET_JSON))));
 
+            // when & then - FE sends enum name, BE converts to CoinGecko category id
+            mockMvc.perform(get("/api/market/coins")
+                            .param("category", "LAYER_1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.coins.length()").value(2));
+        }
+
+        @Test
+        @DisplayName("잘못된 카테고리면 400 에러")
+        void invalidCategory_returns400() throws Exception {
             // when & then
             mockMvc.perform(get("/api/market/coins")
-                            .param("keyword", "btc"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.coins.length()").value(1))
-                    .andExpect(jsonPath("$.coins[0].symbol").value("btc"));
+                            .param("category", "invalid-category"))
+                    .andExpect(status().isBadRequest());
         }
     }
 
