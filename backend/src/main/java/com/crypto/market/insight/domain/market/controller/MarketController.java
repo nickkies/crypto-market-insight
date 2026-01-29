@@ -47,7 +47,7 @@ public class MarketController {
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @Parameter(description = "페이지당 개수 (1-250)", example = "10")
             @RequestParam(defaultValue = "10") @Min(1) @Max(250) int size,
-            @Parameter(description = "카테고리 ID (layer-1, decentralized-finance-defi, meme-token, gaming, artificial-intelligence)", example = "layer-1")
+            @Parameter(description = "카테고리 ID", example = "LAYER_1")
             @RequestParam(required = false) Category category
     ) {
         List<CoinMarketData> coins = marketService.getCoins(page, size, category);

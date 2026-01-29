@@ -132,7 +132,7 @@ class MarketControllerIntegrationTest {
                     .withQueryParam("category", equalTo("layer-1"))
                     .willReturn(okJson(coinsMarketsJson(BITCOIN_MARKET_JSON, ETHEREUM_MARKET_JSON))));
 
-            // when & then - FE sends enum name, BE converts to CoinGecko category id
+            // when & then
             mockMvc.perform(get("/api/market/coins")
                             .param("category", "LAYER_1"))
                     .andExpect(status().isOk())
