@@ -8,3 +8,5 @@ export {
   IndicatorSelector,
 } from './chart';
 export { TechnicalIndicatorsCard, SignalSummaryCard } from './indicators';
+export { CategoryFilterBar, CATEGORY_TO_API } from './filter';
+export type { Category, ApiCategory } from './filter';
