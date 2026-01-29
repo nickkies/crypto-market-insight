@@ -100,6 +100,7 @@ interface GetCoinsParams {
   page?: number;
   size?: number;
   keyword?: string;
+  category?: string;
 }
 
 export const marketService = {
@@ -107,12 +108,16 @@ export const marketService = {
     page = 1,
     size = 10,
     keyword,
+    category,
   }: GetCoinsParams = {}): Promise<CoinListResponseDto> => {
     const params = new URLSearchParams();
     params.append('page', String(page));
     params.append('size', String(size));
     if (keyword) {
       params.append('keyword', keyword);
+    }
+    if (category) {
+      params.append('category', category);
     }
 
     const { data } = await client.get<CoinListResponseDto>(
