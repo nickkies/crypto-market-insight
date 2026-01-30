@@ -5,6 +5,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/features/common/styles';
 import { router } from './index';
 
+// ECharts 모킹 - 라우트 테스트에서 차트 렌더링 시간 단축
+vi.mock('echarts-for-react', () => ({
+  default: () => <div data-testid="mock-echarts" />,
+}));
+
 const createTestQueryClient = () =>
   new QueryClient({
     defaultOptions: {
