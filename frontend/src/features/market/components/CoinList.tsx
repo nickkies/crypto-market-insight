@@ -15,9 +15,10 @@ import CoinCard from './CoinCard';
 interface Props {
   keyword?: string;
   filter?: FilterTab;
+  category?: string;
 }
 
-export default function CoinList({ keyword, filter = 'all' }: Props) {
+export default function CoinList({ keyword, filter = 'all', category }: Props) {
   const {
     data,
     fetchNextPage,
@@ -27,7 +28,7 @@ export default function CoinList({ keyword, filter = 'all' }: Props) {
     isError,
     error,
     refetch,
-  } = useCoinsInfinite({ keyword });
+  } = useCoinsInfinite({ keyword, category });
   const { favorites } = useFavoritesStore();
 
   const { ref, isIntersecting } = useIntersectionObserver({

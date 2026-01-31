@@ -8,6 +8,7 @@ import com.crypto.market.insight.domain.market.dto.MarketDto.CoinSummary;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvDataDto;
 import com.crypto.market.insight.domain.market.dto.MarketDto.OhlcvResponse;
 import com.crypto.market.insight.domain.market.dto.OhlcvData;
+import com.crypto.market.insight.domain.market.model.vo.Category;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import com.crypto.market.insight.domain.market.service.IndicatorService;
 import com.crypto.market.insight.domain.market.service.MarketService;
@@ -38,7 +39,7 @@ public class MarketController {
 
     @Operation(
             summary = "코인 목록 조회",
-            description = "암호화폐 시장 데이터 목록을 페이지네이션으로 조회합니다."
+            description = "암호화폐 시장 데이터 목록을 페이지네이션으로 조회합니다. 카테고리별 필터링 가능."
     )
     @GetMapping("/coins")
     public ResponseEntity<CoinListResponse> getCoins(
@@ -46,10 +47,10 @@ public class MarketController {
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @Parameter(description = "페이지당 개수 (1-250)", example = "10")
             @RequestParam(defaultValue = "10") @Min(1) @Max(250) int size,
-            @Parameter(description = "검색 키워드 (symbol, name)", example = "btc")
-            @RequestParam(required = false) String keyword
+            @Parameter(description = "카테고리 ID", example = "LAYER_1")
+            @RequestParam(required = false) Category category
     ) {
-        List<CoinMarketData> coins = marketService.getCoins(page, size, keyword);
+        List<CoinMarketData> coins = marketService.getCoins(page, size, category);
         List<CoinSummary> coinSummaries = coins.stream()
                 .map(CoinSummary::from)
                 .toList();

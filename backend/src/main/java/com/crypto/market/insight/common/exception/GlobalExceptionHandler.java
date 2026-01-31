@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @RestControllerAdvice
@@ -71,6 +72,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.of(ErrorCode.INVALID_PARAMETER, message));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.warn("TypeMismatchException: {}", e.getMessage());
+        String message = e.getName() + ": invalid value '" + e.getValue() + "'";
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.of(ErrorCode.INVALID_PARAMETER, message));
     }
 

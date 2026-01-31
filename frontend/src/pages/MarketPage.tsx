@@ -11,11 +11,14 @@ import {
   IndicatorSelector,
   TechnicalIndicatorsCard,
   SignalSummaryCard,
+  CategoryFilterBar,
+  CATEGORY_TO_API,
   useOhlcv,
   useIndicators,
   useMarketStore,
   useCoinDetail,
 } from '@/features/market';
+import type { Category } from '@/features/market';
 
 const PageContainer = styled.div`
   display: flex;
@@ -39,44 +42,6 @@ const PageTitle = styled.h1`
 const PageDescription = styled.p`
   font-size: ${({ theme }) => theme.fonts.size.md};
   color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const FilterBar = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.md};
-  flex-wrap: wrap;
-  align-items: center;
-`;
-
-const FilterGroup = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-
-const FilterButton = styled.button<{ $active?: boolean }>`
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-size: ${({ theme }) => theme.fonts.size.sm};
-  font-weight: ${({ theme }) => theme.fonts.weight.medium};
-  color: ${({ theme, $active }) =>
-    $active ? theme.colors.text.inverse : theme.colors.text.secondary};
-  background-color: ${({ theme, $active }) =>
-    $active ? theme.colors.primary.main : theme.colors.background.secondary};
-  border: 1px solid
-    ${({ theme, $active }) =>
-      $active ? theme.colors.primary.main : theme.colors.border.primary};
-  transition: all ${({ theme }) => theme.transitions.fast};
-
-  &:hover:not(:disabled) {
-    border-color: ${({ theme }) => theme.colors.primary.main};
-    color: ${({ theme, $active }) =>
-      $active ? theme.colors.text.inverse : theme.colors.primary.main};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 `;
 
 const MainContent = styled.div`
@@ -193,6 +158,7 @@ const SectionControls = styled.div`
 export function MarketPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   const { timeframe, setTimeframe, selectedCoinId, selectedIndicators } =
@@ -235,21 +201,6 @@ export function MarketPage() {
           실시간 시세, 기술적 지표, 생태계별 분석을 확인하세요.
         </PageDescription>
       </PageHeader>
-
-      <FilterBar>
-        <FilterGroup>
-          <FilterButton $active>All</FilterButton>
-          <FilterButton disabled title="준비중">
-            BTC
-          </FilterButton>
-          <FilterButton disabled title="준비중">
-            ETH
-          </FilterButton>
-          <FilterButton disabled title="준비중">
-            SOL
-          </FilterButton>
-        </FilterGroup>
-      </FilterBar>
 
       <MainContent>
         <ChartSection>
@@ -316,7 +267,15 @@ export function MarketPage() {
             />
           </SectionControls>
         </SectionHeader>
-        <CoinList keyword={debouncedSearch} filter={activeFilter} />
+        <CategoryFilterBar
+          selected={selectedCategory}
+          onChange={setSelectedCategory}
+        />
+        <CoinList
+          keyword={debouncedSearch}
+          filter={activeFilter}
+          category={CATEGORY_TO_API[selectedCategory]}
+        />
       </Section>
     </PageContainer>
   );

@@ -66,8 +66,8 @@ class CoinGeckoClientCacheTest {
                         """)));
 
         // when
-        List<CoinMarketData> first = coinGeckoClient.getCoinsMarkets("usd", "bitcoin", 100, 1);
-        List<CoinMarketData> second = coinGeckoClient.getCoinsMarkets("usd", "bitcoin", 100, 1);
+        List<CoinMarketData> first = coinGeckoClient.getCoinsMarkets("usd", "bitcoin", null, 100, 1);
+        List<CoinMarketData> second = coinGeckoClient.getCoinsMarkets("usd", "bitcoin", null, 100, 1);
 
         // then
         assertThat(first).hasSize(1);
@@ -85,8 +85,8 @@ class CoinGeckoClientCacheTest {
                         """)));
 
         // when
-        coinGeckoClient.getCoinsMarkets("usd", "bitcoin", 100, 1);
-        coinGeckoClient.getCoinsMarkets("krw", "bitcoin", 100, 1);
+        coinGeckoClient.getCoinsMarkets("usd", "bitcoin", null, 100, 1);
+        coinGeckoClient.getCoinsMarkets("krw", "bitcoin", null, 100, 1);
 
         // then
         verify(2, getRequestedFor(urlPathEqualTo("/coins/markets")));

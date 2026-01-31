@@ -14,6 +14,7 @@ import com.crypto.market.insight.domain.market.client.CoinGeckoClient;
 import com.crypto.market.insight.domain.market.dto.CoinMarketData;
 import com.crypto.market.insight.domain.market.dto.MarketChartData;
 import com.crypto.market.insight.domain.market.dto.OhlcvData;
+import com.crypto.market.insight.domain.market.model.vo.Category;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import com.crypto.market.insight.domain.market.service.MarketService;
 import java.util.List;
@@ -44,7 +45,7 @@ class MarketServiceTest {
         @DisplayName("코인 목록을 조회한다")
         void returnsCoins() {
             // given
-            when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
+            when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), isNull(), anyInt(), anyInt()))
                     .thenReturn(defaultCoins());
 
             // when
@@ -56,44 +57,14 @@ class MarketServiceTest {
         }
 
         @Test
-        @DisplayName("symbol 키워드로 필터링한다")
-        void filtersbySymbol() {
+        @DisplayName("카테고리로 필터링한다")
+        void filtersByCategory() {
             // given
-            when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
+            when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), eq("layer-1"), anyInt(), anyInt()))
                     .thenReturn(defaultCoins());
 
             // when
-            List<CoinMarketData> result = marketService.getCoins(1, 10, "btc");
-
-            // then
-            assertThat(result).hasSize(1);
-            assertThat(result.getFirst().symbol()).isEqualTo("btc");
-        }
-
-        @Test
-        @DisplayName("name 키워드로 필터링한다")
-        void filtersByName() {
-            // given
-            when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
-                    .thenReturn(defaultCoins());
-
-            // when
-            List<CoinMarketData> result = marketService.getCoins(1, 10, "ether");
-
-            // then
-            assertThat(result).hasSize(1);
-            assertThat(result.getFirst().name()).isEqualTo("Ethereum");
-        }
-
-        @Test
-        @DisplayName("키워드가 빈 문자열이면 전체 목록을 반환한다")
-        void returnsAllWhenKeywordIsBlank() {
-            // given
-            when(coinGeckoClient.getCoinsMarkets(eq("usd"), isNull(), anyInt(), anyInt()))
-                    .thenReturn(defaultCoins());
-
-            // when
-            List<CoinMarketData> result = marketService.getCoins(1, 10, "   ");
+            List<CoinMarketData> result = marketService.getCoins(1, 10, Category.LAYER_1);
 
             // then
             assertThat(result).hasSize(2);

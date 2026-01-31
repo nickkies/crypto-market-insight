@@ -9,6 +9,7 @@ import com.crypto.market.insight.domain.market.dto.GlobalStatsDto.GlobalStatsRes
 import com.crypto.market.insight.domain.market.dto.MarketChartData;
 import com.crypto.market.insight.domain.market.dto.OhlcData;
 import com.crypto.market.insight.domain.market.dto.OhlcvData;
+import com.crypto.market.insight.domain.market.model.vo.Category;
 import com.crypto.market.insight.domain.market.model.vo.Timeframe;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -30,18 +31,9 @@ public class MarketService {
 
     private final CoinGeckoClient coinGeckoClient;
 
-    public List<CoinMarketData> getCoins(int page, int size, String keyword) {
-        List<CoinMarketData> coins = coinGeckoClient.getCoinsMarkets(DEFAULT_VS_CURRENCY, null, size, page);
-
-        if (keyword == null || keyword.isBlank()) {
-            return coins;
-        }
-
-        String lowerKeyword = keyword.toLowerCase();
-        return coins.stream()
-                .filter(coin -> coin.symbol().toLowerCase().contains(lowerKeyword)
-                        || coin.name().toLowerCase().contains(lowerKeyword))
-                .toList();
+    public List<CoinMarketData> getCoins(int page, int size, Category category) {
+        String categoryId = category != null ? category.getId() : null;
+        return coinGeckoClient.getCoinsMarkets(DEFAULT_VS_CURRENCY, null, categoryId, size, page);
     }
 
     public CoinMarketData getCoinDetail(String coinId) {
