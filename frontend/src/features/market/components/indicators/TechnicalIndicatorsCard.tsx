@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { TextSkeleton } from '@/features/common/components';
+import { TextSkeleton, ErrorState } from '@/features/common/components';
 import type {
   IndicatorResponseDto,
   RsiStatus,
@@ -11,15 +11,32 @@ interface Props {
   data: IndicatorResponseDto | undefined;
   isLoading: boolean;
   isError?: boolean;
+  onRetry?: () => void;
+  cooldown?: number;
 }
 
 export default function TechnicalIndicatorsCard({
   data,
   isLoading,
   isError,
+  onRetry,
+  cooldown = 0,
 }: Props) {
-  // 로딩 중이거나 에러 시 스켈레톤 표시
-  const showSkeleton = isLoading || isError;
+  // 에러 시 ErrorState 표시
+  if (isError) {
+    return (
+      <Card data-testid="technical-indicators-card">
+        <CardTitle>Technical Indicators</CardTitle>
+        <ErrorState
+          message="기술적 지표를 불러오는 중 오류가 발생했습니다."
+          onRetry={onRetry}
+          cooldown={cooldown}
+        />
+      </Card>
+    );
+  }
+
+  const showSkeleton = isLoading;
 
   return (
     <Card data-testid="technical-indicators-card">

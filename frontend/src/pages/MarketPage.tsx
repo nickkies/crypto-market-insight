@@ -179,19 +179,38 @@ export function MarketPage() {
     data: indicatorData,
     isLoading: isIndicatorLoading,
     isError: isIndicatorError,
-    refetch: refetchIndicators,
+    countdown: indicatorCountdown,
+    retry: retryIndicators,
   } = useIndicators({
     coinId: chartCoinId,
   });
 
-  const { data: coinDetail, retry: retryCoinDetail } =
-    useCoinDetail(chartCoinId);
+  const {
+    data: coinDetail,
+    isError: isCoinDetailError,
+    countdown: coinDetailCountdown,
+    retry: retryCoinDetail,
+  } = useCoinDetail(chartCoinId);
 
-  const handleRetryAll = () => {
-    retryChart();
-    refetchIndicators();
-    retryCoinDetail();
+  // 에러인 쿼리들만 일괄 refetch
+  const retryErroredQueries = () => {
+    if (isChartError) {
+      retryChart();
+    }
+    if (isIndicatorError) {
+      retryIndicators();
+    }
+    if (isCoinDetailError) {
+      retryCoinDetail();
+    }
   };
+
+  // 가장 긴 countdown 값 사용 (모든 에러 쿼리가 동시에 재시도 가능하도록)
+  const maxCountdown = Math.max(
+    chartCountdown,
+    indicatorCountdown,
+    coinDetailCountdown,
+  );
 
   return (
     <PageContainer data-testid="market-page">
@@ -217,8 +236,8 @@ export function MarketPage() {
               isLoading={isChartLoading}
               isError={isChartError}
               errorStatus={chartErrorStatus}
-              cooldown={chartCountdown}
-              onRetry={handleRetryAll}
+              cooldown={maxCountdown}
+              onRetry={retryErroredQueries}
               selectedIndicators={selectedIndicators}
             />
           </ChartCard>
@@ -230,6 +249,8 @@ export function MarketPage() {
               data={indicatorData}
               isLoading={isIndicatorLoading}
               isError={isIndicatorError}
+              onRetry={retryErroredQueries}
+              cooldown={maxCountdown}
             />
 
             <SignalSummaryCard
@@ -237,6 +258,8 @@ export function MarketPage() {
               isLoading={isIndicatorLoading}
               isError={isIndicatorError}
               currentPrice={coinDetail?.currentPrice}
+              onRetry={retryErroredQueries}
+              cooldown={maxCountdown}
             />
 
             <Card>
