@@ -198,7 +198,10 @@ describe('useCoinsInfinite', () => {
 
     const cache = queryClient.getQueryCache();
     const queries = cache.getAll();
-    expect(queries[0].queryKey).toEqual(['coins', { keyword: 'eth' }]);
+    expect(queries[0].queryKey).toEqual([
+      'coins',
+      { keyword: 'eth', category: undefined, retryTrigger: 0 },
+    ]);
   });
 
   it('keyword가 변경되면 새로운 쿼리가 실행된다', async () => {

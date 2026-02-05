@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { TableRowsSkeleton } from '@/features/common/components';
+import { TableRowsSkeleton, ErrorState } from '@/features/common/components';
 import type { IndicatorResponseDto } from '../../services';
 
 interface Props {
@@ -7,6 +7,8 @@ interface Props {
   isLoading: boolean;
   currentPrice?: number;
   isError?: boolean;
+  onRetry?: () => void;
+  cooldown?: number;
 }
 
 type SignalType = 'BUY' | 'SELL' | 'NEUTRAL';
@@ -23,8 +25,23 @@ export default function SignalSummaryCard({
   isLoading,
   currentPrice,
   isError,
+  onRetry,
+  cooldown = 0,
 }: Props) {
-  if (isLoading || isError) {
+  if (isError) {
+    return (
+      <Card>
+        <CardTitle>Signal Summary</CardTitle>
+        <ErrorState
+          message="시그널 요약을 불러오는 중 오류가 발생했습니다."
+          onRetry={onRetry}
+          cooldown={cooldown}
+        />
+      </Card>
+    );
+  }
+
+  if (isLoading) {
     return (
       <Card>
         <CardTitle>Signal Summary</CardTitle>
