@@ -11,6 +11,9 @@ import static com.crypto.market.insight.support.fixture.MarketFixture.OHLC_SINGL
 import static com.crypto.market.insight.support.fixture.MarketFixture.coinsMarketsJson;
 import static com.crypto.market.insight.support.fixture.MarketFixture.indicatorMarketChartJson;
 import static com.crypto.market.insight.support.fixture.MarketFixture.indicatorOhlcJson;
+import static com.crypto.market.insight.support.fixture.MarketFixture.rateLimitErrorJson;
+import static com.crypto.market.insight.support.fixture.MarketFixture.serverErrorJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -372,6 +375,62 @@ class MarketControllerIntegrationTest {
             // WireMock은 한 번만 호출되어야 함 (캐시로 인해)
             com.github.tomakehurst.wiremock.client.WireMock.verify(1,
                     com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor(urlPathEqualTo("/global")));
+        }
+    }
+
+    @Nested
+    @DisplayName("Error 케이스")
+    class ErrorCases {
+
+        @Test
+        @DisplayName("CoinGecko Rate Limit 에러 시 429 반환")
+        void rateLimitError_returns429() throws Exception {
+            // given
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/markets"))
+                    .willReturn(aResponse()
+                            .withStatus(429)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(rateLimitErrorJson())));
+
+            // when & then
+            mockMvc.perform(get("/api/market/coins")
+                            .param("page", "1")
+                            .param("size", "10"))
+                    .andExpect(status().isTooManyRequests());
+        }
+
+        @Test
+        @DisplayName("CoinGecko 서버 에러 시 502 반환")
+        void serverError_returns502() throws Exception {
+            // given
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/markets"))
+                    .willReturn(aResponse()
+                            .withStatus(500)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(serverErrorJson())));
+
+            // when & then
+            mockMvc.perform(get("/api/market/coins")
+                            .param("page", "1")
+                            .param("size", "10"))
+                    .andExpect(status().isBadGateway());
+        }
+
+        @Test
+        @DisplayName("CoinGecko 타임아웃 시 504 반환")
+        void timeout_returns504() throws Exception {
+            // given - read-timeout이 10초이므로 11초 지연
+            stubFor(com.github.tomakehurst.wiremock.client.WireMock.get(urlPathEqualTo("/coins/markets"))
+                    .willReturn(aResponse()
+                            .withFixedDelay(11000)  // 11초 지연 (read-timeout 10초 초과)
+                            .withStatus(200)
+                            .withBody("[]")));
+
+            // when & then
+            mockMvc.perform(get("/api/market/coins")
+                            .param("page", "1")
+                            .param("size", "10"))
+                    .andExpect(status().isGatewayTimeout());
         }
     }
 }
