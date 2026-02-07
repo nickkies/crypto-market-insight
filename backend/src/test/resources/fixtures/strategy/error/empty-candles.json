@@ -1,0 +1,9 @@
+{
+  "description": "캔들이 없을 때",
+  "invariant": "캔들이 없으면 빈 결과 반환",
+  "candles": [],
+  "indicators": [],
+  "expected": {
+    "trade_count": 0
+  }
+}

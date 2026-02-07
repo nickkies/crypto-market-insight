@@ -1,0 +1,6 @@
+{
+  "description": "RSI가 정확히 oversold 경계값(30)일 때",
+  "invariant": "RSI <= oversold(30) 이면 BUY 시그널",
+  "input": {"rsi": 30},
+  "expected": {"signal": "BUY"}
+}

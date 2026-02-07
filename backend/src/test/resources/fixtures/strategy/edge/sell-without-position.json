@@ -1,0 +1,14 @@
+{
+  "description": "포지션 없이 SELL 시그널 수신",
+  "invariant": "포지션이 없으면 SELL 시그널 무시",
+  "indicators": [75, 75, 50, 50],
+  "candles": [
+    {"timestamp": 1709395200000, "open": 100.0, "high": 100.0, "low": 100.0, "close": 100.0, "volume": 1000},
+    {"timestamp": 1709481600000, "open": 101.0, "high": 101.0, "low": 101.0, "close": 101.0, "volume": 1000},
+    {"timestamp": 1709568000000, "open": 102.0, "high": 102.0, "low": 102.0, "close": 102.0, "volume": 1000},
+    {"timestamp": 1709654400000, "open": 103.0, "high": 103.0, "low": 103.0, "close": 103.0, "volume": 1000}
+  ],
+  "expected": {
+    "trade_count": 0
+  }
+}
