@@ -1,0 +1,15 @@
+{
+  "description": "BUY → 진입 → SELL → 청산 시나리오",
+  "invariant": "BUY 시그널 후 진입하고, SELL 시그널 후 청산하면 1개의 완료된 거래 생성",
+  "indicators": [25, 50, 75, 50, 50],
+  "candles": [
+    {"timestamp": 1709395200000, "open": 100.0, "high": 100.0, "low": 100.0, "close": 100.0, "volume": 1000},
+    {"timestamp": 1709481600000, "open": 101.0, "high": 101.0, "low": 101.0, "close": 101.0, "volume": 1000},
+    {"timestamp": 1709568000000, "open": 102.0, "high": 102.0, "low": 102.0, "close": 102.0, "volume": 1000},
+    {"timestamp": 1709654400000, "open": 103.0, "high": 103.0, "low": 103.0, "close": 103.0, "volume": 1000},
+    {"timestamp": 1709740800000, "open": 104.0, "high": 104.0, "low": 104.0, "close": 104.0, "volume": 1000}
+  ],
+  "expected": {
+    "trade_count": 1
+  }
+}

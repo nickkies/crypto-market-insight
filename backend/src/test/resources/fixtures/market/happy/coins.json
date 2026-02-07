@@ -1,0 +1,36 @@
+[
+  {
+    "id": "bitcoin",
+    "symbol": "btc",
+    "name": "Bitcoin",
+    "image": "https://example.com/btc.png",
+    "current_price": 97500.25,
+    "market_cap": 1930000000000,
+    "market_cap_rank": 1,
+    "total_volume": 50000000000,
+    "high_24h": 98000,
+    "low_24h": 96000,
+    "price_change_24h": 1500,
+    "price_change_percentage_24h": 1.56,
+    "circulating_supply": 19000000,
+    "total_supply": 21000000,
+    "last_updated": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "ethereum",
+    "symbol": "eth",
+    "name": "Ethereum",
+    "image": "https://example.com/eth.png",
+    "current_price": 3400.50,
+    "market_cap": 410000000000,
+    "market_cap_rank": 2,
+    "total_volume": 20000000000,
+    "high_24h": 3500,
+    "low_24h": 3300,
+    "price_change_24h": -50,
+    "price_change_percentage_24h": -1.2,
+    "circulating_supply": 120000000,
+    "total_supply": null,
+    "last_updated": "2024-01-01T00:00:00.000Z"
+  }
+]

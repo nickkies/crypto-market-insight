@@ -1,0 +1,6 @@
+{
+  "description": "RSI가 null일 때",
+  "invariant": "RSI가 null이면 HOLD 시그널",
+  "input": {"rsi": null},
+  "expected": {"signal": "HOLD"}
+}

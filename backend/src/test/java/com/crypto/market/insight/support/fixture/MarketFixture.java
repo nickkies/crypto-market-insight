@@ -9,11 +9,60 @@ import java.util.List;
 
 public final class MarketFixture {
 
+    private static final String FIXTURES_BASE = "/fixtures/market";
+
     private MarketFixture() {
     }
 
-    // === JSON Responses for WireMock ===
+    // === JSON Responses for WireMock (classpath 기반) ===
 
+    public static String bitcoinJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/happy/bitcoin.json");
+    }
+
+    public static String ethereumJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/happy/ethereum.json");
+    }
+
+    public static String coinsJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/happy/coins.json");
+    }
+
+    public static String coinsMarketsJson(String... coins) {
+        return "[" + String.join(",", coins) + "]";
+    }
+
+    public static String ohlcJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/happy/ohlc.json");
+    }
+
+    public static String marketChartJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/happy/market-chart.json");
+    }
+
+    public static String globalStatsJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/happy/global-stats.json");
+    }
+
+    public static String emptyCoinsJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/edge/empty-coins.json");
+    }
+
+    public static String emptyMarketChartJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/edge/empty-market-chart.json");
+    }
+
+    public static String rateLimitErrorJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/error/rate-limit.json");
+    }
+
+    public static String serverErrorJson() {
+        return FixtureLoader.loadRawFromClasspath(FIXTURES_BASE + "/error/server-error.json");
+    }
+
+    // === 하위 호환 상수 (deprecated, JSON 파일 사용 권장) ===
+
+    @Deprecated
     public static final String BITCOIN_MARKET_JSON = """
             {
                 "id": "bitcoin",
@@ -34,6 +83,7 @@ public final class MarketFixture {
             }
             """;
 
+    @Deprecated
     public static final String ETHEREUM_MARKET_JSON = """
             {
                 "id": "ethereum",
@@ -54,10 +104,7 @@ public final class MarketFixture {
             }
             """;
 
-    public static String coinsMarketsJson(String... coins) {
-        return "[" + String.join(",", coins) + "]";
-    }
-
+    @Deprecated
     public static final String OHLC_DATA_JSON = """
             [
                 [1709395200000, 61942, 62211, 61721, 61845],
@@ -66,8 +113,10 @@ public final class MarketFixture {
             ]
             """;
 
+    @Deprecated
     public static final String OHLC_SINGLE_JSON = "[[1709395200000, 61942, 62211, 61721, 61845]]";
 
+    @Deprecated
     public static final String MARKET_CHART_JSON = """
             {
                 "prices": [[1709395200000, 61845], [1709409600000, 62139], [1709424000000, 62068]],
@@ -76,6 +125,7 @@ public final class MarketFixture {
             }
             """;
 
+    @Deprecated
     public static final String MARKET_CHART_EMPTY_JSON = """
             {
                 "prices": [],
@@ -84,8 +134,10 @@ public final class MarketFixture {
             }
             """;
 
+    @Deprecated
     public static final String EMPTY_ARRAY_JSON = "[]";
 
+    @Deprecated
     public static final String GLOBAL_STATS_JSON = """
             {
                 "data": {
@@ -108,43 +160,11 @@ public final class MarketFixture {
     // === Object Fixtures ===
 
     public static CoinMarketData bitcoin() {
-        return new CoinMarketData(
-                "bitcoin",
-                "btc",
-                "Bitcoin",
-                "https://example.com/btc.png",
-                new BigDecimal("97500.25"),
-                new BigDecimal("1930000000000"),
-                1,
-                new BigDecimal("50000000000"),
-                new BigDecimal("98000"),
-                new BigDecimal("96000"),
-                new BigDecimal("1500"),
-                new BigDecimal("1.56"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                "2024-01-01T00:00:00.000Z"
-        );
+        return FixtureLoader.loadFromClasspath(FIXTURES_BASE + "/happy/bitcoin.json", CoinMarketData.class);
     }
 
     public static CoinMarketData ethereum() {
-        return new CoinMarketData(
-                "ethereum",
-                "eth",
-                "Ethereum",
-                "https://example.com/eth.png",
-                new BigDecimal("3400.50"),
-                new BigDecimal("410000000000"),
-                2,
-                new BigDecimal("20000000000"),
-                new BigDecimal("3500"),
-                new BigDecimal("3300"),
-                new BigDecimal("-50"),
-                new BigDecimal("-1.2"),
-                new BigDecimal("120000000"),
-                null,
-                "2024-01-01T00:00:00.000Z"
-        );
+        return FixtureLoader.loadFromClasspath(FIXTURES_BASE + "/happy/ethereum.json", CoinMarketData.class);
     }
 
     public static CoinMarketData coin(String id, String symbol, String name) {
@@ -168,7 +188,7 @@ public final class MarketFixture {
     }
 
     public static List<CoinMarketData> defaultCoins() {
-        return List.of(bitcoin(), ethereum());
+        return FixtureLoader.loadListFromClasspath(FIXTURES_BASE + "/happy/coins.json", CoinMarketData.class);
     }
 
     public static OhlcData ohlc(long timestamp, String open, String high, String low, String close) {
