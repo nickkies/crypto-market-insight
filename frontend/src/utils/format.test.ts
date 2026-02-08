@@ -8,46 +8,60 @@ import {
 } from './format';
 
 describe('formatPrice', () => {
-  it('1 이상은 소수점 2자리로 포맷팅한다', () => {
-    expect(formatPrice(97500.123)).toBe('97,500.12');
-    expect(formatPrice(1.5)).toBe('1.50');
-    expect(formatPrice(1000)).toBe('1,000.00');
-  });
+  const priceCases = [
+    // Happy: 1 이상 (소수점 2자리)
+    { input: 97500.123, expected: '97,500.12', name: 'large number' },
+    { input: 1.5, expected: '1.50', name: 'small positive' },
+    { input: 1000, expected: '1,000.00', name: 'round thousand' },
 
-  it('0.01 이상 1 미만은 소수점 4자리로 포맷팅한다', () => {
-    expect(formatPrice(0.5432)).toBe('0.5432');
-    expect(formatPrice(0.01)).toBe('0.0100');
-  });
+    // Happy: 0.01 이상 1 미만 (소수점 4자리)
+    { input: 0.5432, expected: '0.5432', name: 'sub-dollar' },
+    { input: 0.01, expected: '0.0100', name: 'one cent' },
 
-  it('0.01 미만은 소수점 6자리로 포맷팅한다', () => {
-    expect(formatPrice(0.00123456)).toBe('0.001235');
-    expect(formatPrice(0.000001)).toBe('0.000001');
-  });
+    // Happy: 0.01 미만 (소수점 6자리)
+    { input: 0.00123456, expected: '0.001235', name: 'micro price' },
+    { input: 0.000001, expected: '0.000001', name: 'minimal price' },
 
-  it('null 또는 undefined는 - 를 반환한다', () => {
-    expect(formatPrice(null)).toBe('-');
-    expect(formatPrice(undefined)).toBe('-');
+    // Edge: 경계값 (0 < 0.01이므로 6자리)
+    { input: 0, expected: '0.000000', name: 'zero (6 decimals)' },
+    { input: 0.009999, expected: '0.009999', name: 'below 0.01 boundary' },
+    { input: 0.999999, expected: '1.0000', name: 'rounds to 1' },
+    { input: 1, expected: '1.00', name: 'exactly 1' },
+
+    // Edge: null/undefined
+    { input: null, expected: '-', name: 'null' },
+    { input: undefined, expected: '-', name: 'undefined' },
+  ];
+
+  it.each(priceCases)('$name: $input → $expected', ({ input, expected }) => {
+    expect(formatPrice(input)).toBe(expected);
   });
 });
 
 describe('formatPercent', () => {
-  it('양수는 + 부호를 붙인다', () => {
-    expect(formatPercent(2.5)).toBe('+2.50%');
-    expect(formatPercent(0)).toBe('+0.00%');
-  });
+  const percentCases = [
+    // Happy: 양수
+    { input: 2.5, expected: '+2.50%', name: 'positive' },
+    { input: 1.234, expected: '+1.23%', name: 'positive rounded' },
 
-  it('음수는 - 부호를 붙인다', () => {
-    expect(formatPercent(-3.14)).toBe('-3.14%');
-  });
+    // Happy: 음수
+    { input: -3.14, expected: '-3.14%', name: 'negative' },
+    { input: -5.678, expected: '-5.68%', name: 'negative rounded' },
 
-  it('소수점 2자리로 포맷팅한다', () => {
-    expect(formatPercent(1.234)).toBe('+1.23%');
-    expect(formatPercent(-5.678)).toBe('-5.68%');
-  });
+    // Edge: 경계값
+    { input: 0, expected: '+0.00%', name: 'zero' },
+    { input: 0.001, expected: '+0.00%', name: 'tiny positive' },
+    { input: -0.001, expected: '-0.00%', name: 'tiny negative' },
+    { input: 100, expected: '+100.00%', name: 'hundred percent' },
+    { input: -100, expected: '-100.00%', name: 'negative hundred' },
 
-  it('null 또는 undefined는 - 를 반환한다', () => {
-    expect(formatPercent(null)).toBe('-');
-    expect(formatPercent(undefined)).toBe('-');
+    // Edge: null/undefined
+    { input: null, expected: '-', name: 'null' },
+    { input: undefined, expected: '-', name: 'undefined' },
+  ];
+
+  it.each(percentCases)('$name: $input → $expected', ({ input, expected }) => {
+    expect(formatPercent(input)).toBe(expected);
   });
 });
 

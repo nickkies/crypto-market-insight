@@ -1,0 +1,21 @@
+{
+  "id": null,
+  "coinId": "bitcoin",
+  "strategyType": "RSI",
+  "rsiParameters": {
+    "period": 14,
+    "oversold": 30,
+    "overbought": 70
+  },
+  "timeframe": "1d",
+  "startDate": "2024-01-01",
+  "endDate": "2024-03-31",
+  "metrics": {
+    "cumulativeReturn": 0,
+    "mdd": 0,
+    "winRate": 0,
+    "tradeCount": 0
+  },
+  "trades": [],
+  "createdAt": "2024-04-01T00:00:00Z"
+}

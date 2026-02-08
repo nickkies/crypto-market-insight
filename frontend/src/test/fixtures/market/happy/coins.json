@@ -1,0 +1,56 @@
+{
+  "coins": [
+    {
+      "id": "bitcoin",
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "image": "https://example.com/btc.png",
+      "currentPrice": 97500.25,
+      "marketCap": 1930000000000,
+      "marketCapRank": 1,
+      "priceChangePercentage24h": 1.56
+    },
+    {
+      "id": "ethereum",
+      "symbol": "eth",
+      "name": "Ethereum",
+      "image": "https://example.com/eth.png",
+      "currentPrice": 3400.5,
+      "marketCap": 410000000000,
+      "marketCapRank": 2,
+      "priceChangePercentage24h": -1.2
+    },
+    {
+      "id": "tether",
+      "symbol": "usdt",
+      "name": "Tether",
+      "image": "https://example.com/usdt.png",
+      "currentPrice": 1.0,
+      "marketCap": 95000000000,
+      "marketCapRank": 3,
+      "priceChangePercentage24h": 0.01
+    },
+    {
+      "id": "solana",
+      "symbol": "sol",
+      "name": "Solana",
+      "image": "https://example.com/sol.png",
+      "currentPrice": 180.0,
+      "marketCap": 85000000000,
+      "marketCapRank": 4,
+      "priceChangePercentage24h": 5.2
+    },
+    {
+      "id": "ripple",
+      "symbol": "xrp",
+      "name": "XRP",
+      "image": "https://example.com/xrp.png",
+      "currentPrice": 2.3,
+      "marketCap": 130000000000,
+      "marketCapRank": 5,
+      "priceChangePercentage24h": 3.1
+    }
+  ],
+  "page": 1,
+  "size": 10
+}
