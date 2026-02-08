@@ -1,0 +1,56 @@
+{
+  "coins": [
+    {
+      "id": "hedera",
+      "symbol": "hbar",
+      "name": "Hedera",
+      "image": "https://coin-images.coingecko.com/coins/images/3688/large/hedera.png",
+      "currentPrice": 0.32,
+      "marketCap": 11500000000,
+      "marketCapRank": 21,
+      "priceChangePercentage24h": 4.5
+    },
+    {
+      "id": "near",
+      "symbol": "near",
+      "name": "NEAR Protocol",
+      "image": "https://coin-images.coingecko.com/coins/images/10365/large/near.png",
+      "currentPrice": 5.8,
+      "marketCap": 6800000000,
+      "marketCapRank": 22,
+      "priceChangePercentage24h": 2.1
+    },
+    {
+      "id": "aptos",
+      "symbol": "apt",
+      "name": "Aptos",
+      "image": "https://coin-images.coingecko.com/coins/images/26455/large/aptos.png",
+      "currentPrice": 12.0,
+      "marketCap": 5500000000,
+      "marketCapRank": 23,
+      "priceChangePercentage24h": -0.5
+    },
+    {
+      "id": "arbitrum",
+      "symbol": "arb",
+      "name": "Arbitrum",
+      "image": "https://coin-images.coingecko.com/coins/images/16547/large/arbitrum.png",
+      "currentPrice": 1.2,
+      "marketCap": 4800000000,
+      "marketCapRank": 24,
+      "priceChangePercentage24h": 1.8
+    },
+    {
+      "id": "optimism",
+      "symbol": "op",
+      "name": "Optimism",
+      "image": "https://coin-images.coingecko.com/coins/images/25244/large/optimism.png",
+      "currentPrice": 2.5,
+      "marketCap": 3200000000,
+      "marketCapRank": 25,
+      "priceChangePercentage24h": 3.2
+    }
+  ],
+  "page": 2,
+  "size": 20
+}

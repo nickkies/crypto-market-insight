@@ -1,0 +1,62 @@
+{
+  "id": 1,
+  "coinId": "bitcoin",
+  "strategyType": "RSI",
+  "rsiParameters": {
+    "period": 14,
+    "oversold": 30,
+    "overbought": 70
+  },
+  "timeframe": "1d",
+  "startDate": "2024-01-01",
+  "endDate": "2024-03-31",
+  "metrics": {
+    "cumulativeReturn": 15.5,
+    "mdd": -8.2,
+    "winRate": 60.0,
+    "tradeCount": 5
+  },
+  "trades": [
+    {
+      "entryTime": "2024-01-15T10:00:00Z",
+      "exitTime": "2024-01-20T14:00:00Z",
+      "entryPrice": 42000,
+      "exitPrice": 44100,
+      "profit": 2100,
+      "profitPercent": 5.0
+    },
+    {
+      "entryTime": "2024-02-01T09:00:00Z",
+      "exitTime": "2024-02-10T16:00:00Z",
+      "entryPrice": 43500,
+      "exitPrice": 42195,
+      "profit": -1305,
+      "profitPercent": -3.0
+    },
+    {
+      "entryTime": "2024-02-20T11:00:00Z",
+      "exitTime": "2024-02-28T13:00:00Z",
+      "entryPrice": 51000,
+      "exitPrice": 54570,
+      "profit": 3570,
+      "profitPercent": 7.0
+    },
+    {
+      "entryTime": "2024-03-05T10:00:00Z",
+      "exitTime": "2024-03-15T15:00:00Z",
+      "entryPrice": 62000,
+      "exitPrice": 64480,
+      "profit": 2480,
+      "profitPercent": 4.0
+    },
+    {
+      "entryTime": "2024-03-20T08:00:00Z",
+      "exitTime": "2024-03-30T12:00:00Z",
+      "entryPrice": 65000,
+      "exitPrice": 66300,
+      "profit": 1300,
+      "profitPercent": 2.0
+    }
+  ],
+  "createdAt": "2024-04-01T00:00:00Z"
+}

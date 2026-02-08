@@ -1,0 +1,30 @@
+{
+  "coinId": "bitcoin",
+  "timeframe": "1d",
+  "data": [
+    {
+      "timestamp": 1709395200000,
+      "open": 61942,
+      "high": 62211,
+      "low": 61721,
+      "close": 61845,
+      "volume": 25000000000
+    },
+    {
+      "timestamp": 1709481600000,
+      "open": 61845,
+      "high": 63500,
+      "low": 61500,
+      "close": 63200,
+      "volume": 28000000000
+    },
+    {
+      "timestamp": 1709568000000,
+      "open": 63200,
+      "high": 64100,
+      "low": 62800,
+      "close": 63950,
+      "volume": 30000000000
+    }
+  ]
+}

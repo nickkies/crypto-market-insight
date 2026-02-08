@@ -1,0 +1,22 @@
+{
+  "coinId": "bitcoin",
+  "rsi": {
+    "value": 55.5,
+    "status": "NEUTRAL"
+  },
+  "macd": {
+    "macd": 150.25,
+    "signal": 120.5,
+    "histogram": 29.75,
+    "status": "BULLISH"
+  },
+  "ma": {
+    "ma20": 62500,
+    "ma50": 58000
+  },
+  "bollingerBands": {
+    "upper": 65000,
+    "middle": 62500,
+    "lower": 60000
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "bitcoin",
+  "symbol": "btc",
+  "name": "Bitcoin",
+  "image": "https://example.com/btc.png",
+  "currentPrice": 97500.25,
+  "marketCap": 1930000000000,
+  "marketCapRank": 1,
+  "totalVolume": 50000000000,
+  "high24h": 98000,
+  "low24h": 96000,
+  "priceChange24h": 1500,
+  "priceChangePercentage24h": 1.56,
+  "circulatingSupply": 19000000,
+  "totalSupply": 21000000,
+  "lastUpdated": "2024-01-01T00:00:00.000Z"
+}
