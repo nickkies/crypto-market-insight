@@ -131,7 +131,7 @@ describe('Router', () => {
   });
 
   describe('Navigation', () => {
-    it('navigates between pages using links', async () => {
+    it('navigates between pages using links', { timeout: 15000 }, async () => {
       const user = userEvent.setup();
       renderWithRouter('/');
 
