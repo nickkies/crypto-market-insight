@@ -13,5 +13,6 @@ export {
   type MaIndicatorDto,
   type BollingerBandsIndicatorDto,
   type IndicatorResponseDto,
+  type GlobalStatsDto,
 } from './marketService';
 export { favoriteService, type FavoriteResponse } from './favoriteService';
