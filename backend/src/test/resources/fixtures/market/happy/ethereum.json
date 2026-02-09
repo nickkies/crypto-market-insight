@@ -1,0 +1,17 @@
+{
+  "id": "ethereum",
+  "symbol": "eth",
+  "name": "Ethereum",
+  "image": "https://example.com/eth.png",
+  "current_price": 3400.50,
+  "market_cap": 410000000000,
+  "market_cap_rank": 2,
+  "total_volume": 20000000000,
+  "high_24h": 3500,
+  "low_24h": 3300,
+  "price_change_24h": -50,
+  "price_change_percentage_24h": -1.2,
+  "circulating_supply": 120000000,
+  "total_supply": null,
+  "last_updated": "2024-01-01T00:00:00.000Z"
+}

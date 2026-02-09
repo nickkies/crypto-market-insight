@@ -1,0 +1,11 @@
+{
+  "description": "캔들이 1개만 있을 때",
+  "invariant": "캔들이 부족하면 빈 결과 반환",
+  "candles": [
+    {"timestamp": 1709395200000, "open": 100.0, "high": 100.0, "low": 100.0, "close": 100.0, "volume": 1000}
+  ],
+  "indicators": [50],
+  "expected": {
+    "trade_count": 0
+  }
+}

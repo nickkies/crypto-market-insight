@@ -1,0 +1,17 @@
+{
+  "id": "unknown-coin",
+  "symbol": "???",
+  "name": "Unknown Coin",
+  "image": null,
+  "currentPrice": null,
+  "marketCap": null,
+  "marketCapRank": null,
+  "totalVolume": null,
+  "high24h": null,
+  "low24h": null,
+  "priceChange24h": null,
+  "priceChangePercentage24h": null,
+  "circulatingSupply": null,
+  "totalSupply": null,
+  "lastUpdated": null
+}

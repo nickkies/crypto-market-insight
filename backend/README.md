@@ -88,7 +88,7 @@ com.crypto.market.insight
 ## 6. 전략 백테스트 처리 흐름
 
 > 본 프로젝트의 백테스트 로직 및 체결/성과 지표 정의는  
-> [BACKTEST_SPEC.md](../BACKTEST_SPEC.md)에 별도로 정리되어 있습니다.
+> [Backtest Spec](../docs/backtest-spec.md)에 별도로 정리되어 있습니다.
 
 - 사용자가 전략 및 파라미터 선택
 - 지정된 기간의 시세 데이터 조회
@@ -121,11 +121,11 @@ com.crypto.market.insight
 
 Caffeine 캐시 기반 Sliding Window 방식으로 Rate Limit을 적용합니다.
 
-| 사용자 유형 | 제한     | 윈도우 |
-| ----------- | -------- | ------ |
-| 익명 (IP)   | 5 req    | 1 min  |
-| 인증 사용자 | 10 req   | 1 min  |
-| 전체 시스템 | 100 req  | 1 min  |
+| 사용자 유형 | 제한    | 윈도우 |
+| ----------- | ------- | ------ |
+| 익명 (IP)   | 5 req   | 1 min  |
+| 인증 사용자 | 10 req  | 1 min  |
+| 전체 시스템 | 100 req | 1 min  |
 
 **Rate Limit 초과 시:**
 
