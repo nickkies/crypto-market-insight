@@ -105,13 +105,13 @@ Top Movers(급등/급락 코인) 및 시장 개요 대시보드
 
 ### Backend
 
-| Category | Technologies                   |
-| -------- | ------------------------------ |
-| Core     | Spring Boot 3, Java 21         |
-| Security | Spring Security, OAuth2, JWT   |
-| Data     | JPA, QueryDSL, PostgreSQL      |
-| Cache    | Caffeine                       |
-| Test     | JUnit 5, Spring Boot Test      |
+| Category | Technologies                 |
+| -------- | ---------------------------- |
+| Core     | Spring Boot 3, Java 21       |
+| Security | Spring Security, OAuth2, JWT |
+| Data     | JPA, QueryDSL, PostgreSQL    |
+| Cache    | Caffeine                     |
+| Test     | JUnit 5, Spring Boot Test    |
 
 ### Infrastructure
 
@@ -125,15 +125,33 @@ Top Movers(급등/급락 코인) 및 시장 개요 대시보드
 
 ---
 
+## Testing Philosophy
+
+> We treat test data as specification, not implementation detail.\
+> Fixtures define the rules, code adapts to them.
+
+본 프로젝트는 **Data-First Testing** 철학을 채택합니다.
+
+- 테스트 케이스는 코드가 아닌 **데이터(fixture)** 중심으로 구성
+- 정상(happy) / 경계(edge) / 오류(error) 케이스를 데이터로 정규화
+- 구현은 불변조건(invariant)을 만족하도록 진화
+- 도메인 규칙을 검증하며, UI 구조에 의존하지 않음
+- fixture 기반 BE/FE 병렬 개발 구조
+
+📄 상세 철학: [Data-First Testing Manifesto](docs/data-first-testing.md)
+
+---
+
 ## Documentation
 
 상세 문서는 각 디렉토리 README를 참고하세요.
 
-| 문서                                  | 설명                            |
-| ------------------------------------- | ------------------------------- |
-| [Frontend README](frontend/README.md) | 프론트엔드 구조 및 설계         |
-| [Backend README](backend/README.md)   | 백엔드 구조 및 API 설계         |
-| [BACKTEST_SPEC.md](BACKTEST_SPEC.md)  | 백테스트 규칙 및 성과 지표 정의 |
+| 문서                                             | 설명                            |
+| ------------------------------------------------ | ------------------------------- |
+| [Frontend README](frontend/README.md)            | 프론트엔드 구조 및 설계         |
+| [Backend README](backend/README.md)              | 백엔드 구조 및 API 설계         |
+| [Backtest Spec](docs/backtest-spec.md)           | 백테스트 규칙 및 성과 지표 정의 |
+| [Data-First Testing](docs/data-first-testing.md) | 테스트 철학 및 방법론           |
 
 ---
 
@@ -185,7 +203,6 @@ crypto-market-insight/
 ├── frontend/               # React SPA
 ├── backend/                # Spring Boot API
 ├── docs/                   # Documentation & screenshots
-├── BACKTEST_SPEC.md        # 백테스트 스펙 문서
 ├── docker-compose.yml      # Database only
 ├── docker-compose.dev.yml  # Full stack (dev)
 └── docker-compose.prod.yml # Full stack (prod)
