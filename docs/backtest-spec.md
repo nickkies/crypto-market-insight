@@ -47,12 +47,12 @@
 
 ### 3.2 지원 전략 타입
 
-| 전략 | 설명 | 주요 파라미터 |
-|------|------|---------------|
-| `RSI` | 과매수/과매도 기반 역추세 전략 | period, oversold, overbought |
-| `MACD` | 이동평균 수렴/발산 기반 추세 전환 전략 | fastPeriod, slowPeriod, signalPeriod |
-| `BOLLINGER_BANDS` | 변동성 기반 평균 회귀 전략 | period, stdDev |
-| `MOVING_AVERAGE` | 이동평균 크로스오버 추세 추종 전략 | shortPeriod, longPeriod |
+| 전략              | 설명                                   | 주요 파라미터                        |
+| ----------------- | -------------------------------------- | ------------------------------------ |
+| `RSI`             | 과매수/과매도 기반 역추세 전략         | period, oversold, overbought         |
+| `MACD`            | 이동평균 수렴/발산 기반 추세 전환 전략 | fastPeriod, slowPeriod, signalPeriod |
+| `BOLLINGER_BANDS` | 변동성 기반 평균 회귀 전략             | period, stdDev                       |
+| `MOVING_AVERAGE`  | 이동평균 크로스오버 추세 추종 전략     | shortPeriod, longPeriod              |
 
 ### 3.3 전략 표현 방식
 
